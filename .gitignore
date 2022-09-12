@@ -1,3 +1,9 @@
+# emacs generated files
+*~
+
+# build directory
+build/
+
 # Prerequisites
 *.d
 
