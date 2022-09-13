@@ -92,25 +92,48 @@ public:
 	mad_tpsa_print(this->t_tpsa, name_, eps_, nohdr_, stream_);
     }
 
+    inline tpsa& operator+=(const tpsa& o){ mad_tpsa_add(this->t_tpsa, o.getPtr(), this->t_tpsa); return *this;}
+    // (a_i-b_i)/max(|a_i|,1)
+    inline tpsa& operator-=(const tpsa& o){ mad_tpsa_sub(this->t_tpsa, o.getPtr(), this->t_tpsa); return *this;}
+    inline tpsa& operator*=(const tpsa& o){ mad_tpsa_mul(this->t_tpsa, o.getPtr(), this->t_tpsa); return *this;}
+    inline tpsa& operator/=(const tpsa& o){ mad_tpsa_div(this->t_tpsa, o.getPtr(), this->t_tpsa); return *this;}
+
 private:
     tpsa_t * t_tpsa;
 }; // class tpsa
 
+    inline void add(const tpsa& a, const tpsa& b, tpsa *r){ mad_tpsa_add (a.getPtr(), b.getPtr(), r->getPtr()); }
+    inline void sub(const tpsa& a, const tpsa& b, tpsa *r){ mad_tpsa_sub (a.getPtr(), b.getPtr(), r->getPtr()); }
+    inline void mul(const tpsa& a, const tpsa& b, tpsa *r){ mad_tpsa_mul (a.getPtr(), b.getPtr(), r->getPtr()); }
+    inline void div(const tpsa& a, const tpsa& b, tpsa *r){ mad_tpsa_div (a.getPtr(), b.getPtr(), r->getPtr()); }
+
+    inline void pow(const tpsa& a, const tpsa& b, tpsa *r){ mad_tpsa_pow (a.getPtr(), b.getPtr(), r->getPtr()); }
+    inline void pow(const tpsa& a,         int n, tpsa *r){ mad_tpsa_powi(a.getPtr(), n,          r->getPtr()); }
+    inline void pow(const tpsa& a,       num_t v, tpsa *r){ mad_tpsa_pown(a.getPtr(), v,          r->getPtr()); }
+
     inline auto ordn(std::vector<tpsa *> objs) {
 	std::vector<const tpsa_t *> tv(objs.size());
-    auto toPtr = [](tpsa * obj){ return obj->getPtr();};
-    std::transform(objs.begin(), objs.end(), tv.begin(), toPtr);
-    return mad_tpsa_ordn(tv.size(), tv.data());
-}
+	auto toPtr = [](tpsa * obj){ return obj->getPtr();};
+	std::transform(objs.begin(), objs.end(), tv.begin(), toPtr);
+	return mad_tpsa_ordn(tv.size(), tv.data());
+    }
 
 
     // test the interface ...
     void inline asin_(const tpsa& t1, tpsa *t2){ mad_tpsa_asin(t1.getPtr(), t2->getPtr()); }
     tpsa inline asin(const tpsa& t) {
 	tpsa ret = std::move(t);
-	 mad_tpsa_asin(t.getPtr(), ret.getPtr());
+	mad_tpsa_asin(t.getPtr(), ret.getPtr());
 	return ret;
     }
+
+    void inline sin_(const tpsa& t1, tpsa *t2){ mad_tpsa_asin(t1.getPtr(), t2->getPtr()); }
+    tpsa inline sin(const tpsa& t) {
+	tpsa ret = std::move(t);
+	 mad_tpsa_sin(t.getPtr(), ret.getPtr());
+	return ret;
+    }
+
 }; // namespace gtsa
 // --- end --------------------------------------------------------------------o
 

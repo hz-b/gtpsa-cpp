@@ -8,13 +8,23 @@ extern "C" {
 #include <vector>
 #include <string>
 #include <ostream>
+#include <sstream>
 
 namespace gtpsa {
 class desc{
 public:
     inline desc(int nv, ord_t no_)                                { this->t_desc = mad_desc_newv(nv, no_);            }
     inline desc(int nv, ord_t np, ord_t no, ord_t po_)            { this->t_desc = mad_desc_newvp(nv, np, no, po_);   }
-    inline desc(int nv, ord_t np, ord_t no[], ord_t po_)          { this->t_desc = mad_desc_newvpo(nv, np, no, po_);  }
+    inline desc(int nv, ord_t np, ord_t no[/*nv+np?*/], ord_t po_){ this->t_desc = mad_desc_newvpo(nv, np, no, po_);  }
+    inline desc(int nv, ord_t np, std::vector<ord_t> no, ord_t po_){
+	auto req_elem = nv+np;
+	if(no.size() <= req_elem){
+	    std::stringstream strm;
+	    strm << "nv= "<<nv<<"+ np="<<np <<"="<<req_elem<<"req. elem, got only "<<no.size()<<"elem";
+	    std::runtime_error(strm.str());
+	}
+	this->t_desc = mad_desc_newvpo(nv, np, no.data(), po_);
+    }
     inline desc(const desc_t* a_desc)                             { this->t_desc = a_desc;                            }
     inline desc(const desc&& o) : t_desc(std::move(o.t_desc))     {}
     inline desc(const desc& o) = delete;
