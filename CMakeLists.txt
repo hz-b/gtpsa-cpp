@@ -28,4 +28,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_subdirectory(c)
 # add_subdirectory(c++)
+# Required info in the directories below
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c++)
 add_subdirectory(examples)
+add_subdirectory(tests)

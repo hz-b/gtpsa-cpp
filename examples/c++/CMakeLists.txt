@@ -1,5 +1,4 @@
 # current hack .. until the library is properly defined
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../c++)
 
 add_executable(gtpsa_ex0 gtpsa_ex0.cc)
 add_executable(gtpsa_ex1 gtpsa_ex1.cc)
