@@ -4,7 +4,7 @@
 extern "C" {
     typedef bool _Bool;
 #include <mad_desc.h>
-};
+}
 
 
 #include <vector>
@@ -37,7 +37,7 @@ namespace gtpsa {
 	inline desc(int nv, ord_t np, ord_t no[/*nv+np?*/], ord_t po_){ this->dm = std::make_unique<desc_mgr>(mad_desc_newvpo(nv, np, no, po_)); }
 	inline desc(int nv, ord_t np, std::vector<ord_t> no, ord_t po_){
 	auto req_elem = nv+np;
-	if(no.size() <= req_elem){
+	if(int(no.size()) <= req_elem){
 	    std::stringstream strm;
 	    strm << "nv= "<<nv<<"+ np="<<np <<"="<<req_elem<<"req. elem, got only "<<no.size()<<"elem";
 	    std::runtime_error(strm.str());
@@ -63,7 +63,7 @@ namespace gtpsa {
 
     inline void info(FILE * fp = nullptr)                   const { mad_desc_info(this->getPtr(), fp);                    }
     /* consider removing methods that don't use containers */
-    inline log_t isvalid   (const std::string s, ssz_t n=0) const { return mad_desc_isvalids  (this->getPtr(), n, s.c_str() );      }
+	inline log_t isvalid   (const std::string s, ssz_t n=0) const { return mad_desc_isvalids  (this->getPtr(), (n == 0) ? s.size() : n, s.c_str() );      }
     inline log_t isvalid   (const std::vector<ord_t> m)     const { return mad_desc_isvalidm  (this->getPtr(), m.size(), m.data()); }
     inline log_t isvalid   (const std::vector<idx_t> m)     const { return mad_desc_isvalidsm (this->getPtr(), m.size(), m.data()); }
 #if 0
@@ -72,9 +72,13 @@ namespace gtpsa {
     inline log_t isvalid   (ssz_t n, const idx_t *m )	    const { return mad_desc_isvalidsm (this->getPtr(), n, m );  }
 #endif
 
-    inline idx_t idx       (const std::string s, ssz_t n=0) const { return mad_desc_idxs      (this->getPtr(), n, s.c_str() );}
+	inline idx_t idx       (const std::string s, ssz_t n=0) const { return mad_desc_idxs      (this->getPtr(), (n == 0) ? s.size() : n, s.c_str() );}
     inline log_t idx       (const std::vector<ord_t> m)     const { return mad_desc_idxm      (this->getPtr(), m.size(), m.data()); }
-    inline log_t idx       (const std::vector<idx_t> m)     const { return mad_desc_idxsm     (this->getPtr(), m.size(), m.data()); }
+	/**
+	 * @note assuming that this is similar to tpsa idxsm (sparse approach)
+	 *       thus not overloading
+	 */
+    inline log_t idxsm       (const std::vector<idx_t> m)     const { return mad_desc_idxsm     (this->getPtr(), m.size(), m.data()); }
 #if 0
     inline idx_t idx       (ssz_t n,       str_t s )	    const { return mad_desc_idxs      (this->getPtr(), n, s );  }
     inline idx_t idx       (ssz_t n, const ord_t *m )	    const { return mad_desc_idxm      (this->getPtr(), n, m );  }
@@ -107,5 +111,5 @@ private:
     inline std::ostream& operator<<(std::ostream& o, const desc& d) { d.show(o); return o; }
 
 
-}; /* namespace gtpsa */
+} /* namespace gtpsa */
 #endif /* _GTPSA_DESC_H_ */

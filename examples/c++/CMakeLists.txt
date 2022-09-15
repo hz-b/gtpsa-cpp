@@ -11,3 +11,6 @@ target_link_libraries(gtpsa_ex1 gtpsa lapack blas)
 target_link_libraries(gtpsa_ex2 gtpsa lapack blas)
 target_link_libraries(gtpsa_ex3 gtpsa lapack blas)
 target_link_libraries(gtpsa_ex4 gtpsa lapack blas)
+
+add_executable(space_state space_state.cc)
+target_link_libraries(space_state gtpsa lapack blas)
