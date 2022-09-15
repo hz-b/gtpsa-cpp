@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 
+namespace gtpsa {
 /**
  * state space, phase space vector
  *
@@ -66,7 +67,7 @@ inline void ss_vect<gtpsa::tpsa>::set_identity(void)
     //std::for_each(this->state_space.begin(), this->state_space.end(), [](gtpsa::tpsa& v){ v.clear(); };
 }
 
-
+} /* namespace gtpsa */
 #endif /* _GTPSA_SS_VECT_H_ */
 /*
  * Local Variables:
