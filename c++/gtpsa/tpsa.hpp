@@ -7,11 +7,13 @@
  * https://cern.ch/mad for details
  *
  */
-#include <gtpsa_desc.hpp>
+#include <gtpsa/desc.hpp>
 #include <algorithm>
-#include <memory>
-#include <vector>
+#include <cassert>
 #include <iostream>
+#include <memory>
+#include <ostream>
+#include <vector>
 
 extern "C" {
 #include <mad_tpsa.h>
@@ -74,7 +76,6 @@ namespace gtpsa {
 	 *
 	 */
 	inline void _copyInPlace(const tpsa &o)       { mad_tpsa_copy(o.getPtr(), this->getPtr()); }
-
 	inline tpsa clone(void)                 const { tpsa res(*this, mad_tpsa_same); res._copyInPlace(*this); return res; }
 
 #if 0
@@ -111,7 +112,7 @@ namespace gtpsa {
 	 *
 	 * @todo replace str_t with std::string ...
 	 */
-	inline void setName(std::string name)        { mad_tpsa_setnam(this->getPtr(), name.c_str());}
+	inline void setName(std::string name)         { mad_tpsa_setnam(this->getPtr(), name.c_str());}
 
 	// indexing / monomials (return idx_t = -1 if invalid)
 	/**
@@ -177,22 +178,31 @@ namespace gtpsa {
 	mad_tpsa_print(this->getPtr(), name_, eps_, nohdr_, stream_);
     }
 
-    inline tpsa& operator += (const tpsa& o){ add(*this, o, this); return *this; }
+    inline tpsa& operator += (const tpsa& o  ){ add(*this, o, this); return *this; }
     // (a_i-b_i)/max(|a_i|,1)
-    inline tpsa& operator -= (const tpsa& o){ sub(*this, o, this); return *this; }
-    inline tpsa& operator *= (const tpsa& o){ mul(*this, o, this); return *this; }
-    inline tpsa& operator /= (const tpsa& o){ div(*this, o, this); return *this; }
+    inline tpsa& operator -= (const tpsa& o  ){ sub(*this, o, this); return *this; }
+    inline tpsa& operator *= (const tpsa& o  ){ mul(*this, o, this); return *this; }
+    inline tpsa& operator /= (const tpsa& o  ){ div(*this, o, this); return *this; }
 
+	// the following ones can profit from an implementation using mad_set(..., a=1e0, b=o)
+    inline tpsa& operator += (const double o ){ mad_tpsa_set0(this->getPtr(),    1e0,    o); return *this; }
+    inline tpsa& operator -= (const double o ){ mad_tpsa_set0(this->getPtr(),    1e0,   -o); return *this; }
+    inline tpsa& operator *= (const double o ){ mad_tpsa_set0(this->getPtr(),      o,  0e0); return *this; }
+    inline tpsa& operator /= (const double o ){ mad_tpsa_set0(this->getPtr(),  1e0/o,  0e0); return *this; }
 
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
 
     //process2
-    inline tpsa  operator +  (const tpsa& o) const { return process2(*this, o, add); }
-    // (a_i-b_i)/max(|a_i|,1)
-    inline tpsa  operator -  (const tpsa& o) const { return process2(*this, o, sub); }
-    inline tpsa  operator *  (const tpsa& o) const { return process2(*this, o, mul); }
-    inline tpsa  operator /  (const tpsa& o) const { return process2(*this, o, div); }
+    inline tpsa  operator +  (const tpsa& o ) const { return process2(*this, o, add); }
+    inline tpsa  operator -  (const tpsa& o ) const { return process2(*this, o, sub); }
+    inline tpsa  operator *  (const tpsa& o ) const { return process2(*this, o, mul); }
+    inline tpsa  operator /  (const tpsa& o ) const { return process2(*this, o, div); }
+
+    inline tpsa  operator +  (const double o) const { return process2(*this, o, add_d); }
+    inline tpsa  operator -  (const double o) const { return process2(*this, o, sub_d); }
+    inline tpsa  operator *  (const double o) const { return process2(*this, o, mul_d); }
+    inline tpsa  operator /  (const double o) const { return process2(*this, o, div_d); }
 
 #endif
 
@@ -208,6 +218,8 @@ private:
     friend inline void process1to2_(const tpsa& a,      tpsa* r1, tpsa *r2, void (*func)(const tpsa_t* a,       tpsa_t *r, tpsa_t *r2) );
     //friend void inline process_op2_(const tpsa& a, const tpsa& b, tpsa *r, void (*func)(const tpsa& a, const tpsa& b, tpsa *r) );
 
+    friend inline void process2_(const tpsa& a, const double b, tpsa *r,  void (*func)(const tpsa_t* a, const double b, tpsa_t *r)  );
+    friend inline void process2_(const tpsa& a, const double b, tpsa *r,    void (*func)(const double a, const double b, double *r) );
     friend inline auto equ (const tpsa& a, const tpsa& b, num_t tol);
     friend inline auto norm (const tpsa& a);
 
@@ -236,32 +248,49 @@ private:
 			  void (*func)(const tpsa_t* a, const tpsa_t* b, tpsa_t *r) ) {
 	func(a.getPtr(), b.getPtr(), r->getPtr());
     }
+    inline void process2_(const tpsa& a, const double b, tpsa *r,
+			  void (*func)(const double a, const double b, double *r) ) {
+	num_t rv;
+	func(mad_tpsa_get0(a.getPtr()), b, &rv);
+	mad_tpsa_set0(r->getPtr(), 0.0, rv);
+    }
+
 
     tpsa inline process1(const tpsa& t, void (*func)(const tpsa& t, tpsa *r) ) {auto ret = tpsa(t, mad_tpsa_same); func(t, &ret); return ret;}
-    tpsa inline process2(const tpsa& a, const tpsa& b, void (*func)(const tpsa& a, const tpsa& b, tpsa *r) ) {auto ret = tpsa(a, mad_tpsa_same); func(a, b, &ret); return ret;}
+    tpsa inline process2(const tpsa& a, const tpsa&  b, void (*func)(const tpsa& a, const tpsa&  b, tpsa *r) ) { auto ret = tpsa(a, mad_tpsa_same); func(a, b, &ret); return ret; }
+    tpsa inline process2(const tpsa& a, const double b, void (*func)(const tpsa& a, const double b, tpsa *r) ) { auto ret = tpsa(a, mad_tpsa_same); func(a, b, &ret); return ret; }
+    // tpsa inline process2(const tpsa& a, const double b, void (*func)(const tpsa& a, const double b, tpsa *r) ) {auto ret = tpsa(a, mad_tpsa_same); func(a, b, &ret); return ret;}
 
-    inline auto norm(const tpsa& a)                        { return mad_tpsa_nrm(a.getPtr()); }
-    inline auto equ (const tpsa& a, const tpsa& b, num_t tol) {return mad_tpsa_equ(a.getPtr(), b.getPtr(), tol); }
+    inline auto norm(const tpsa& a)                          { return mad_tpsa_nrm(a.getPtr()); }
+    inline auto equ (const tpsa& a, const tpsa& b, num_t tol){ return mad_tpsa_equ(a.getPtr(), b.getPtr(), tol); }
 
-    inline void add (const tpsa& a, const tpsa& b, tpsa* r){ process2_(a, b, r, mad_tpsa_add); }
+    inline void add (const tpsa& a, const tpsa& b,  tpsa* r ){ process2_(a, b, r, mad_tpsa_add); }
     /**
      * @brief  (a_i-b_i)/max(|a_i|,1)
      */
-    inline void dif (const tpsa& a, const tpsa& b, tpsa* r){ process2_(a, b, r, mad_tpsa_dif); }
-    inline void sub (const tpsa& a, const tpsa& b, tpsa* r){ process2_(a, b, r, mad_tpsa_sub); }
-    inline void mul (const tpsa& a, const tpsa& b, tpsa* r){ process2_(a, b, r, mad_tpsa_mul); }
-    inline void div (const tpsa& a, const tpsa& b, tpsa* r){ process2_(a, b, r, mad_tpsa_div); }
+    inline void dif (const tpsa& a, const tpsa& b,  tpsa* r ){ process2_(a, b, r, mad_tpsa_dif); }
+    inline void sub (const tpsa& a, const tpsa& b,  tpsa* r ){ process2_(a, b, r, mad_tpsa_sub); }
+    inline void mul (const tpsa& a, const tpsa& b,  tpsa* r ){ process2_(a, b, r, mad_tpsa_mul); }
+    inline void div (const tpsa& a, const tpsa& b,  tpsa* r ){ process2_(a, b, r, mad_tpsa_div); }
+    inline void pow (const tpsa& a, const tpsa& b,  tpsa* r ){ process2_(a, b, r, mad_tpsa_pow); }
 
-    inline tpsa add (const tpsa& a, const tpsa& b         ){ return process2(a, b, add); }
-    inline tpsa dif (const tpsa& a, const tpsa& b         ){ return process2(a, b, dif); }
-    inline tpsa sub (const tpsa& a, const tpsa& b         ){ return process2(a, b, sub); }
-    inline tpsa mul (const tpsa& a, const tpsa& b         ){ return process2(a, b, mul); }
-    inline tpsa div (const tpsa& a, const tpsa& b         ){ return process2(a, b, div); }
+    inline void pow (const tpsa& a,         int n,  tpsa* r ){ mad_tpsa_powi(a.getPtr(), n, r->getPtr()); }
+    inline void pow (const tpsa& a,       num_t v,  tpsa* r ){ mad_tpsa_pown(a.getPtr(), v, r->getPtr()); }
+    inline void add_d (const tpsa& a, const double b, tpsa* r ){ process2_(a, b, r, [](double a, double b, double *r){ *r = a + b; }); }
+    inline void sub_d (const tpsa& a, const double b, tpsa* r ){ process2_(a, b, r, [](double a, double b, double *r){ *r = a - b; }); }
+    inline void mul_d (const tpsa& a, const double b, tpsa* r ){ process2_(a, b, r, [](double a, double b, double *r){ *r = a * b; }); }
+    inline void div_d (const tpsa& a, const double b, tpsa* r ){ process2_(a, b, r, [](double a, double b, double *r){ *r = a / b; }); }
 
-    inline void pow (const tpsa& a, const tpsa& b, tpsa* r){ process2_(a, b, r, mad_tpsa_pow); }
 
-    inline void pow (const tpsa& a,         int n, tpsa* r){ mad_tpsa_powi(a.getPtr(), n, r->getPtr()); }
-    inline void pow (const tpsa& a,       num_t v, tpsa* r){ mad_tpsa_pown(a.getPtr(), v, r->getPtr()); }
+    inline tpsa add (const tpsa& a, const tpsa& b           ){ return process2(a, b, add); }
+    inline tpsa sub (const tpsa& a, const tpsa& b           ){ return process2(a, b, sub); }
+    inline tpsa mul (const tpsa& a, const tpsa& b           ){ return process2(a, b, mul); }
+    inline tpsa div (const tpsa& a, const tpsa& b           ){ return process2(a, b, div); }
+
+    inline tpsa add_d (const tpsa& a, const double b          ){ return process2(a, b, add_d); }
+    inline tpsa sub_d (const tpsa& a, const double b          ){ return process2(a, b, sub_d); }
+    inline tpsa mul_d (const tpsa& a, const double b          ){ return process2(a, b, mul_d); }
+    inline tpsa div_d (const tpsa& a, const double b          ){ return process2(a, b, div_d); }
 
     /* standard mathematical functions ... trigonometic etc ... taking one argument returning one */
 #ifdef FUNC_ARG1
@@ -270,7 +299,7 @@ private:
 #define FUNC_ARG1_WITH_RET_ARG(fname) inline void fname ## _ (const tpsa& t, tpsa* r){ process1_(t, r, mad_tpsa_ ## fname); }
 #define FUNC_ARG1_NO_RET_ARG(fname)   inline tpsa fname (const tpsa& t){ return process1(t, fname ## _); }
 #define FUNC_ARG1(fname) FUNC_ARG1_WITH_RET_ARG(fname) FUNC_ARG1_NO_RET_ARG(fname)
-#include <gtpsa_funcs.h>
+#include <gtpsa/funcs.h>
 
     inline void sincos_ (const tpsa& t, tpsa* r1, tpsa* r2) { process1to2_(t, r1, r2, mad_tpsa_sincos);  }
     inline void sincosh_(const tpsa& t, tpsa* r1, tpsa* r2) { process1to2_(t, r1, r2, mad_tpsa_sincosh); }

@@ -1,6 +1,6 @@
 #ifndef _GTPSA_DESC_H_
 #define _GTPSA_DESC_H_ 1
-#include <gtpsa_forward_decl.hpp>
+#include <gtpsa/forward_decl.hpp>
 extern "C" {
     typedef bool _Bool;
 #include <mad_desc.h>

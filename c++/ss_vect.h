@@ -34,9 +34,6 @@ public:
     ss_vect(const ss_vect& o) = delete;
     inline ss_vect(const ss_vect&& o) : state_space(std::move(o.state_space)) {};
 
-    inline T& operator[](const int i) { return this->state_space[i]; }
-    inline const T& operator[](const int i) const { return this->state_space[i]; }
-
 private:
     // I am sure there it is a way to use std algorithms ...
     inline void inplace_op(const ss_vect<T>& o, void f(T&, const T&)){
