@@ -1,4 +1,4 @@
-#include "gtpsa.hpp"
+#include "gtpsa/tpsa.hpp"
 #include <math.h>
 #include <iostream>
 
