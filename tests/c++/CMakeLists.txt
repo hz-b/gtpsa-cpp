@@ -14,3 +14,24 @@ target_link_libraries(test_arithmetic
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
 )
 add_test(arithmetic test_arithmetic)
+
+
+add_executable(test_ss_vect test_ss_vect.cc)
+target_link_libraries(test_ss_vect
+  gtpsa
+  lapack
+  blas
+  ${Boost_PRG_EXEC_MONITOR_LIBRARY}
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+)
+add_test(test_ss_vect test_ss_vect)
+
+add_executable(test_template test_template.cc)
+target_link_libraries(test_template
+  gtpsa
+  lapack
+  blas
+  ${Boost_PRG_EXEC_MONITOR_LIBRARY}
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+)
+add_test(test_template test_template)

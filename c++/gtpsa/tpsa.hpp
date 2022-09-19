@@ -73,7 +73,12 @@ namespace gtpsa {
 	/**
 	 * Copy ctor: use clone instead if required ....
 	 */
+#ifndef GTSPA_ONLY_OPTIMISED_OPS
+	inline tpsa(const tpsa& o) { this->tm = std::make_unique<tpsa_mgr>(mad_tpsa_new(o.getPtr(), mad_tpsa_same)); this->_copyInPlace(o); };
+#else /* GTSPA_ONLY_OPTIMISED_OPS */
+#error "Currently supporting copy"
 	inline tpsa(const tpsa& o) = delete;
+#endif /* GTSPA_ONLY_OPTIMISED_OPS */
 	/**
 	 * copies content of an other tpsa object to this
 	 * @todo implement a clone function
@@ -201,6 +206,11 @@ namespace gtpsa {
 	 * In the current implementation I assum the compiler can not fully optimise it away
 	 * if not required
 	 */
+	inline tpsa  operator =  (const tpsa& o )        { this->_copyInPlace(o); return *this; }
+	/**
+	 * @todo do I need to make a copy ....?
+	 */
+	inline tpsa  operator =  (const double & o)      { this->set(0, o); return *this; }
 	// negation
 	inline tpsa  operator -  (void)           const { return process2(*this, -1e0, mul_d); }
 
@@ -217,7 +227,13 @@ namespace gtpsa {
 	inline tpsa  operator /  (const double o) const { return process2(*this, o, div_d); }
 
 #endif
+	friend std::ostream& operator<<(std::ostream &, const tpsa &);
 
+	/*
+	 *  @warning: no compatible version in mad_tpsa ...
+	 *  @todo: review method
+	 */
+	inline void show(std::ostream& strm, int level) const { strm << this->cst(); }
 
     private:
 	// managed access to the underlying pointer
@@ -362,6 +378,14 @@ namespace gtpsa {
     inline tpsa  operator - (const double a, const tpsa& b) { auto r = -b; add_d(r, a, &r); return r;}
     inline tpsa  operator * (const double a, const tpsa& b) { return scl(b, a); }
     inline tpsa  operator / (const double a, const tpsa& b) { return inv(b, a); }
+
+    inline
+    std::ostream& operator<<(std::ostream& strm, const tpsa& a)
+    {
+	a.show(strm, 0);
+	return strm;
+    }
+
 
 } // namespace gtsa
 
