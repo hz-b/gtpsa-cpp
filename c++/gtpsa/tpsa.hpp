@@ -101,7 +101,7 @@ namespace gtpsa {
 	 * @todo review if separate in constant and non constant part ...
 	 */
 	inline auto uid(int32_t uid_)                 { return mad_tpsa_uid(this->getPtr(), uid_); }
-	inline auto uid(void)                   const { return mad_tpsa_uid((tpsa_t*) this->getPtr(), 0); }
+	// inline auto uid(void)                   const { return mad_tpsa_uid((t->getPtr()), 0); }
 	inline auto len(void)                   const { return mad_tpsa_len(this->getPtr());}
 	/*
 	 * @todo return std::string?
@@ -199,6 +199,10 @@ namespace gtpsa {
 	inline tpsa& operator *= (const double o ){ mad_tpsa_set0(this->getPtr(),      o,  0e0); return *this; }
 	inline tpsa& operator /= (const double o ){ mad_tpsa_set0(this->getPtr(),  1e0/o,  0e0); return *this; }
 
+	inline bool operator>=(const double a) { return this->cst() >= a; }
+	inline bool operator<=(const double a) { return this->cst() <= a; }
+	inline bool operator> (const double a) { return this->cst() > a;  }
+	inline bool operator< (const double a) { return this->cst() < a;  }
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
 	/**

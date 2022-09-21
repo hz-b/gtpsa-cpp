@@ -72,7 +72,7 @@ namespace gtpsa {
     inline log_t isvalid   (ssz_t n, const idx_t *m )	    const { return mad_desc_isvalidsm (this->getPtr(), n, m );  }
 #endif
 
-	inline idx_t idx       (const std::string s, ssz_t n=0) const { return mad_desc_idxs      (this->getPtr(), (n == 0) ? s.size() : n, s.c_str() );}
+    inline idx_t idx       (const std::string s, ssz_t n=0) const { return mad_desc_idxs      (this->getPtr(), (n == 0) ? s.size() : n, s.c_str() );}
     inline log_t idx       (const std::vector<ord_t> m)     const { return mad_desc_idxm      (this->getPtr(), m.size(), m.data()); }
 	/**
 	 * @note assuming that this is similar to tpsa idxsm (sparse approach)
