@@ -4,11 +4,11 @@
 
 int main(int argc, char *argv[])
 {
-    auto a_desc = gtpsa::desc(4, 2, 4, 3);
+    auto a_desc = std::make_shared<gtpsa::desc>(4, 2, 4, 3);
     std::cout << "desc " << a_desc << std::endl;
 
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
-    auto t2 = gtpsa::tpsa(t1, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, gtpsa::init::default_);
+    auto t2 = gtpsa::tpsa(t1,     gtpsa::init::default_);
 
     std::vector<num_t> nums = {M_PI/6, 1,1,1,1,1,1};
 

@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[])
 {
-    auto a_desc = gtpsa::desc(6, 4);
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 4);
     std::cout << "desc " << a_desc << std::endl;
 
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);

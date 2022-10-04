@@ -14,3 +14,6 @@ target_link_libraries(gtpsa_ex4 gtpsa lapack blas)
 
 add_executable(space_state space_state.cc)
 target_link_libraries(space_state gtpsa lapack blas)
+
+add_executable(set_identity set_identity.cc)
+target_link_libraries(set_identity gtpsa lapack blas)

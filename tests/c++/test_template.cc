@@ -9,7 +9,7 @@ BOOST_AUTO_TEST_CASE(test20_tpsa_cst)
 {
     const double a=0e0, b=42e0;
 
-    auto a_desc = gtpsa::desc(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
     t1.set(a, b);
 
@@ -24,4 +24,21 @@ BOOST_AUTO_TEST_CASE(test20_double_cst)
     const double b=42e0;
 
     BOOST_CHECK_CLOSE(gtpsa::cst(b), b, 1e-12);
+}
+
+BOOST_AUTO_TEST_CASE(test30_tpsa_get)
+{
+    const double a=0e0, b=42e0;
+    const int nv = 6, no = 1;
+
+    auto a_desc = std::make_shared<gtpsa::desc>(nv, no);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    t1.set(a, b);
+
+    BOOST_CHECK_CLOSE(t1.cst(), b, 1e-12);
+    BOOST_CHECK_CLOSE(gtpsa::cst(t1), b, 1e-12);
+    BOOST_CHECK_CLOSE(gtpsa::cst(b), b, 1e-12);
+
+    BOOST_CHECK_CLOSE(t1.get(0), b, 1e-12);
+
 }

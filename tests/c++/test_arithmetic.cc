@@ -8,7 +8,7 @@ BOOST_AUTO_TEST_CASE(test00_set)
 {
     const double a=0e0, b=42e0;
 
-    auto a_desc = gtpsa::desc(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
 
     t1.set(a, b);
@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(test01_clone)
 {
     const double a=355e0, b=113e0;
 
-    auto a_desc = gtpsa::desc(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
     t1.set(a, b);
 
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(test02_get_set)
 {
     const double a=355e0, b=113e0;
 
-    auto a_desc = gtpsa::desc(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
     t1.set(a, b);
 
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(test02_get_set)
 
 BOOST_AUTO_TEST_CASE(test10_neg)
 {
-    auto a_desc = gtpsa::desc(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
 
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
 
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(test10_neg)
 
 BOOST_AUTO_TEST_CASE(test11_add)
 {
-    auto a_desc = gtpsa::desc(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
 
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
     auto t2 = gtpsa::tpsa(t1, mad_tpsa_default);
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(test11_add)
 
 BOOST_AUTO_TEST_CASE(test12_sub)
 {
-    auto a_desc = gtpsa::desc(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
 
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
     auto t2 = gtpsa::tpsa(t1, mad_tpsa_same);
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(test12_sub)
 
 BOOST_AUTO_TEST_CASE(test13_mul)
 {
-    auto a_desc = gtpsa::desc(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
 
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
     auto t2 = gtpsa::tpsa(t1, mad_tpsa_same);
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(test13_mul)
 
 BOOST_AUTO_TEST_CASE(test14_div)
 {
-    auto a_desc = gtpsa::desc(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
 
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
     auto t2 = gtpsa::tpsa(t1, mad_tpsa_same);

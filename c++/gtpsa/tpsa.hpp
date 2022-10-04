@@ -57,26 +57,40 @@ namespace gtpsa {
 	 *
 	 * @todo: define it for ctpsa &t too
 	 */
-	inline tpsa(const desc &desc, const ord_t mo) { this->tm = std::make_unique<tpsa_mgr>(mad_tpsa_newd(desc.getPtr(), mo)); }
+	inline auto getDescription(void)   const { return this->t_desc; }
+
+	inline tpsa(std::shared_ptr<desc> desc, const ord_t mo) {
+	    this->t_desc = desc;
+	    this->tm = std::make_unique<tpsa_mgr>(mad_tpsa_newd(desc->getPtr(), mo));
+	}
 	/**
 	 *
 	 * @todo: define it for ctpsa &t too
 	 */
-	inline tpsa(const tpsa &t, const ord_t mo)    { this->tm = std::make_unique<tpsa_mgr>(mad_tpsa_new(t.getPtr(), mo));     } // ok with t=(tpsa_t*)ctpsa;
+	inline tpsa(const tpsa              &t,  const ord_t mo) {
+	    this->t_desc = t.getDescription();
+	    this->tm = std::make_unique<tpsa_mgr>(mad_tpsa_new(t.getPtr(), mo)); // ok with t=(tpsa_t*)ctpsa;
+	    this->clear();
+	}
 	//inline ~tpsa(void){  }
 
 	/**
 	 * move ctor
 	 */
-	inline tpsa(tpsa&& o)  noexcept :  tm(std::move(o.tm)) { };
+	inline tpsa(tpsa&& o)  noexcept :  tm(std::move(o.tm)), t_desc(std::move(o.t_desc)) { };
 
 	/**
 	 * Copy ctor: use clone instead if required ....
 	 */
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
-	inline tpsa(const tpsa& o) { this->tm = std::make_unique<tpsa_mgr>(mad_tpsa_new(o.getPtr(), mad_tpsa_same)); this->_copyInPlace(o); };
+	inline tpsa(const tpsa& o) {
+	    this->t_desc = o.getDescription();
+	    this->tm = std::make_unique<tpsa_mgr>(mad_tpsa_new(o.getPtr(), mad_tpsa_same));
+	    this->clear();
+	    this->_copyInPlace(o);
+	};
 #else /* GTSPA_ONLY_OPTIMISED_OPS */
-#error "Currently supporting copy"
+//#error "Currently supporting copy"
 	inline tpsa(const tpsa& o) = delete;
 #endif /* GTSPA_ONLY_OPTIMISED_OPS */
 	/**
@@ -180,7 +194,7 @@ namespace gtpsa {
 	inline auto setsm(const std::vector<int> m, num_t a, num_t b) { return mad_tpsa_setsm  (this->getPtr(), m.size(), m.data(), a, b ); }
 
 
-	inline void getv(idx_t i, std::vector<num_t> &v) { mad_tpsa_getv(this->getPtr(), i, v.size(), v.data());   }
+	inline void getv(idx_t i, std::vector<num_t>       &v) { mad_tpsa_getv(this->getPtr(), i, v.size(), v.data());   }
 	inline void setv(idx_t i, const std::vector<num_t> *v) { mad_tpsa_setv(this->getPtr(), i, v->size(), v->data()); }
 
 	inline void print(str_t name_, num_t eps_, int nohdr_, FILE *stream_){
@@ -204,17 +218,18 @@ namespace gtpsa {
 	inline bool operator> (const double a) { return this->cst() > a;  }
 	inline bool operator< (const double a) { return this->cst() < a;  }
 
+	inline tpsa & operator =  (const double & o)     { this->set(0, o); return *this; }
+
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
 	/**
 	 * These operators need to make copys of the actual instance
 	 * In the current implementation I assum the compiler can not fully optimise it away
 	 * if not required
 	 */
-	inline tpsa  operator =  (const tpsa& o )        { this->_copyInPlace(o); return *this; }
+	inline tpsa  operator =  (const tpsa& o )       { this->_copyInPlace(o); return *this; }
 	/**
 	 * @todo do I need to make a copy ....?
 	 */
-	inline tpsa  operator =  (const double & o)      { this->set(0, o); return *this; }
 	// negation
 	inline tpsa  operator -  (void)           const { return process2(*this, -1e0, mul_d); }
 
@@ -242,6 +257,8 @@ namespace gtpsa {
     private:
 	// managed access to the underlying pointer
 	std::unique_ptr<tpsa_mgr>  tm;
+	std::shared_ptr<desc>      t_desc;
+
 
 	inline const tpsa_t * getPtr(void) const { return this->tm->getPtr(); }
 	inline tpsa_t *       getPtr(void)       { return this->tm->getPtr(); }
@@ -377,11 +394,13 @@ namespace gtpsa {
     inline tpsa inv     (const tpsa &a, num_t v         ) { return process2 (a, v,      inv    ); }
     inline tpsa invsqrt (const tpsa &a, num_t v         ) { return process2 (a, v,      invsqrt); }
 
+#ifndef GTSPA_ONLY_OPTIMISED_OPS
     inline tpsa  operator + (const double a, const tpsa& b) { return process2(b,  a, add_d); }
     // avoid double copy of b: a - b => -(b-a) => -b + a
     inline tpsa  operator - (const double a, const tpsa& b) { auto r = -b; add_d(r, a, &r); return r;}
     inline tpsa  operator * (const double a, const tpsa& b) { return scl(b, a); }
     inline tpsa  operator / (const double a, const tpsa& b) { return inv(b, a); }
+#endif
 
     inline
     std::ostream& operator<<(std::ostream& strm, const tpsa& a)
