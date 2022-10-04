@@ -14,6 +14,14 @@ extern "C" {
 #include <memory>
 
 namespace gtpsa {
+    /*
+     *@brief how to initalise new object if an other is presented
+     */
+    enum init {
+	default_ = ord_t(-1),
+	same     = ord_t(-2)
+    };
+
     /**
      * manages ptr lifetime
      */
@@ -52,57 +60,58 @@ namespace gtpsa {
 
     private:
 	inline const desc_t *  getPtr(void)                     const { return this->dm->getPtr(); }
+
     public:
 
-    inline int getNv(ord_t *mo_, int *np_, ord_t *po_)      const { return mad_desc_getnv(this->getPtr(), mo_, np_, po_); }
-    inline ord_t getNo(int nn, ord_t *no_)                  const { return mad_desc_getno(this->getPtr(), nn, no_);       }
-    inline ord_t maxOrd(void)                               const { return mad_desc_maxord(this->getPtr());               }
-    inline ssz_t maxLen(void)                               const { return mad_desc_maxlen(this->getPtr());               }
-    inline ssz_t ordLen(const ord_t mo)                     const { return mad_desc_ordlen(this->getPtr(), mo);           }
-    inline ssz_t trunc(const ord_t to)                      const { return mad_desc_gtrunc(this->getPtr(), to);           }
+	inline int getNv(ord_t *mo_, int *np_, ord_t *po_)      const { return mad_desc_getnv(this->getPtr(), mo_, np_, po_); }
+	inline ord_t getNo(int nn, ord_t *no_)                  const { return mad_desc_getno(this->getPtr(), nn, no_);       }
+	inline ord_t maxOrd(void)                               const { return mad_desc_maxord(this->getPtr());               }
+	inline ssz_t maxLen(void)                               const { return mad_desc_maxlen(this->getPtr());               }
+	inline ssz_t ordLen(const ord_t mo)                     const { return mad_desc_ordlen(this->getPtr(), mo);           }
+	inline ssz_t trunc(const ord_t to)                      const { return mad_desc_gtrunc(this->getPtr(), to);           }
 
-    inline void info(FILE * fp = nullptr)                   const { mad_desc_info(this->getPtr(), fp);                    }
-    /* consider removing methods that don't use containers */
+	inline void info(FILE * fp = nullptr)                   const { mad_desc_info(this->getPtr(), fp);                    }
+	/* consider removing methods that don't use containers */
 	inline log_t isvalid   (const std::string s, ssz_t n=0) const { return mad_desc_isvalids  (this->getPtr(), (n == 0) ? s.size() : n, s.c_str() );      }
-    inline log_t isvalid   (const std::vector<ord_t> m)     const { return mad_desc_isvalidm  (this->getPtr(), m.size(), m.data()); }
-    inline log_t isvalid   (const std::vector<idx_t> m)     const { return mad_desc_isvalidsm (this->getPtr(), m.size(), m.data()); }
+	inline log_t isvalid   (const std::vector<ord_t> m)     const { return mad_desc_isvalidm  (this->getPtr(), m.size(), m.data()); }
+	inline log_t isvalidsm (const std::vector<idx_t> m)     const { return mad_desc_isvalidsm (this->getPtr(), m.size(), m.data()); }
 #if 0
-    inline log_t isvalid   (ssz_t n,       str_t s    )     const { return mad_desc_isvalids  (this->getPtr(), n, s );  }
-    inline log_t isvalid   (ssz_t n, const ord_t *m )	    const { return mad_desc_isvalidm  (this->getPtr(), n, m );  }
-    inline log_t isvalid   (ssz_t n, const idx_t *m )	    const { return mad_desc_isvalidsm (this->getPtr(), n, m );  }
+	inline log_t isvalid   (ssz_t n,       str_t s    )     const { return mad_desc_isvalids  (this->getPtr(), n, s );  }
+	inline log_t isvalid   (ssz_t n, const ord_t *m )	const { return mad_desc_isvalidm  (this->getPtr(), n, m );  }
+	inline log_t isvalid   (ssz_t n, const idx_t *m )	const { return mad_desc_isvalidsm (this->getPtr(), n, m );  }
 #endif
 
-    inline idx_t idx       (const std::string s, ssz_t n=0) const { return mad_desc_idxs      (this->getPtr(), (n == 0) ? s.size() : n, s.c_str() );}
-    inline log_t idx       (const std::vector<ord_t> m)     const { return mad_desc_idxm      (this->getPtr(), m.size(), m.data()); }
+	inline idx_t idx       (const std::string s, ssz_t n=0) const { return mad_desc_idxs      (this->getPtr(), (n == 0) ? s.size() : n, s.c_str() );}
+	inline log_t idx       (const std::vector<ord_t> m)     const { return mad_desc_idxm      (this->getPtr(), m.size(), m.data()); }
 	/**
 	 * @note assuming that this is similar to tpsa idxsm (sparse approach)
 	 *       thus not overloading
 	 */
-    inline log_t idxsm       (const std::vector<idx_t> m)     const { return mad_desc_idxsm     (this->getPtr(), m.size(), m.data()); }
+	inline log_t idxsm     (const std::vector<idx_t> m)     const { return mad_desc_idxsm     (this->getPtr(), m.size(), m.data()); }
 #if 0
-    inline idx_t idx       (ssz_t n,       str_t s )	    const { return mad_desc_idxs      (this->getPtr(), n, s );  }
-    inline idx_t idx       (ssz_t n, const ord_t *m )	    const { return mad_desc_idxm      (this->getPtr(), n, m );  }
-    inline idx_t idx       (ssz_t n, const idx_t *m )	    const { return mad_desc_idxsm     (this->getPtr(), n, m );  }
+	inline idx_t idx       (ssz_t n,       str_t s )	const { return mad_desc_idxs      (this->getPtr(), n, s );  }
+	inline idx_t idx       (ssz_t n, const ord_t *m )	const { return mad_desc_idxm      (this->getPtr(), n, m );  }
+	inline idx_t idx       (ssz_t n, const idx_t *m )	const { return mad_desc_idxsm     (this->getPtr(), n, m );  }
 #endif
 
-    inline idx_t nxtbyvar  (std::vector<ord_t> m )          const { return mad_desc_nxtbyvar  (this->getPtr(), m.size(), m.data() );  }
-    // inline idx_t nxtbyvar  (ssz_t n,       ord_t *m)     const { return mad_desc_nxtbyvar  (this->getPtr(), n, m );  }
-    inline idx_t nxtbyord  (std::vector<ord_t> m )          const { return mad_desc_nxtbyord  (this->getPtr(), m.size(), m.data() );  }
-    // inline idx_t nxtbyord  (ssz_t n,       ord_t *m )    const { return mad_desc_nxtbyord  (this->getPtr(), n, m );  }
+	inline idx_t nxtbyvar  (std::vector<ord_t> m )          const { return mad_desc_nxtbyvar  (this->getPtr(), m.size(), m.data() );  }
+	// inline idx_t nxtbyvar  (ssz_t n,       ord_t *m)     const { return mad_desc_nxtbyvar  (this->getPtr(), n, m );  }
+	inline idx_t nxtbyord  (std::vector<ord_t> m )          const { return mad_desc_nxtbyord  (this->getPtr(), m.size(), m.data() );  }
+	// inline idx_t nxtbyord  (ssz_t n,       ord_t *m )    const { return mad_desc_nxtbyord  (this->getPtr(), n, m );  }
 
-    inline ord_t mono      (std::vector<ord_t> m, idx_t i)  const { return mad_desc_mono      (this->getPtr(), m.size(), m.data(), i); }
+	inline ord_t mono      (std::vector<ord_t> m, idx_t i)  const { return mad_desc_mono      (this->getPtr(), m.size(), m.data(), i); }
 
 
-    inline std::string repr(void)                           const {
-	const int buf_len = 256;
-	char buf[buf_len];
-	mad_desc_info_s(this->getPtr(), buf_len, buf);
-	return std::string(buf);
-    }
-    inline void show(std::ostream& o) const { o << this->repr(); }
+	inline std::string repr(void)                           const {
+	    const int buf_len = 256;
+	    char buf[buf_len];
+	    mad_desc_info_s(this->getPtr(), buf_len, buf);
+	    return std::string(buf);
+	}
+	inline void show(std::ostream& o) const { o << this->repr(); }
 
-    friend std::ostream& operator<<(std::ostream&, const desc& d);
-    friend class tpsa;
+	friend std::ostream& operator<<(std::ostream&, const desc& d);
+	friend class tpsa;
 
 private:
 	std::unique_ptr<desc_mgr> dm;
