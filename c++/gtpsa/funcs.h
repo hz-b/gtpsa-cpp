@@ -1,7 +1,7 @@
 /* no sentinel defines ... on purpose */
 
-FUNC_ARG1(abs)
-FUNC_ARG1( sqrt	  )
+FUNC_ARG1( abs    )
+FUNC_ARG1( sqrt   )
 FUNC_ARG1( exp	  )
 FUNC_ARG1( log	  )
 FUNC_ARG1( sin	  )

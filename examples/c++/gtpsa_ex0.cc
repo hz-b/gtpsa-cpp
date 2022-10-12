@@ -12,18 +12,20 @@ int main(int argc, char *argv[])
 
     std::vector<num_t> nums = {M_PI/6e0};
 
-    t1.setv(0, &nums);
+    t1.setv(0, nums);
     std::cout << "T1 " <<  t1.name() << "\n"
 	      << "T2 " <<  t2.name() << "\n"
 	      << std::endl;
     t1.print("ini", 0, 0, 0);
 
-    gtpsa::asin_(t1, &t2);
-    t2.print("asin_", 0, 0, 0);
+    gtpsa::sin_(t1, &t2);
+    t2.print("sin_", 0, 0, 0);
 
-    auto t3 = gtpsa::asin(t1);
-    t3.print("asin", 0, 0, 0);
-
+    // auto t3 =
+    // gtpsa::asin_(t2, &t2);
+    // t2.print("asin_", 0, 0, 0);
+    auto t3 = gtpsa::asin(t2);
+    t3.print("asin_", 0, 0, 0);
     return 0;
 
 }

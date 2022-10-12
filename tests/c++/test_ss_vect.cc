@@ -10,7 +10,7 @@
 // mainly test that header compiles
 BOOST_AUTO_TEST_CASE(test10_sv_tpsa)
 {
-    auto a_desc = gtpsa::desc(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
     gtpsa::ss_vect<gtpsa::tpsa> v1(t1);
 
@@ -25,12 +25,34 @@ BOOST_AUTO_TEST_CASE(test11_sv_dbl)
 }
 
 
+#define print_indices(i, j) \
+    do{std::cout << "i " << i  << " j " << j << std::endl; }while(0)
+
+#define test_identity(v)                                   \
+    do{							   \
+	for(size_t i = 0; i <v.size(); ++i){		   \
+	    for(size_t j = 0; j <v.size(); ++j){	   \
+	    auto tmp = v[i].get(j);                        \
+		if(i == j - 1){				   \
+		    if(tmp < 0.9) { print_indices(i, j); } \
+		    BOOST_CHECK_CLOSE(tmp, 1.0, 1e-12);    \
+		} else {				   \
+		    if(tmp > 0.1) { print_indices(i, j); } \
+		    BOOST_CHECK_SMALL(tmp,      1e-12);	   \
+		}					   \
+	    }						   \
+	}						   \
+    } while(0)
+
 BOOST_AUTO_TEST_CASE(test12_sv_tpsa_identity)
 {
-    auto a_desc = gtpsa::desc(1, 6);
+
+    const int nv = 6;
+    auto a_desc = std::make_shared<gtpsa::desc>(nv, 1);
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
     gtpsa::ss_vect<gtpsa::tpsa> v1(t1);
 
+    BOOST_CHECK_EQUAL(v1.size(), nv);
     /*
     for(size_t i = 0; i <6; ++i){
 	std::ostringstream strm;
@@ -39,6 +61,10 @@ BOOST_AUTO_TEST_CASE(test12_sv_tpsa_identity)
     }
     */
     v1.set_identity();
+    BOOST_CHECK_CLOSE(v1[0].get(1), 1.0, 1e-12);
+    test_identity(v1);
+    v1.size();
+    test_identity(v1);
     /*
     for(size_t i = 0; i <6; ++i){
 	std::ostringstream strm;
@@ -46,23 +72,14 @@ BOOST_AUTO_TEST_CASE(test12_sv_tpsa_identity)
 	v1[i].print(strm.str().c_str(), 0,0,0);
     }
     */
-    for(size_t i = 0; i <6; ++i){
-	for(size_t j = 0; j <6; ++j){
-	    if(i == j){
-		BOOST_CHECK_CLOSE(v1[i].get(j), 1.0, 1e-12);
-	    } else {
-		BOOST_CHECK_SMALL(v1[i].get(j),      1e-12);
-	    }
-	}
-    }
     // std::cout << v1 << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE(test20_sv_tpsa_clone)
 {
     const double a = 0e0, b1=113e0, b2=355e0;
-    auto a_desc = gtpsa::desc(1, 0);
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 1);
+    auto t1 = gtpsa::tpsa(a_desc, 1);
 
     gtpsa::ss_vect<gtpsa::tpsa> v1(t1);
     v1[0].set(a, b1);
@@ -117,10 +134,51 @@ BOOST_AUTO_TEST_CASE(test22_sv_double_show)
 BOOST_AUTO_TEST_CASE(test23_sv_tpsa_show)
 {
     const double b1=113e0;
-    auto a_desc = gtpsa::desc(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 1);
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
 
     gtpsa::ss_vect<gtpsa::tpsa> v1(t1);
     v1[0] = b1;
     std::cout << v1 << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(test30_sv_tpsa_identity_mul)
+{
+    const int nv = 6;
+    auto a_desc = std::make_shared<gtpsa::desc>(nv, 1);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    gtpsa::ss_vect<gtpsa::tpsa> v1(t1);
+    gtpsa::ss_vect<gtpsa::tpsa> v2(t1);
+
+    /*
+    for(size_t i = 0; i <6; ++i){
+	std::ostringstream strm;
+	strm << "v1," << i;
+	v1[i].print(strm.str().c_str(), 0,0,0);
+    }
+    */
+    v1.set_identity();
+    test_identity(v1);
+
+    v2.set_identity();
+    test_identity(v2);
+#if 0
+    auto v3 = v2 * v1;
+
+    // v3 should be all zeros now ...
+    for(size_t i = 0; i <6; ++i){
+	std::ostringstream strm;
+	strm << "v3," << i;
+	v3[i].print(strm.str().c_str(), 0,0,0);
+    }
+#endif
+}
+
+BOOST_AUTO_TEST_CASE(test40_ss_vect_double_dbl_assignment)
+{
+    const double x = 355;
+    const gtpsa::ss_vect<double> ps_orig = {x, 0, 0, 0, 0, 0};
+    // the code below should either run or fail during compilation
+    gtpsa::ss_vect<double> ps = ps.clone();
+
 }

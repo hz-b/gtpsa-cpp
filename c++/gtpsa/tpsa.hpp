@@ -77,12 +77,43 @@ namespace gtpsa {
 	/**
 	 * move ctor
 	 */
-	inline tpsa(tpsa&& o)  noexcept :  tm(std::move(o.tm)), t_desc(std::move(o.t_desc)) { };
-
+	inline tpsa(tpsa&& o) = default; //  noexcept :  tm(std::move(o.tm)), t_desc(std::move(o.t_desc)) { };
+	inline tpsa& operator= (tpsa && o) = default;
+#if 0
+	    noexcept {
+	    if (this != &o) {
+		this->tm = std::move(o.tm);
+		this->t_desc = std::move(o.t_desc);
+	    }
+	    return *this;
+	}
+#endif
+	inline tpsa& operator= (const double && o) {
+	    this->clear();
+	    this->set(0, o);
+	    return *this;
+	}
+#if 0
+	/**
+	 * ctor using double ...
+	 *
+	 * how to handle appropriate desc!
+	 */
+	inline tpsa(const double& o) {
+	    /* optimise for constant term ... no higher orders */
+	    // int nv = 1;
+	    /* following could be a static singelton .... */
+	    /* ... but not that usable ... */
+	    this->t_desc = std::make_shared<gtpsa::desc>(1, 0);
+	    this->tm = std::make_unique<tpsa_mgr>(mad_tpsa_newd(this->t_desc->getPtr(), 0));
+	    // this->clear();
+	    this->set(0, o);
+	}
+#endif
+#ifndef GTSPA_ONLY_OPTIMISED_OPS
 	/**
 	 * Copy ctor: use clone instead if required ....
 	 */
-#ifndef GTSPA_ONLY_OPTIMISED_OPS
 	inline tpsa(const tpsa& o) {
 	    this->t_desc = o.getDescription();
 	    this->tm = std::make_unique<tpsa_mgr>(mad_tpsa_new(o.getPtr(), mad_tpsa_same));
@@ -99,7 +130,8 @@ namespace gtpsa {
 	 *
 	 */
 	inline void _copyInPlace(const tpsa &o)       { mad_tpsa_copy(o.getPtr(), this->getPtr()); }
-	inline tpsa clone(void)                 const { tpsa res(*this, mad_tpsa_same); res._copyInPlace(*this); return res; }
+	inline tpsa clone(void)                 const { std::cout << "cloning tpsa " << std::endl;
+	                                                tpsa res(*this, mad_tpsa_same); res._copyInPlace(*this); return res; }
 
 #if 0
 // introspection
@@ -121,7 +153,7 @@ namespace gtpsa {
 	 * @todo return std::string?
 	 */
 	inline auto name(void)                  const { return mad_tpsa_nam(this->getPtr()); }
-	inline auto ord(void)                   const { return mad_tpsa_ord(this->getPtr()); }
+	// inline auot ord(=
 #if 0
 	inline auto ordv(...)                   const { return mad_tpsa_ord(this->getPtr()); }
 #endif
@@ -136,7 +168,10 @@ namespace gtpsa {
 	 * @todo replace str_t with std::string ...
 	 */
 	inline void setName(std::string name)         { mad_tpsa_setnam(this->getPtr(), name.c_str());}
-
+	/**
+	 * @brief:
+	 */
+	void setVariable(num_t v, idx_t iv_= 0, num_t scl_ = 0){ mad_tpsa_setvar(this->getPtr(), v, iv_, scl_);	}
 	// indexing / monomials (return idx_t = -1 if invalid)
 	/**
 	 *
@@ -194,8 +229,8 @@ namespace gtpsa {
 	inline auto setsm(const std::vector<int> m, num_t a, num_t b) { return mad_tpsa_setsm  (this->getPtr(), m.size(), m.data(), a, b ); }
 
 
-	inline void getv(idx_t i, std::vector<num_t>       &v) { mad_tpsa_getv(this->getPtr(), i, v.size(), v.data());   }
-	inline void setv(idx_t i, const std::vector<num_t> *v) { mad_tpsa_setv(this->getPtr(), i, v->size(), v->data()); }
+	inline void getv(idx_t i,       std::vector<num_t> *v) { mad_tpsa_getv(this->getPtr(), i, v->size(), v->data() ); }
+	inline void setv(idx_t i, const std::vector<num_t> &v) { mad_tpsa_setv(this->getPtr(), i, v.size() , v.data()  ); }
 
 	inline void print(str_t name_, num_t eps_, int nohdr_, FILE *stream_){
 	    mad_tpsa_print(this->getPtr(), name_, eps_, nohdr_, stream_);
@@ -409,6 +444,11 @@ namespace gtpsa {
 	return strm;
     }
 
+    /**
+     * @brief get maximum number of all
+     */
+
+    //inline auto ordn(std::vector<const tpsa&>)
 
 } // namespace gtsa
 

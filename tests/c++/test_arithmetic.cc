@@ -33,6 +33,28 @@ BOOST_AUTO_TEST_CASE(test01_clone)
 
 }
 
+
+BOOST_AUTO_TEST_CASE(test02_clone_2_objects)
+{
+    const double a=355e0, b=113e0;
+
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    t1.set(a, b);
+
+    auto t2 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    t2.set(-b, a);
+
+    const auto t3 = t1.clone();
+    const auto t4 = t2.clone();
+
+    BOOST_CHECK_CLOSE(t1.get(), b, 1e-12);
+    BOOST_CHECK_CLOSE(t2.get(), a, 1e-12);
+    BOOST_CHECK_CLOSE(t3.get(), b, 1e-12);
+    BOOST_CHECK_CLOSE(t4.get(), a, 1e-12);
+
+}
+
 BOOST_AUTO_TEST_CASE(test02_get_set)
 {
     const double a=355e0, b=113e0;
@@ -241,5 +263,16 @@ BOOST_AUTO_TEST_CASE(test14_div)
 	BOOST_CHECK_CLOSE(t2.get(), b2, 1e-12);
 	BOOST_CHECK_CLOSE(t3.get(), r2, 1e-12);
     }
+
+}
+
+BOOST_AUTO_TEST_CASE(test20_assign_double)
+{
+    const double b=42e0;
+
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
+    auto t = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    t = b;
+    BOOST_CHECK_CLOSE(t.get(), b, 1e-12);
 
 }

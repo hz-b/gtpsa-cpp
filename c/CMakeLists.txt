@@ -60,4 +60,4 @@ add_library(gtpsa SHARED
   ${gtpsa_FILES}
   ${gtpsa_HEADERS}
 )
-target_link_libraries(gtpsa lapack blas)
+target_link_libraries(gtpsa lapack blas ${OpenMP_C_LIBRARIES})

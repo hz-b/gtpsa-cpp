@@ -31,18 +31,20 @@ namespace gtpsa {
 	inline ~desc_mgr(void)                          { mad_desc_del(this->ptr); this->ptr=nullptr; }
 
 	inline desc_mgr(const desc& o) = delete;
-	inline const desc_t *  getPtr(void)       const { return this->ptr; }
-
-	const desc_t * ptr;
 	friend class desc;
+
+    private:
+	inline const desc_t *  getPtr(void)       const { return this->ptr; }
+	const desc_t * ptr;
+
     };
 
 
     class desc{
     public:
-	inline desc(int nv, ord_t no_)                                { this->dm = std::make_unique<desc_mgr>(mad_desc_newv(nv, no_));           }
-	inline desc(int nv, ord_t np, ord_t no, ord_t po_)            { this->dm = std::make_unique<desc_mgr>(mad_desc_newvp(nv, np, no, po_));  }
-	inline desc(int nv, ord_t np, ord_t no[/*nv+np?*/], ord_t po_){ this->dm = std::make_unique<desc_mgr>(mad_desc_newvpo(nv, np, no, po_)); }
+	inline desc(int nv, ord_t no_)                                 { this->dm = std::make_unique<desc_mgr>( mad_desc_newv  (nv,     no_    ) ); }
+	inline desc(int nv, ord_t np, ord_t no, ord_t po_)             { this->dm = std::make_unique<desc_mgr>( mad_desc_newvp (nv, np, no, po_) ); }
+	inline desc(int nv, ord_t np, ord_t no[/*nv+np?*/], ord_t po_) { this->dm = std::make_unique<desc_mgr>( mad_desc_newvpo(nv, np, no, po_) ); }
 	inline desc(int nv, ord_t np, std::vector<ord_t> no, ord_t po_){
 	auto req_elem = nv+np;
 	if(int(no.size()) <= req_elem){
@@ -63,12 +65,12 @@ namespace gtpsa {
 
     public:
 
-	inline int getNv(ord_t *mo_, int *np_, ord_t *po_)      const { return mad_desc_getnv(this->getPtr(), mo_, np_, po_); }
-	inline ord_t getNo(int nn, ord_t *no_)                  const { return mad_desc_getno(this->getPtr(), nn, no_);       }
-	inline ord_t maxOrd(void)                               const { return mad_desc_maxord(this->getPtr());               }
-	inline ssz_t maxLen(void)                               const { return mad_desc_maxlen(this->getPtr());               }
-	inline ssz_t ordLen(const ord_t mo)                     const { return mad_desc_ordlen(this->getPtr(), mo);           }
-	inline ssz_t trunc(const ord_t to)                      const { return mad_desc_gtrunc(this->getPtr(), to);           }
+	inline int   getNv(ord_t *mo_, int *np_, ord_t *po_)    const { return mad_desc_getnv (this->getPtr(), mo_, np_, po_); }
+	inline ord_t getNo(int nn, ord_t *no_)                  const { return mad_desc_getno (this->getPtr(), nn, no_);       }
+	inline ord_t maxOrd(void)                               const { return mad_desc_maxord(this->getPtr());                }
+	inline ssz_t maxLen(void)                               const { return mad_desc_maxlen(this->getPtr());                }
+	inline ssz_t ordLen(const ord_t mo)                     const { return mad_desc_ordlen(this->getPtr(), mo);            }
+	inline ssz_t trunc(const ord_t to)                      const { return mad_desc_gtrunc(this->getPtr(), to);            }
 
 	inline void info(FILE * fp = nullptr)                   const { mad_desc_info(this->getPtr(), fp);                    }
 	/* consider removing methods that don't use containers */
@@ -103,10 +105,14 @@ namespace gtpsa {
 
 
 	inline std::string repr(void)                           const {
+#if 1
+	    throw std::runtime_error("Not implemented");
+#else
 	    const int buf_len = 256;
 	    char buf[buf_len];
 	    mad_desc_info_s(this->getPtr(), buf_len, buf);
 	    return std::string(buf);
+#endif
 	}
 	inline void show(std::ostream& o) const { o << this->repr(); }
 
