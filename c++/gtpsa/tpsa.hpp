@@ -30,21 +30,16 @@ namespace gtpsa {
 
     class tpsa_mgr {
     public:
-	inline ~tpsa_mgr(void){
-	    mad_tpsa_del(this->ptr);
-	    this->ptr = nullptr; // a bit of paranoia
-	}
-	inline tpsa_mgr(tpsa_t *p) {
-	    this->ptr = p;
-	}
+	inline tpsa_mgr(tpsa_t *p) : ptr(p){ }
+	inline ~tpsa_mgr(void)     { mad_tpsa_del(this->ptr);  this->ptr = nullptr; }
     private:
-	inline tpsa_mgr(const tpsa_mgr&& o)      { this->ptr = o.ptr;  };
+	// inline tpsa_mgr(const tpsa_mgr&& o)  =     { this->ptr = o.ptr;  };
 	tpsa_mgr(const tpsa_mgr& o) = delete;
+	tpsa_mgr& operator= (const tpsa_mgr&) = delete;
 
-    private:
-	tpsa_t * ptr;
 	inline const tpsa_t * getPtr(void) const { return this->ptr; }
 	inline tpsa_t *       getPtr(void)       { return this->ptr; }
+	tpsa_t * ptr;
 
 	friend class tpsa;
     };
@@ -60,19 +55,41 @@ namespace gtpsa {
 	 */
 	inline auto getDescription(void)   const { return this->t_desc; }
 
-	inline tpsa(std::shared_ptr<desc> desc, const ord_t mo) {
-	    this->t_desc = desc;
-	    this->tm = std::make_unique<tpsa_mgr>(mad_tpsa_newd(desc->getPtr(), mo));
-	}
+	inline tpsa(std::shared_ptr<desc> desc, const ord_t mo)
+	    : t_desc(desc)
+	    , tm( std::make_unique<tpsa_mgr>(mad_tpsa_newd(desc->getPtr(), mo)) )
+	    {}
+
 	/**
 	 *
 	 * @todo: define it for ctpsa &t too
 	 */
-	inline tpsa(const tpsa              &t,  const ord_t mo) {
-	    this->t_desc = t.getDescription();
-	    this->tm = std::make_unique<tpsa_mgr>(mad_tpsa_new(t.getPtr(), mo)); // ok with t=(tpsa_t*)ctpsa;
-	    this->clear();
-	}
+	inline tpsa(const tpsa              &t,  const ord_t mo)
+	    : t_desc(t.getDescription())
+	    , tm( std::make_unique<tpsa_mgr>(mad_tpsa_new(t.getPtr(), mo)) )
+	    { }
+
+#ifndef GTSPA_ONLY_OPTIMISED_OPS
+	/**
+	 * Copy ctor: use clone instead if required ....
+	 */
+	inline tpsa(const tpsa& o)
+	    : t_desc( o.getDescription())
+	    , tm  ( std::make_unique<tpsa_mgr>(mad_tpsa_new(o.getPtr(), mad_tpsa_same)) )
+	    { this->_copyInPlace(o); };
+#else /* GTSPA_ONLY_OPTIMISED_OPS */
+	inline tpsa(const tpsa& o) = delete;
+#endif /* GTSPA_ONLY_OPTIMISED_OPS */
+
+    private:
+	// managed access to the underlying pointer
+	std::shared_ptr<desc>      t_desc;
+	std::unique_ptr<tpsa_mgr>  tm;
+
+	inline const tpsa_t * getPtr(void) const { return this->tm->getPtr(); }
+	inline tpsa_t *       getPtr(void)       { return this->tm->getPtr(); }
+
+    public:
 	//inline ~tpsa(void){  }
 
 	/**
@@ -112,20 +129,6 @@ namespace gtpsa {
 	    this->set(0, o);
 	}
 #endif
-#ifndef GTSPA_ONLY_OPTIMISED_OPS
-	/**
-	 * Copy ctor: use clone instead if required ....
-	 */
-	inline tpsa(const tpsa& o) {
-	    this->t_desc = o.getDescription();
-	    this->tm = std::make_unique<tpsa_mgr>(mad_tpsa_new(o.getPtr(), mad_tpsa_same));
-	    this->clear();
-	    this->_copyInPlace(o);
-	};
-#else /* GTSPA_ONLY_OPTIMISED_OPS */
-//#error "Currently supporting copy"
-	inline tpsa(const tpsa& o) = delete;
-#endif /* GTSPA_ONLY_OPTIMISED_OPS */
 	/**
 	 * copies content of an other tpsa object to this
 	 * @todo implement a clone function
@@ -267,7 +270,7 @@ namespace gtpsa {
 	 * In the current implementation I assum the compiler can not fully optimise it away
 	 * if not required
 	 */
-	inline tpsa  operator =  (const tpsa& o )       { this->_copyInPlace(o); return *this; }
+	inline tpsa& operator =  (const tpsa& o )       { this->_copyInPlace(o); return *this; }
 	/**
 	 * @todo do I need to make a copy ....?
 	 */
@@ -309,14 +312,6 @@ namespace gtpsa {
 	    strm << "\n";
 	}
 
-    private:
-	// managed access to the underlying pointer
-	std::unique_ptr<tpsa_mgr>  tm;
-	std::shared_ptr<desc>      t_desc;
-
-
-	inline const tpsa_t * getPtr(void) const { return this->tm->getPtr(); }
-	inline tpsa_t *       getPtr(void)       { return this->tm->getPtr(); }
 
 	/*
 	 * helper functions for the different operators

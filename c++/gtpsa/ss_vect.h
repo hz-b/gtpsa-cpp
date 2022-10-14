@@ -22,12 +22,9 @@ template<typename T>
 class ss_vect{
 
 public:
-    inline ss_vect(const T& t, const size_t n=6){
-	this->state_space.reserve(n);
-	for(size_t i=0; i<n; ++i){
-	    this->state_space.push_back(0e0);
-	}
-    }
+    inline ss_vect(const T& t, const size_t n=6)
+	: state_space(n, 0e0)
+	{}
 
     /*
     inline ss_vect(const T& t, std::vector<double> vec){
@@ -38,7 +35,10 @@ public:
     }
     */
 
-    inline ss_vect(const T& x, const T& px, const T& y, const T& py, const T& delta, const T& ct){
+    inline ss_vect(const T& x, const T& px, const T& y, const T& py, const T& delta, const T& ct)
+	: state_space{x, px, y, py, delta, ct}
+	{}
+/*
 	this->state_space.reserve(6);
 	this->state_space.push_back(x);
 	this->state_space.push_back(px);
@@ -46,9 +46,8 @@ public:
 	this->state_space.push_back(py);
 	this->state_space.push_back(delta);
 	this->state_space.push_back(ct);
-
-    }
-
+	}
+*/
     /*
     inline ss_vect(const std::vector<T>& vec){
 	this->state_space.reserve(vec.size());
@@ -89,15 +88,16 @@ public:
     inline ss_vect<T> operator - (const double      o) const { auto r = this->clone(); r -= o; return r; }
     inline ss_vect<T> operator * (const double      o) const { auto r = this->clone(); r *= o; return r; }
     inline ss_vect<T> operator / (const double      o) const { auto r = this->clone(); r /= o; return r; }
+    /*
     ss_vect(const ss_vect& o) {
 	this->state_space.reserve(o.state_space.size());
 	std::copy(o.state_space.begin(), o.state_space.end(), std::back_inserter(this->state_space));
     }
+    */
 #else
-    ss_vect(const ss_vect& o) = delete;
 #endif /* GTSPA_ONLY_OPTIMISED_OPS */
+    ss_vect(const ss_vect& o) = delete;
 
-#if 0
     inline ss_vect(const ss_vect<T>&& o) noexcept : state_space(std::move(o.state_space)) {};
     inline ss_vect<T>& operator=(const ss_vect<T>&& o) noexcept {
 	if (this == &o) {
@@ -107,7 +107,6 @@ public:
 	// o->state_space = nullptr;
 	return *this;
     }
-#endif
 
     /**
      * @brief allocates empty objects with the same property as this object
@@ -201,19 +200,22 @@ std::ostream& operator<<(std::ostream& strm, ss_vect<T>& s)
 
 template<>
 inline ss_vect<gtpsa::tpsa>::ss_vect(const gtpsa::tpsa&t,  const size_t n)
+    : state_space(n, gtpsa::tpsa(t, mad_tpsa_same) )
+{}
+/*
 {
 
-    /*
-     * review this interface !
-     * better just to clone
-     * not all tpsa need to address the same number of variables or knobs
-     */
+
+    // review this interface !
+    // better just to clone
+    // not all tpsa need to address the same number of variables or knobs
+
     this->state_space.reserve(n);
     for(size_t i=0; i<n; ++i){
 	this->state_space.push_back(std::move(gtpsa::tpsa(t, mad_tpsa_same)));
     }
 }
-
+*/
 
 template<>
 inline void ss_vect<double>::show(std::ostream& strm, int level, bool with_endl) const {

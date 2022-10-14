@@ -23,36 +23,37 @@ namespace gtpsa {
     };
 
     /**
-     * manages ptr lifetime
+     * @brief manages ptr lifetime
      */
     class desc_mgr{
     public:
-	inline desc_mgr(const desc_t *p)                { this->ptr = p;}
-	inline ~desc_mgr(void)                          { mad_desc_del(this->ptr); this->ptr=nullptr; }
-
-	inline desc_mgr(const desc& o) = delete;
+	inline const desc_t *  getPtr(void) const { return this->ptr; }
 	friend class desc;
+	inline desc_mgr(const desc_t *p) : ptr(p) { }
+	inline ~desc_mgr(void)                    { mad_desc_del(this->ptr); this->ptr=nullptr; }
 
     private:
-	inline const desc_t *  getPtr(void)       const { return this->ptr; }
-	const desc_t * ptr;
+	// inline desc_mgr(const desc& o)           = delete;
+	desc_mgr(const desc_mgr& o)           = delete;
+	desc_mgr& operator= (const desc_mgr&) = delete;
 
+	const desc_t * ptr;
     };
 
 
     class desc{
     public:
-	inline desc(int nv, ord_t no_)                                 { this->dm = std::make_unique<desc_mgr>( mad_desc_newv  (nv,     no_    ) ); }
-	inline desc(int nv, ord_t np, ord_t no, ord_t po_)             { this->dm = std::make_unique<desc_mgr>( mad_desc_newvp (nv, np, no, po_) ); }
-	inline desc(int nv, ord_t np, ord_t no[/*nv+np?*/], ord_t po_) { this->dm = std::make_unique<desc_mgr>( mad_desc_newvpo(nv, np, no, po_) ); }
-	inline desc(int nv, ord_t np, std::vector<ord_t> no, ord_t po_){
+	inline desc(int nv,           ord_t no = 0)                         : dm( std::make_unique<desc_mgr>( mad_desc_newv  (nv,     no    ) ) ) { }
+	inline desc(int nv, ord_t np, ord_t no,              ord_t po = 0 ) : dm( std::make_unique<desc_mgr>( mad_desc_newvp (nv, np, no, po) ) ) { }
+	inline desc(int nv, ord_t np, ord_t no[/*nv+np?*/],  ord_t po = 0 ) : dm( std::make_unique<desc_mgr>( mad_desc_newvpo(nv, np, no, po) ) ) { }
+	inline desc(int nv, ord_t np, std::vector<ord_t> no, ord_t po = 0 ) : dm( nullptr ) {
 	auto req_elem = nv+np;
 	if(int(no.size()) <= req_elem){
 	    std::stringstream strm;
 	    strm << "nv= "<<nv<<"+ np="<<np <<"="<<req_elem<<"req. elem, got only "<<no.size()<<"elem";
 	    std::runtime_error(strm.str());
 	}
-	this->dm = std::make_unique<desc_mgr> (mad_desc_newvpo(nv, np, no.data(), po_));
+	this->dm = std::make_unique<desc_mgr> (mad_desc_newvpo(nv, np, no.data(), po));
     }
 	// inline desc(const desc_t* a_desc)                             { this->t_desc = a_desc;                            }
 	// inline desc(const desc&& o) : dm(std::move(o.dm))     {}
