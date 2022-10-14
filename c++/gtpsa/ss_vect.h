@@ -13,6 +13,10 @@ namespace gtpsa {
  * state space, phase space vector
  *
  * assuming that all are of the same length ...
+ *
+ * @todo:
+ *        review space state length
+ *        review description the state space should have
  */
 template<typename T>
 class ss_vect{
@@ -24,6 +28,7 @@ public:
 	    this->state_space.push_back(0e0);
 	}
     }
+
     /*
     inline ss_vect(const T& t, std::vector<double> vec){
 	this->state_space.reserve(vec.size());
@@ -92,6 +97,7 @@ public:
     ss_vect(const ss_vect& o) = delete;
 #endif /* GTSPA_ONLY_OPTIMISED_OPS */
 
+#if 0
     inline ss_vect(const ss_vect<T>&& o) noexcept : state_space(std::move(o.state_space)) {};
     inline ss_vect<T>& operator=(const ss_vect<T>&& o) noexcept {
 	if (this == &o) {
@@ -101,6 +107,7 @@ public:
 	// o->state_space = nullptr;
 	return *this;
     }
+#endif
 
     /**
      * @brief allocates empty objects with the same property as this object
@@ -116,9 +123,12 @@ public:
     inline ss_vect<T> newFromThis(void) const {
 	throw std::runtime_error("Implement me but decide on method name first!");
     }
+    /**
+     * @todo implement a more flexible clone
+     */
     inline ss_vect<T> clone(void) const {
-#warning "clone needs to be implemented properly (currently limited to 6 space state vector)"
 	const std::vector<T>& vec = this->state_space;
+	this->checkSize(vec);
 	ss_vect<T> nv = ss_vect(
 	    vec[0].clone(),
 	    vec[1].clone(),
@@ -134,15 +144,16 @@ public:
         std::transform(o.state_space.begin(), o.state_space.end(), this->state_space.begin(), [](const T& elem)  -> T { return elem.clone(); });
     }
 
-    inline T& operator[](const int i)             { return this->state_space[i]; }
+    inline       T& operator[](const int i)       { return this->state_space[i]; }
     inline const T& operator[](const int i) const { return this->state_space[i]; }
 
     inline void cst(ss_vect<double> &r)     const {
 	for(size_t i = 0; i < this->size(); ++i){ r[i] = this->state_space[i].cst(); }
 	//std::transform(begin(), this->state_space.end(), r.state_space.begin(), [](T& elem) { return elem.cst();});
-
     }
+
     inline ss_vect<double> cst(void)        const { ss_vect<double> r(0e0); this->cst(r); return r; }
+
     inline void show(std::ostream& strm, int level=1, bool with_endl=true) const {
 	for(size_t i= 0; i<this->state_space.size(); ++i){
 	    this->state_space[i].show(strm, level);
@@ -154,6 +165,7 @@ public:
     inline arma::mat toMatrix(void){
 	    throw std::runtime_error("only implemented for tps(a)");
     }
+
 private:
     inline void checkSize(const std::vector<T>& vec) const {
 	if (vec.size() != 6){
@@ -177,6 +189,7 @@ private:
     //
     std::vector<T> state_space;
 };
+
 
 template<typename T> inline
 std::ostream& operator<<(std::ostream& strm, ss_vect<T>& s)
@@ -265,10 +278,16 @@ template<>
 inline void ss_vect<gtpsa::tpsa>::set_identity(void)
 {
 
-    for(size_t i = 0; i < this->state_space.size(); ++i){
+    this->checkSize(this->state_space);
+    const size_t n = this->state_space.size();
+    for(size_t i = 0; i < n; ++i){
 	auto& t_tpsa = this->state_space[i];
 	t_tpsa.clear();
-	t_tpsa.setsm(std::vector<idx_t>{int(i+1), 1}, 0e0, 1e0);
+	std::vector<num_t> vec(n);
+	for(auto&e : vec) e = 0;
+	vec[i] = 1;
+	t_tpsa.setv(1, vec);
+	// t_tpsa.setsm(std::vector<idx_t>{int(i+1), 1}, 0e0, 1e0);
     }
     // throw std::runtime_error("gtpsa set identity needs to be implemented!");
     //std::for_each(this->state_space.begin(), this->state_space.end(), [](gtpsa::tpsa& v){ v.clear(); };
@@ -276,6 +295,7 @@ inline void ss_vect<gtpsa::tpsa>::set_identity(void)
 
 template<>
 inline arma::mat ss_vect<gtpsa::tpsa>::toMatrix(void){
+
     arma::mat mat(this->size(), this->size());
 
     //mat.fill(NAN);

@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <iomanip>
 #include <memory>
 #include <ostream>
 #include <vector>
@@ -79,6 +80,7 @@ namespace gtpsa {
 	 */
 	inline tpsa(tpsa&& o) = default; //  noexcept :  tm(std::move(o.tm)), t_desc(std::move(o.t_desc)) { };
 	inline tpsa& operator= (tpsa && o) = default;
+
 #if 0
 	    noexcept {
 	    if (this != &o) {
@@ -89,7 +91,7 @@ namespace gtpsa {
 	}
 #endif
 	inline tpsa& operator= (const double && o) {
-	    this->clear();
+	    // this->clear();
 	    this->set(0, o);
 	    return *this;
 	}
@@ -130,8 +132,7 @@ namespace gtpsa {
 	 *
 	 */
 	inline void _copyInPlace(const tpsa &o)       { mad_tpsa_copy(o.getPtr(), this->getPtr()); }
-	inline tpsa clone(void)                 const { std::cout << "cloning tpsa " << std::endl;
-	                                                tpsa res(*this, mad_tpsa_same); res._copyInPlace(*this); return res; }
+	inline tpsa clone(void)                 const { tpsa res(*this, mad_tpsa_same); res._copyInPlace(*this); return res; }
 
 #if 0
 // introspection
@@ -153,6 +154,11 @@ namespace gtpsa {
 	 * @todo return std::string?
 	 */
 	inline auto name(void)                  const { return mad_tpsa_nam(this->getPtr()); }
+
+	/**
+	 * @todo: rename to order ?
+	 */
+	inline auto ord(void)                   const { return mad_tpsa_ord(this->getPtr()); }
 	// inline auot ord(=
 #if 0
 	inline auto ordv(...)                   const { return mad_tpsa_ord(this->getPtr()); }
@@ -229,8 +235,8 @@ namespace gtpsa {
 	inline auto setsm(const std::vector<int> m, num_t a, num_t b) { return mad_tpsa_setsm  (this->getPtr(), m.size(), m.data(), a, b ); }
 
 
-	inline void getv(idx_t i,       std::vector<num_t> *v) { mad_tpsa_getv(this->getPtr(), i, v->size(), v->data() ); }
-	inline void setv(idx_t i, const std::vector<num_t> &v) { mad_tpsa_setv(this->getPtr(), i, v.size() , v.data()  ); }
+	inline void getv(idx_t i,       std::vector<num_t> *v) const { mad_tpsa_getv(this->getPtr(), i, v->size(), v->data() ); }
+	inline void setv(idx_t i, const std::vector<num_t> &v)       { mad_tpsa_setv(this->getPtr(), i, v.size() , v.data()  ); }
 
 	inline void print(str_t name_, num_t eps_, int nohdr_, FILE *stream_){
 	    mad_tpsa_print(this->getPtr(), name_, eps_, nohdr_, stream_);
@@ -266,7 +272,7 @@ namespace gtpsa {
 	 * @todo do I need to make a copy ....?
 	 */
 	// negation
-	inline tpsa  operator -  (void)           const { return process2(*this, -1e0, mul_d); }
+	inline tpsa  operator -  (void)           const { auto r = this->clone(); r *= -1e0; return r;}
 
 	//process2
 	inline tpsa  operator +  (const tpsa& o ) const { return process2(*this, o, add); }
@@ -275,10 +281,10 @@ namespace gtpsa {
 	inline tpsa  operator /  (const tpsa& o ) const { return process2(*this, o, div); }
 
 
-	inline tpsa  operator +  (const double o) const { return process2(*this, o, add_d); }
-	inline tpsa  operator -  (const double o) const { return process2(*this, o, sub_d); }
-	inline tpsa  operator *  (const double o) const { return process2(*this, o, mul_d); }
-	inline tpsa  operator /  (const double o) const { return process2(*this, o, div_d); }
+	// inline tpsa  operator +  (const double o) const { return process2(*this, o, add_d); }
+	// inline tpsa  operator -  (const double o) const { return process2(*this, o, sub_d); }
+	// inline tpsa  operator *  (const double o) const { return process2(*this, o, mul_d); }
+	// inline tpsa  operator /  (const double o) const { return process2(*this, o, div_d); }
 
 #endif
 	friend std::ostream& operator<<(std::ostream &, const tpsa &);
@@ -287,7 +293,21 @@ namespace gtpsa {
 	 *  @warning: no compatible version in mad_tpsa ...
 	 *  @todo: review method
 	 */
-	inline void show(std::ostream& strm, int level) const { strm << this->cst(); }
+	inline void show(std::ostream& strm, int level) const {
+
+	    strm << "gtpsa  cst:\n\t" << this->cst();
+	    if(this->ord()){
+		// at least first order ...
+		auto nv = this->getDescription()->getNv(0, 0, 0);
+		std::vector<num_t> v(nv);
+		this->getv(1, &v);
+
+		strm  << "\ngtpsa linear :\n"
+		      << std::scientific << std::setw(20);
+		for(auto& e: v) strm <<  std::scientific << std::setw(20) << e << " ";
+	    }
+	    strm << "\n";
+	}
 
     private:
 	// managed access to the underlying pointer
@@ -342,13 +362,16 @@ namespace gtpsa {
     inline void process1to2_(const tpsa& a, tpsa* r1, tpsa *r2,      void (*func)(const tpsa_t* a, tpsa_t *r1,  tpsa_t *r2) ) {
 	func(a.getPtr(), r1->getPtr(), r2->getPtr());
     }
+    /**
+     * @brief two arguments in, single argument out
+     */
     inline void process2_   (const tpsa& a, const tpsa& b, tpsa *r,  void (*func)(const tpsa_t* a, const tpsa_t* b, tpsa_t *r) ) {
 	func(a.getPtr(), b.getPtr(), r->getPtr());
     }
     inline void process2_   (const tpsa& a, num_t b, tpsa *r,        void (*func)(const tpsa_t* a, num_t b, tpsa_t *r) ) {
 	func(a.getPtr(), b, r->getPtr());
     }
-    inline void process2_   (const tpsa& a, const double b, tpsa *r, void (*func)(const double a, const double b, double *r) ) {
+    inline void process2_  (const tpsa& a, const double b, tpsa *r, void (*func)(const double a, const double b, double *r) ) {
 	num_t rv;
 	func(mad_tpsa_get0(a.getPtr()), b, &rv);
 	mad_tpsa_set0(r->getPtr(), 0.0, rv);
@@ -363,6 +386,7 @@ namespace gtpsa {
      */
     tpsa inline process2(const tpsa& a, const tpsa&  b, void (*func)(const tpsa& a, const tpsa&  b, tpsa *r) ) { auto ret = tpsa(a, mad_tpsa_same); func(a, b, &ret); return ret; }
     tpsa inline process2(const tpsa& a, const double b, void (*func)(const tpsa& a, const double b, tpsa *r) ) { auto ret = tpsa(a, mad_tpsa_same); func(a, b, &ret); return ret; }
+    tpsa inline process2(const tpsa& a, const double b, void (*func)(const tpsa& a, const tpsa&  b, tpsa *r) ) { auto ret = tpsa(a, mad_tpsa_same); ret.set(0, b); func(a, ret, &ret); return ret; }
 
     inline auto norm  (const tpsa& a)                          { return mad_tpsa_nrm(a.getPtr()); }
     inline auto equ   (const tpsa& a, const tpsa& b, num_t tol){ return mad_tpsa_equ(a.getPtr(), b.getPtr(), tol); }
@@ -390,10 +414,10 @@ namespace gtpsa {
     inline tpsa mul   (const tpsa& a, const tpsa& b           ){ return process2(a, b, mul); }
     inline tpsa div   (const tpsa& a, const tpsa& b           ){ return process2(a, b, div); }
 
-    inline tpsa add_d (const tpsa& a, const double b          ){ return process2(a, b, add_d); }
-    inline tpsa sub_d (const tpsa& a, const double b          ){ return process2(a, b, sub_d); }
-    inline tpsa mul_d (const tpsa& a, const double b          ){ return process2(a, b, mul_d); }
-    inline tpsa div_d (const tpsa& a, const double b          ){ return process2(a, b, div_d); }
+    // inline tpsa add_d (const tpsa& a, const double b          ){ return process2(a, b, add); }
+    // inline tpsa sub_d (const tpsa& a, const double b          ){ return process2(a, b, sub); }
+    // inline tpsa mul_d (const tpsa& a, const double b          ){ return process2(a, b, mul); }
+    // inline tpsa div_d (const tpsa& a, const double b          ){ return process2(a, b, div); }
 
     /* standard mathematical functions ... trigonometic etc ... taking one argument returning one */
 #ifdef FUNC_ARG1
@@ -425,16 +449,21 @@ namespace gtpsa {
     inline void invsqrt (const tpsa &a, num_t v, tpsa *c) { process2_(a, v, c, mad_tpsa_invsqrt); }
 
     inline tpsa acc     (const tpsa &a, num_t v         ) { return process2 (a, v,      acc    ); }
-    inline tpsa scl     (const tpsa &a, num_t v         ) { return process2 (a, v,      scl    ); }
+    inline tpsa scl     (const tpsa &a, const double v  ) { return process2 (a, v,      scl    ); }
     inline tpsa inv     (const tpsa &a, num_t v         ) { return process2 (a, v,      inv    ); }
     inline tpsa invsqrt (const tpsa &a, num_t v         ) { return process2 (a, v,      invsqrt); }
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
-    inline tpsa  operator + (const double a, const tpsa& b) { return process2(b,  a, add_d); }
+    inline tpsa  operator + (const double a, const tpsa&  b) { auto r = tpsa(b, mad_tpsa_same); r.set(0, a    ); r += b; return r; }
+    inline tpsa  operator + (const tpsa&  a, const double b) { return b + a;                                                       }
     // avoid double copy of b: a - b => -(b-a) => -b + a
-    inline tpsa  operator - (const double a, const tpsa& b) { auto r = -b; add_d(r, a, &r); return r;}
-    inline tpsa  operator * (const double a, const tpsa& b) { return scl(b, a); }
-    inline tpsa  operator / (const double a, const tpsa& b) { return inv(b, a); }
+    inline tpsa  operator - (const double a, const tpsa&  b) { auto r = tpsa(b, mad_tpsa_same); r.set(0, a    ); r -= b; return r; }
+    inline tpsa  operator - (const tpsa&  a, const double b) { return a + (-b);                                                    }
+    inline tpsa  operator * (const double a, const tpsa&  b) { auto r = tpsa(b, mad_tpsa_same); r.set(0, a    ); r *= b; return r; }
+    inline tpsa  operator * (const tpsa&  a, const double b) { return b * a;                                                       }
+    inline tpsa  operator / (const tpsa&  a, const double b) { auto r = tpsa(a, mad_tpsa_same); r.set(0, 1e0/b); r *= a; return r; }
+    inline tpsa  operator / (const double a, const tpsa&  b) { auto r = tpsa(b, mad_tpsa_same); r.set(0,     a); r /= b; return r; }
+    // inline tpsa  operator / (const double a, const tpsa&  b) { return inv(b, a); }
 #endif
 
     inline
