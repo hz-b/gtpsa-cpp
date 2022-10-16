@@ -37,7 +37,7 @@ namespace gtpsa {
 	desc_mgr(const desc_mgr& o)           = delete;
 	desc_mgr& operator= (const desc_mgr&) = delete;
 
-	const desc_t * ptr;
+	const desc_t * ptr = nullptr;
     };
 
 

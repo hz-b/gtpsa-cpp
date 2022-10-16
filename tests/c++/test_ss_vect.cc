@@ -179,6 +179,9 @@ BOOST_AUTO_TEST_CASE(test40_ss_vect_double_dbl_assignment)
     const double x = 355;
     const gtpsa::ss_vect<double> ps_orig = {x, 0, 0, 0, 0, 0};
     // the code below should either run or fail during compilation
-    gtpsa::ss_vect<double> ps = ps.clone();
+    // compiler warns on that if optimisation is on
+    // the variable on the right should be ps_orig
+
+    // gtpsa::ss_vect<double> ps = ps.clone();
 
 }

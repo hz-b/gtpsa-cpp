@@ -14,7 +14,6 @@
 #include <gtpsa/desc.hpp>
 #include <algorithm>
 #include <cassert>
-#include <iostream>
 #include <iomanip>
 #include <memory>
 #include <ostream>
