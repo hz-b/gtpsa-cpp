@@ -37,7 +37,7 @@ public:
 
     inline ss_vect(const T& x, const T& px, const T& y, const T& py, const T& delta, const T& ct)
 	: state_space{x, px, y, py, delta, ct}
-	{}
+	{ this->checkSize(this->state_space); }
 /*
 	this->state_space.reserve(6);
 	this->state_space.push_back(x);
@@ -48,12 +48,11 @@ public:
 	this->state_space.push_back(ct);
 	}
 */
-    /*
-    inline ss_vect(const std::vector<T>& vec){
-	this->state_space.reserve(vec.size());
-	std::copy(vec.begin(), vec.end(), std::back_inserter(this->state_space));
-    }
-    */
+
+    inline ss_vect(const std::vector<T>& vec)
+	: state_space(vec)
+	{  this->checkSize(this->state_space); }
+
     inline void operator+= (const ss_vect<T>& o){ this->inplace_op(o, [] (T& t, const T&     o){ t += o;}); };
     inline void operator-= (const ss_vect<T>& o){ this->inplace_op(o, [] (T& t, const T&     o){ t -= o;}); };
     /*
@@ -128,15 +127,12 @@ public:
     inline ss_vect<T> clone(void) const {
 	const std::vector<T>& vec = this->state_space;
 	this->checkSize(vec);
-	ss_vect<T> nv = ss_vect(
-	    vec[0].clone(),
-	    vec[1].clone(),
-	    vec[2].clone(),
-	    vec[3].clone(),
-	    vec[4].clone(),
-	    vec[5].clone()
-	    );
-	return nv;
+
+	std::vector<T> nvec;
+	nvec.reserve(this->state_space.size());
+        std::transform(vec.begin(), vec.end(), std::back_inserter(nvec), [](const T& elem)  -> T { return elem.clone(); });
+
+	return ss_vect(nvec);
     }
 
     inline void _copyInPlace(const ss_vect<T>& o) {
