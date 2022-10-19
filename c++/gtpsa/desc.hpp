@@ -6,7 +6,6 @@ extern "C" {
 #include <mad_desc.h>
 }
 
-
 #include <vector>
 #include <string>
 #include <ostream>
@@ -14,6 +13,10 @@ extern "C" {
 #include <memory>
 
 namespace gtpsa {
+
+class tpsa;
+class ctpsa;
+
     /*
      *@brief how to initalise new object if an other is presented
      */
@@ -118,7 +121,8 @@ namespace gtpsa {
 	inline void show(std::ostream& o) const { o << this->repr(); }
 
 	friend std::ostream& operator<<(std::ostream&, const desc& d);
-	friend class tpsa;
+	friend class TPSAWrapper;
+	friend class CTPSAWrapper;
 
 private:
 	std::unique_ptr<desc_mgr> dm;
