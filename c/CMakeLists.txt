@@ -5,10 +5,10 @@ set(gtpsa_HEADERS
   ${mad_ng_SRC_DIR}/mad_bit.h
   ${mad_ng_SRC_DIR}/mad_cst.h
   ${mad_ng_SRC_DIR}/mad_ctpsa.h
-  ${mad_ng_SRC_DIR}/mad_ctpsa_impl.h
+  # ${mad_ng_SRC_DIR}/mad_ctpsa_impl.h
   ${mad_ng_SRC_DIR}/mad_def.h
   ${mad_ng_SRC_DIR}/mad_desc.h
-  ${mad_ng_SRC_DIR}/mad_desc_impl.h
+  # ${mad_ng_SRC_DIR}/mad_desc_impl.h
   ${mad_ng_SRC_DIR}/mad_erfw.h
   ${mad_ng_SRC_DIR}/mad_log.h
   ${mad_ng_SRC_DIR}/mad_mat.h
@@ -19,7 +19,7 @@ set(gtpsa_HEADERS
   ${mad_ng_SRC_DIR}/mad_rad.h
   ${mad_ng_SRC_DIR}/mad_str.h
   ${mad_ng_SRC_DIR}/mad_tpsa.h
-  ${mad_ng_SRC_DIR}/mad_tpsa_impl.h
+  # ${mad_ng_SRC_DIR}/mad_tpsa_impl.h
   ${mad_ng_SRC_DIR}/mad_vec.h
   ${mad_ng_SRC_DIR}/mad_ver.h
 )
@@ -61,3 +61,41 @@ add_library(gtpsa SHARED
   ${gtpsa_HEADERS}
 )
 target_link_libraries(gtpsa lapack blas ${OpenMP_C_LIBRARIES})
+
+
+message(STATUS "Building gtpsa.cmake")
+set(GTPSA_CMAKE_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/")
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/gtpsaConfig.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/gtpsaConfig.cmake"
+    INSTALL_DESTINATION ${GTPSA_CMAKE_LIB_DIR}
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/gtpsaConfigVersion.cmake
+    VERSION "${GTPSA_VERSION}"
+    COMPATIBILITY SameMajorVersion
+)
+
+install(FILES ${gtpsa_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(TARGETS gtpsa
+        EXPORT gtpsaTargets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(
+    EXPORT gtpsaTargets
+    FILE gtpsaTargets.cmake
+    DESTINATION ${GTPSA_CMAKE_LIB_DIR}
+    NAMESPACE gtpsa::
+)
+
+install(FILES
+         "${CMAKE_CURRENT_BINARY_DIR}/gtpsaConfig.cmake"
+         "${CMAKE_CURRENT_BINARY_DIR}/gtpsaConfigVersion.cmake"
+	 DESTINATION ${GTPSA_CMAKE_LIB_DIR}
+)

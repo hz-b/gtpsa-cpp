@@ -105,10 +105,41 @@ namespace gtpsa {
 
 #endif
 	// forward declaration ... needs to be implemented in the derived class
-	inline  void show(std::ostream& strm, int level) const {
-	    strm << "Method show should be implemented in derived class!";
-	};
+	 inline void show(std::ostream& strm, int level) const {
 
+	    strm << "gtpsa  cst:\n\t" << this->cst();
+	    if(this->ord()){
+		// at least first order ...
+		auto nv = this->getDescription()->getNv(0, 0, 0);
+		std::vector<T> v(nv);
+		this->getv(1, &v);
+
+		strm  << "\ngtpsa linear :\n"
+		      << std::scientific << std::setw(20);
+		for(auto& e: v) strm <<  std::scientific << std::setw(20) << e << " ";
+	    }
+	    strm << "\n";
+	}
+
+
+
+	/**
+	 * @brief support python representation of this object
+	 */
+	inline std::string repr(void) const {
+	    std::stringstream strm;
+	    this->show(strm, 10);
+	    return strm.str();
+	}
+
+	/**
+	 * @brief support python __str__ of this object
+	 */
+	inline std::string pstr(void) const {
+	    std::stringstream strm;
+	    this->show(strm, 10);
+	    return strm.str();
+	}
     private:
 
 	friend inline GTPSA_CLASS(WithOp) process2(const GTPSA_CLASS(WithOp)& a, const GTPSA_CLASS(WithOp)& b,
@@ -121,8 +152,10 @@ namespace gtpsa {
 	friend inline void process2_ (const GTPSA_CLASS(WithOp)& a, const T b, GTPSA_CLASS(WithOp) *r, void (*func)(const P* a, const T b, P *r) );
 	friend inline void process1to2_(const GTPSA_CLASS(WithOp)& a, GTPSA_CLASS(WithOp)* r1, GTPSA_CLASS(WithOp) *r2,      void (*func)(const P* a, P *r1,  P *r2) ) ;
 
-	friend inline void pow   (const GTPSA_CLASS(WithOp)& a,                        int n,  GTPSA_CLASS(WithOp)* r );
-	friend inline void pow   (const GTPSA_CLASS(WithOp)& a,                        T n,  GTPSA_CLASS(WithOp)* r );
+	friend inline void pow (const GTPSA_CLASS(WithOp)& a, int n, GTPSA_CLASS(WithOp)* r );
+	friend inline void pow (const GTPSA_CLASS(WithOp)& a, T   n, GTPSA_CLASS(WithOp)* r );
+
+	friend inline void taylor_(const GTPSA_CLASS(WithOp)& a, std::vector<T> coeff, GTPSA_CLASS(WithOp)* c);
     }; /* class GTPSA_CLASS(WithOp) */
 
 

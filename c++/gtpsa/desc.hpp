@@ -69,7 +69,7 @@ class ctpsa;
 
     public:
 
-	inline int   getNv(ord_t *mo_, int *np_, ord_t *po_)    const { return mad_desc_getnv (this->getPtr(), mo_, np_, po_); }
+	inline int   getNv(ord_t *mo_=0, int *np_=0, ord_t *po_=0) const { return mad_desc_getnv (this->getPtr(), mo_, np_, po_); }
 	inline ord_t getNo(int nn, ord_t *no_)                  const { return mad_desc_getno (this->getPtr(), nn, no_);       }
 	inline ord_t maxOrd(void)                               const { return mad_desc_maxord(this->getPtr());                }
 	inline ssz_t maxLen(void)                               const { return mad_desc_maxlen(this->getPtr());                }
@@ -77,18 +77,26 @@ class ctpsa;
 	inline ssz_t trunc(const ord_t to)                      const { return mad_desc_gtrunc(this->getPtr(), to);            }
 
 	inline void info(FILE * fp = nullptr)                   const { mad_desc_info(this->getPtr(), fp);                    }
+	inline void info_s(std::string* buf)                    const {
+	    mad_desc_info_s(this->getPtr(), buf->size(), buf->data());
+	}
+	std::string info_s(void)                                const {
+	    std::string buf(256, '\0');
+	    this->info_s(&buf);
+	    return buf;
+	}
 	/* consider removing methods that don't use containers */
-	inline log_t isvalid   (const std::string s, ssz_t n=0) const { return mad_desc_isvalids  (this->getPtr(), (n == 0) ? s.size() : n, s.c_str() );      }
-	inline log_t isvalid   (const std::vector<ord_t> m)     const { return mad_desc_isvalidm  (this->getPtr(), m.size(), m.data()); }
-	inline log_t isvalidsm (const std::vector<idx_t> m)     const { return mad_desc_isvalidsm (this->getPtr(), m.size(), m.data()); }
+	inline log_t isvalid   (const std::string& s, ssz_t n=0) const { return mad_desc_isvalids  (this->getPtr(), (n == 0) ? s.size() : n, s.c_str() );      }
+	inline log_t isvalid   (const std::vector<ord_t>& m)     const { return mad_desc_isvalidm  (this->getPtr(), m.size(), m.data()); }
+	inline log_t isvalidsm (const std::vector<idx_t>& m)     const { return mad_desc_isvalidsm (this->getPtr(), m.size(), m.data()); }
 #if 0
 	inline log_t isvalid   (ssz_t n,       str_t s    )     const { return mad_desc_isvalids  (this->getPtr(), n, s );  }
 	inline log_t isvalid   (ssz_t n, const ord_t *m )	const { return mad_desc_isvalidm  (this->getPtr(), n, m );  }
 	inline log_t isvalid   (ssz_t n, const idx_t *m )	const { return mad_desc_isvalidsm (this->getPtr(), n, m );  }
 #endif
 
-	inline idx_t idx       (const std::string s, ssz_t n=0) const { return mad_desc_idxs      (this->getPtr(), (n == 0) ? s.size() : n, s.c_str() );}
-	inline log_t idx       (const std::vector<ord_t> m)     const { return mad_desc_idxm      (this->getPtr(), m.size(), m.data()); }
+	inline idx_t idx       (const std::string& s, ssz_t n=0) const { return mad_desc_idxs      (this->getPtr(), (n == 0) ? s.size() : n, s.c_str() );}
+	inline log_t idx       (const std::vector<ord_t>& m)    const  { return mad_desc_idxm      (this->getPtr(), m.size(), m.data()); }
 	/**
 	 * @note assuming that this is similar to tpsa idxsm (sparse approach)
 	 *       thus not overloading
@@ -109,14 +117,7 @@ class ctpsa;
 
 
 	inline std::string repr(void)                           const {
-#if 1
-	    throw std::runtime_error("Not implemented");
-#else
-	    const int buf_len = 256;
-	    char buf[buf_len];
-	    mad_desc_info_s(this->getPtr(), buf_len, buf);
-	    return std::string(buf);
-#endif
+	    return this->info_s();
 	}
 	inline void show(std::ostream& o) const { o << this->repr(); }
 

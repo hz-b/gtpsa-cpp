@@ -174,4 +174,12 @@ namespace gtpsa {
     inline void sincos_ (const GTPSA_CLASS(WithOp)& t, GTPSA_CLASS(WithOp)* r1, GTPSA_CLASS(WithOp)* r2) { process1to2_(t, r1, r2, GTPSA_METH(sincos)  ) ; }
     inline void sincosh_(const GTPSA_CLASS(WithOp)& t, GTPSA_CLASS(WithOp)* r1, GTPSA_CLASS(WithOp)* r2) { process1to2_(t, r1, r2, GTPSA_METH(sincosh) ) ; }
 
+    inline void taylor_(const GTPSA_CLASS(WithOp)& a, std::vector<T> coeff, GTPSA_CLASS(WithOp)* c){ GTPSA_METH(taylor)(a.getPtr(), coeff.size(), coeff.data(), c->getPtr()); }
+    inline GTPSA_CLASS(WithOp) taylor(const GTPSA_CLASS(WithOp)& a, std::vector<T> coeff) {
+	auto ret = GTPSA_CLASS(WithOp)(a, mad_tpsa_same);
+	taylor_(a, coeff, &ret);
+	return ret;
+    }
+
+
 } // namespace gtpsa

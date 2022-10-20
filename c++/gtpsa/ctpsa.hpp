@@ -96,21 +96,21 @@ namespace gtpsa {
 	 *  @warning: no compatible version in mad_ctpsa ...
 	 *  @todo: review method
 	 */
-	inline void show(std::ostream& strm, int level) const {
-
-	    strm << "gctpsa  cst:\n\t" << this->cst();
-	    if(this->ord()){
-		// at least first order ...
-		auto nv = this->getDescription()->getNv(0, 0, 0);
-		std::vector<cnum_t> v(nv);
-		this->getv(1, &v);
-
-		strm  << "\ng ctpsa linear :\n"
-		      << std::scientific << std::setw(20);
-		for(auto& e: v) strm <<  std::scientific << std::setw(20) << e << " ";
-	    }
-	    strm << "\n";
-	}
+	// inline void show(std::ostream& strm, int level) const override final {
+	//
+	//     strm << "gctpsa  cst:\n\t" << this->cst();
+	//     if(this->ord()){
+	// 	// at least first order ...
+	// 	auto nv = this->getDescription()->getNv(0, 0, 0);
+	// 	std::vector<cnum_t> v(nv);
+	// 	this->getv(1, &v);
+	//
+	// 	strm  << "\ng ctpsa linear :\n"
+	// 	      << std::scientific << std::setw(20);
+	// 	for(auto& e: v) strm <<  std::scientific << std::setw(20) << e << " ";
+	//     }
+	//     strm << "\n";
+	// }
 
 
 }; // class ctpsa

@@ -49,6 +49,11 @@ namespace gtpsa {
 
 namespace gtpsa {
 
+    /*
+     * @brief tpsa object
+     *
+     * Provides the methods as of the original
+     */
     class tpsa : public TpsaWithOp {
     public:
 	inline tpsa(std::shared_ptr<desc> desc, const ord_t mo)
@@ -89,10 +94,10 @@ namespace gtpsa {
 	inline bool  operator <  (const num_t a ) { return this->cst() <  a; }
 	inline tpsa& operator =  (const num_t o ) { this->set(0, o); return *this; }
 
-	inline tpsa& operator += (const tpsa& o  ) { add(*this, o, this); return *this; }
-	inline tpsa& operator -= (const tpsa& o  ) { sub(*this, o, this); return *this; }
-	inline tpsa& operator *= (const tpsa& o  ) { mul(*this, o, this); return *this; }
-	inline tpsa& operator /= (const tpsa& o  ) { div(*this, o, this); return *this; }
+	inline tpsa& operator += (const tpsa& o ) { add(*this, o, this); return *this; }
+	inline tpsa& operator -= (const tpsa& o ) { sub(*this, o, this); return *this; }
+	inline tpsa& operator *= (const tpsa& o ) { mul(*this, o, this); return *this; }
+	inline tpsa& operator /= (const tpsa& o ) { div(*this, o, this); return *this; }
 
 	/*
 	 * do I need to repeat it here ?
@@ -109,21 +114,21 @@ namespace gtpsa {
 	 *  @warning: no compatible version in mad_tpsa ...
 	 *  @todo: review method
 	 */
-	void show(std::ostream& strm, int level) const {
-
-	    strm << "gtpsa  cst:\n\t" << this->cst();
-	    if(this->ord()){
-		// at least first order ...
-		auto nv = this->getDescription()->getNv(0, 0, 0);
-		std::vector<num_t> v(nv);
-		this->getv(1, &v);
-
-		strm  << "\ngtpsa linear :\n"
-		      << std::scientific << std::setw(20);
-		for(auto& e: v) strm <<  std::scientific << std::setw(20) << e << " ";
-	    }
-	    strm << "\n";
-	}
+	// void show(std::ostream& strm, int level) const override final {
+	//
+	//     strm << "gtpsa  cst:\n\t" << this->cst();
+	//     if(this->ord()){
+	// 	// at least first order ...
+	// 	auto nv = this->getDescription()->getNv(0, 0, 0);
+	// 	std::vector<num_t> v(nv);
+	// 	this->getv(1, &v);
+	//
+	// 	strm  << "\ngtpsa linear :\n"
+	// 	      << std::scientific << std::setw(20);
+	// 	for(auto& e: v) strm <<  std::scientific << std::setw(20) << e << " ";
+	//     }
+	//     strm << "\n";
+	// }
 
 
 	/*
@@ -133,29 +138,26 @@ namespace gtpsa {
 	friend inline auto equ  (const tpsa& a, const tpsa& b, num_t tol);
 	friend inline auto norm (const tpsa& a);
 
-	friend inline void pow  (const tpsa& a,         int n, tpsa *r);
-	friend inline void pow  (const tpsa& a,       num_t v, tpsa *r);
-	friend inline auto ordn (std::vector<tpsa *> objs);
+	friend inline auto ordn (const std::vector<const tpsa&> objs);
 
-}; // class tpsa
-
-    inline auto ordn(std::vector<tpsa *> objs) {
-	std::vector<const tpsa_t *> tv(objs.size());
-	auto toPtr = [](tpsa * obj){ return obj->getPtr();};
-	std::transform(objs.begin(), objs.end(), tv.begin(), toPtr);
-	return mad_tpsa_ordn(tv.size(), tv.data());
-    }
-
-
-    inline auto norm  (const tpsa& a)                           { return mad_tpsa_nrm (a.getPtr()); }
-    inline auto equ   (const tpsa& a, const tpsa& b, num_t tol) { return mad_tpsa_equ (a.getPtr(), b.getPtr(), tol); }
+    }; // class tpsa
 
 
     /**
      * @brief get maximum number of all
      */
+    /*
+    inline auto ordn(const std::vector<const tpsa&> objs) {
+	std::vector<const tpsa_t *> tv;
+	tv.reserve(objs.size());
+	auto toPtr = [](const tpsa& obj){ return obj.getPtr();};
+	std::transform(objs.begin(), objs.end(), std::back_inserter(tv.begin()), toPtr);
+	return mad_tpsa_ordn(tv.size(), tv.data());
+    }
+    */
 
-    //inline auto ordn(std::vector<const tpsa&>)
+    inline auto norm  (const tpsa& a)                           { return mad_tpsa_nrm (a.getPtr()); }
+    inline auto equ   (const tpsa& a, const tpsa& b, num_t tol) { return mad_tpsa_equ (a.getPtr(), b.getPtr(), tol); }
 
 } // namespace gtsa
 

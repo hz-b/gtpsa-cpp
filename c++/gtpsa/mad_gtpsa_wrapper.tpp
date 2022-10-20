@@ -14,8 +14,14 @@
 #include <gtpsa/desc.hpp>
 
 namespace gtpsa {
+    // forward declaration
     class GTPSA_CLASS(Wrapper);
 
+    /**
+     * @brief manages lifetime of underlying C object
+     *
+     * Expected to be handled by std::unique_ptr
+     */
     class GTPSA_CLASS(LifeTimeManager) {
     public:
 	inline GTPSA_CLASS(LifeTimeManager)(P *p)
@@ -36,16 +42,28 @@ namespace gtpsa {
     }; /* class GTPSA_CLASS(LifeTimeManager) */
 
 
+    /**
+     * @brief wraps mad_tpsa or mad_ctpsa object
+     *
+     * Wraps the C functions / methods as C++ class methods.
+     *
+     * The pointer to the C object is managed by a LifeTimeManger using a
+     * std::unique_ptr. Furthermore keeps a shared ptr to the description
+     * object.
+     */
     class GTPSA_CLASS(Wrapper) {
     private:
 	// managed access to the underlying pointer
 	std::shared_ptr<desc>                          t_desc;
 	std::unique_ptr<GTPSA_CLASS(LifeTimeManager)>  ltm;
 
+
     public:
 	inline auto getDescription(void) const {
 	    return this->t_desc;
 	}
+
+	virtual ~GTPSA_CLASS(Wrapper)() = default;
 
 	/**
 	 *
@@ -73,7 +91,7 @@ namespace gtpsa {
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
 	inline GTPSA_CLASS(Wrapper)(const GTPSA_CLASS(Wrapper)&              o)
 	    : t_desc( o.getDescription())
-	    , ltm  ( std::make_unique<GTPSA_CLASS(LifeTimeManager)>(GTPSA_METH(new)(o.getPtr(), mad_tpsa_same)) )
+	    , ltm  ( std::make_unique<GTPSA_CLASS(LifeTimeManager)>(GTPSA_METH(new)(o.getPtr(), gtpsa::init::same)) )
 	    { this->_copyInPlace(o); };
 #else /* GTSPA_ONLY_OPTIMISED_OPS */
 	inline GTPSA_CLASS(Wrapper)(const GTPSA_CLASS(Wrapper)&              o) = delete;
@@ -85,13 +103,14 @@ namespace gtpsa {
 	inline GTPSA_CLASS(Wrapper)(GTPSA_CLASS(Wrapper)&& o)                   = default; //  noexcept :  ltm(std::move(o.tm)), t_desc(std::move(o.t_desc)) { };
 	inline GTPSA_CLASS(Wrapper)& operator= (GTPSA_CLASS(Wrapper) && o)      = default;
 
+
 	/**
 	 * copies content of an other tpsa object to this
 	 * @todo implement a clone function
 	 *
 	 */
 	inline void  _copyInPlace(const GTPSA_CLASS(Wrapper) &o)      {        GTPSA_METH(copy)(o.getPtr(), this->getPtr());                }
-	inline GTPSA_CLASS(Wrapper)  clone(void)                const { GTPSA_CLASS(Wrapper) res(*this, mad_tpsa_same); res._copyInPlace(*this); return res; }
+	inline GTPSA_CLASS(Wrapper)  clone(void)                const { GTPSA_CLASS(Wrapper) res(*this, gtpsa::init::same); res._copyInPlace(*this); return res; }
 
 	/**
 	 * @short set uid if != 0
@@ -122,38 +141,47 @@ namespace gtpsa {
 	 */
 	void setVariable(T v, idx_t iv_= 0, T scl_ = 0)
 	                                                   {         GTPSA_METH(setvar)(this->getPtr(), v, iv_, scl_);	}
-	// indexing / monomials (return idx_t = -1 if invalid)
+
 	/**
-	 *
+	 * @brief indexing / monomials (return idx_t = -1 if invalid)
 	 */
-	inline auto mono(std::vector<ord_t> m, idx_t i)     { return GTPSA_METH(mono)(this->getPtr(), m.size(), m.data(), i);}
+	inline auto mono(std::vector<ord_t>& m, idx_t i)  const { return GTPSA_METH(mono)(this->getPtr(), m.size(), m.data(), i);}
 
 	/**
 	 *  @brief string mono "[0-9]*"
 	 */
-	inline auto idx(std::string s)                     { return GTPSA_METH(idxs)(this->getPtr(), s.size(), s.data());}
-	inline auto idx(const std::vector<ord_t> m)        { return GTPSA_METH(idxm)(this->getPtr(), m.size(), m.data());}
+	inline auto idx(std::string s)                const     { return GTPSA_METH(idxs)(this->getPtr(), s.size(), s.data());}
+	inline auto idx(const std::vector<ord_t>& m)  const { return GTPSA_METH(idxm)(this->getPtr(), m.size(), m.data());}
 
 	/**
 	 * @brief sparse mono [(i,o)]
 	 * @note not using overload ... could be misleading
 	 */
-	inline auto idxsm(const std::vector<int> m)       { return GTPSA_METH(idxsm) (this->getPtr(), m.size(), m.data());}
-	inline auto cycle(std::vector<ord_t> m, idx_t i, T *v)
-	    { return GTPSA_METH(cycle)(this->getPtr(), m.size(), m.data(), i, v);}
+	inline auto idxsm(const std::vector<int> m)       {
+	    return GTPSA_METH(idxsm) (this->getPtr(), m.size(), m.data());
+	}
+
+	inline auto cycle(std::vector<ord_t> m, idx_t i, T *v) {
+	    return GTPSA_METH(cycle)(this->getPtr(), m.size(), m.data(), i, v);
+	}
 	/**
 	 * @todo: use standard accessor operators ?
 	 */
 	inline auto get(void)                        const { return GTPSA_METH(get0) (this->getPtr()                     ); }
 	inline auto get(const idx_t i)               const { return GTPSA_METH(geti) (this->getPtr(), i                  ); }
 	inline auto get(std::string s)               const { return GTPSA_METH(gets) (this->getPtr(), s.size(), s.data() ); }
-	inline auto get(const std::vector<ord_t> m)  const { return GTPSA_METH(getm) (this->getPtr(), m.size(), m.data() ); }
+	inline auto get(const std::vector<ord_t>& m)  const { return GTPSA_METH(getm) (this->getPtr(), m.size(), m.data() ); }
 	/**
 	 * @brief sparse mono "[(i, o)]*"
 	 */
-	inline auto getsm(const std::vector<int> m)  const { return GTPSA_METH(getsm) (this->getPtr(), m.size(), m.data() ); }
+	inline auto getsm(const std::vector<int>& m)  const { return GTPSA_METH(getsm) (this->getPtr(), m.size(), m.data() ); }
 
 
+	/*
+	 * for pybind 11
+	*/
+	inline void _set0(                         T a, T b) { this->set(a, b);}
+	inline void _setm(const std::vector<ord_t>& m, T a, T b) { this->set(m, a, b);}
 	/**
 	 * @brief a*x[0]+b
 	 */
@@ -170,7 +198,7 @@ namespace gtpsa {
 	/**
 	 * @brief a*x[m]+b
 	 */
-	inline void set(const std::vector<ord_t> m, T a, T b) { GTPSA_METH(setm) (this->getPtr(), m.size(), m.data(), a, b ); }
+	inline void set(const std::vector<ord_t>& m, T a, T b) { GTPSA_METH(setm) (this->getPtr(), m.size(), m.data(), a, b ); }
 
 	/**
 	 * @brief a*x[m]+b, sparse mono [(i,o)]
@@ -188,7 +216,6 @@ namespace gtpsa {
 	}
 
     protected:
-
 	inline const P*    getPtr(void) const { return this->ltm->getPtr(); }
 	inline       P*    getPtr(void)       { return this->ltm->getPtr(); }
 

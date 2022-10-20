@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0.0)
 
 project("gtpsa" LANGUAGES C CXX)
+set(GTPSA_VERSION 0.0.1)
+
+
 
 find_package(BLAS)
 find_package(LAPACK)
@@ -25,10 +28,19 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-
+if(CMAKE_COMPILER_IS_GNUCXX)
+   add_definitions(
+     -O3 -ftree-vectorize -fPIC -flto -march=native
+     -fno-math-errno -fno-builtin-cproj -ffast-math
+     -fno-cx-limited-range
+     -fassociative-math -freciprocal-math -ffinite-math-only
+     -fexpensive-optimizations
+     )
+ endif()
 add_subdirectory(c)
-# add_subdirectory(c++)
+add_subdirectory(c++)
 # Required info in the directories below
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c++)
+add_subdirectory(python)
 add_subdirectory(examples)
 add_subdirectory(tests)
