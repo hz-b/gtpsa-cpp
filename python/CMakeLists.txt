@@ -3,7 +3,10 @@ find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 
 cmake_policy(SET CMP0063 NEW)
 add_library(lib_gtpsa MODULE
+  src/gtpsa_module.cc
+  src/desc.cc
   src/gtpsa.cc
+  src/ss_vect.cc
   )
 
 target_link_libraries(lib_gtpsa

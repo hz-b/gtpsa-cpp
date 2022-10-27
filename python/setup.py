@@ -2,6 +2,16 @@ from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup
 import os.path
 
+from pybind11.setup_helpers import ParallelCompile
+
+# Optional multithreaded build
+try:
+    os.environ["NPY_NUM_BUILD_JOBS"]
+except KeyError:
+    os.environ["NPY_NUM_BUILD_JOBS"] = "5"
+
+ParallelCompile("NPY_NUM_BUILD_JOBS").install()
+
 t_dir = os.path.dirname(__file__)
 gtpsa_inc_dir = os.path.join(t_dir, os.pardir, "c++")
 mad_inc_dir = os.path.join(t_dir, os.pardir, "mad-ng", "src")
@@ -13,7 +23,12 @@ lib_dir = os.path.join(prefix, "lib")
 ext_modules = [
     Pybind11Extension(
         "lib_gtpsa",
-        sorted(["src/gtpsa.cc"]),
+        sorted([
+            "src/gtpsa_module.cc",
+            "src/desc.cc",
+            "src/gtpsa.cc",
+            "src/ss_vect.cc",
+        ]),
         include_dirs=[inc_dir],
         libraries=["gtpsa"],
         library_dirs=[lib_dir],

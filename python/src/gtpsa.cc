@@ -1,15 +1,16 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 #include <pybind11/complex.h>
 #include <pybind11/operators.h>
-#include <gtpsa/desc.hpp>
 #include <gtpsa/tpsa.hpp>
 #include <gtpsa/ctpsa.hpp>
 #include <string>
 #include <sstream>
 
-namespace py = pybind11;
+#include "gtpsa_module.h"
 
+namespace py = pybind11;
 template<class Cls>
 struct AddMethods
 {
@@ -25,7 +26,10 @@ struct AddMethods
 	    .def("get",            py::overload_cast<>( &Cls::get, py::const_))
 	    .def("get",            py::overload_cast<const std::vector<ord_t>&>( &Cls::get, py::const_))
 	    // make it more pythonic!
-	    .def("getv",           [](const Cls& inst, idx_t i){ std::vector<T> tmp(inst.len()); inst.getv(i, &tmp); return tmp; })
+	    .def("getv",           [](const Cls& inst, idx_t i){
+				       std::vector<T> tmp(inst.len()); inst.getv(i, &tmp);
+				       return py::array(py::cast(tmp));
+				   })
 	    .def("setv",           &Cls::setv)
 	    .def("getsm",          &Cls::getsm)
 	    // problems with complex values ....
@@ -66,53 +70,9 @@ struct AddMethods
     }
 };
 
-PYBIND11_MODULE(lib_gtpsa, m) {
-    m.doc() = "gtpsa python wrapper";
 
-    const char desc_newv_doc[] = "\
-Args:\n\
-    nv: number of variables\n\
-    mo: maximum order\n\
-	";
-
-    const char desc_newvp_doc[] = "\
-Args:\n\
-    nv: number of variables\n\
-    np: number of parameters?\n\
-    mo: maximum order (of variables)?\n\
-    po: maximum order (of parameters)?\n\
-	";
-
-    const char desc_newvpo_doc[] = "\
-Args:\n\
-    nv: number of variables\n\
-    np: number of parameters?\n\
-    no: vector of orders?\n\
-    po: maximum order (of parameters)?\n\
-";
-    py::class_<gtpsa::desc  , std::shared_ptr<gtpsa::desc>>   desc  (m, "desc" );
-    desc
-	.def_property_readonly("number_of_variables", &gtpsa::desc::getNv  )
-	.def_property_readonly("maximum_orders",      &gtpsa::desc::maxOrd )
-	.def_property_readonly("maximum_length",      &gtpsa::desc::maxLen )
-	// rename this mehtod
-	.def("ordLen"         , &gtpsa::desc::ordLen    )
-	.def("truncate"       , &gtpsa::desc::trunc     )
-	//.def("index"        ,    &gtpsa::desc::nxtbyvar )
-	.def("nextByVariable" , &gtpsa::desc::nxtbyvar  )
-	.def("nextByOrder"    , &gtpsa::desc::nxtbyord  )
-	.def("mono"           , &gtpsa::desc::mono      )
-	.def("__repr__"       , &gtpsa::desc::repr      )
-	.def("isvalidsm"      , &gtpsa::desc::isvalidsm )
-	.def("indexsm"        , &gtpsa::desc::idxsm     )
-	.def("isvalid"        , py::overload_cast<const std::vector<ord_t>&>( &gtpsa::desc::isvalid, py::const_ ))
-	.def("index"          , py::overload_cast<const std::vector<ord_t>&>( &gtpsa::desc::idx, py::const_     ))
-	.def(py::init<int, ord_t>(),             desc_newv_doc,
-	     py::arg("nv"), py::arg("mo") = 0)
-	.def(py::init<int, int, ord_t, ord_t>(), desc_newvp_doc,
-	     py::arg("nv"), py::arg("np") = 0, py::arg("mo") = 0, py::arg("po") = 0)
-	.def(py::init<int, int, std::vector<ord_t>, ord_t>(), desc_newvpo_doc,
-	     py::arg("nv"), py::arg("np") = 0, py::arg("mo") = 0, py::arg("po") = 0);
+void py_gtpsa_init_tpsa(py::module &m)
+{
 
     py::class_<gtpsa::TPSAWithOp, std::shared_ptr<gtpsa::TPSAWithOp>> tpsa_with_op  (m, "_TPSAWithOp");
     AddMethods<gtpsa::TPSAWithOp> tpsa_m;
@@ -173,5 +133,6 @@ Args:\n\
     .def("set",            py::overload_cast<cnum_t, cnum_t>( &gtpsa::tpsa::set))
     ;
     */
+
 
 }
