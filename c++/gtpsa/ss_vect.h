@@ -1,5 +1,6 @@
 #ifndef _GTPSA_SS_VECT_H_
 #define _GTPSA_SS_VECT_H_ 1
+#include <gtpsa/desc.hpp>
 #include <gtpsa/tpsa.hpp>
 #include <algorithm>
 #include <ostream>
@@ -9,6 +10,10 @@
 #include <armadillo>
 
 namespace gtpsa {
+
+const int ss_vect_n_dim = 6;
+
+
 /**
  * state space, phase space vector
  *
@@ -22,7 +27,14 @@ template<typename T>
 class ss_vect{
 
 public:
-    inline ss_vect(const T& t, const size_t n=6)
+    inline ss_vect(const std::shared_ptr<gtpsa::desc> desc, const ord_t mo, const size_t n=ss_vect_n_dim) {
+	this->state_space.reserve(n);
+	for(size_t i=0; i<n; ++i){
+	    T tmp(desc, mo);
+	    state_space.push_back(tmp);
+	}
+    }
+    inline ss_vect(const T& t, const size_t n=ss_vect_n_dim)
 	: state_space(n, 0e0)
 	{}
 
@@ -142,12 +154,17 @@ public:
     inline       T& operator[](const int i)       { return this->state_space[i]; }
     inline const T& operator[](const int i) const { return this->state_space[i]; }
 
-    inline void cst(ss_vect<double> &r)     const {
+    inline       T& at        (const int i)       { return this->state_space.at(i); }
+    inline const T& at        (const int i) const { return this->state_space.at(i); }
+
+
+    inline void cst(std::vector<double>&  r)     const {
 	for(size_t i = 0; i < this->size(); ++i){ r[i] = this->state_space[i].cst(); }
 	//std::transform(begin(), this->state_space.end(), r.state_space.begin(), [](T& elem) { return elem.cst();});
     }
 
-    inline ss_vect<double> cst(void)        const { ss_vect<double> r(0e0); this->cst(r); return r; }
+    inline std::vector<double> cst(void)        const { std::vector<double> r(this->state_space.size()); this->cst(r); return r; }
+
 
     inline void show(std::ostream& strm, int level=1, bool with_endl=true) const {
 	for(size_t i= 0; i<this->state_space.size(); ++i){
@@ -157,7 +174,20 @@ public:
 	if(with_endl) {	strm << "\n";        }
     }
 
+    inline std::string pstr(void) {
+	std::stringstream strm;
+	this->show(strm);
+	return strm.str();
+    }
+    inline std::string repr(void) {
+	std::stringstream strm;
+	this->show(strm, 10);
+	return strm.str();
+    }
     inline arma::mat toMatrix(void){
+	    throw std::runtime_error("only implemented for tps(a)");
+    }
+    inline arma::mat jacobian(void){
 	    throw std::runtime_error("only implemented for tps(a)");
     }
 
@@ -193,6 +223,11 @@ std::ostream& operator<<(std::ostream& strm, ss_vect<T>& s)
     return strm;
 }
 
+
+template<>
+inline ss_vect<double>::ss_vect(const std::shared_ptr<gtpsa::desc> d,  ord_t m,  const size_t n)
+    : state_space(n)
+{}
 
 template<>
 inline ss_vect<gtpsa::tpsa>::ss_vect(const gtpsa::tpsa&t,  const size_t n)
@@ -250,6 +285,14 @@ inline void ss_vect<gtpsa::tpsa>::show(std::ostream& strm, int level, bool with_
     }
 }
 
+
+template<>
+inline void ss_vect<double>::cst(std::vector<double>& r) const {
+    for(size_t i = 0; i < this->size(); ++i){ r[i] = this->state_space[i]; }
+    //std::transform(begin(), this->state_space.end(), r.state_space.begin(), [](T& elem) { return elem.cst();});
+}
+
+
 template<>
 inline void ss_vect<gtpsa::tpsa>::set_zero(void)
 {
@@ -289,6 +332,28 @@ inline void ss_vect<gtpsa::tpsa>::set_identity(void)
     }
     // throw std::runtime_error("gtpsa set identity needs to be implemented!");
     //std::for_each(this->state_space.begin(), this->state_space.end(), [](gtpsa::tpsa& v){ v.clear(); };
+}
+
+template<>
+inline arma::mat ss_vect<gtpsa::tpsa>::jacobian(void){
+
+    auto desc = this->state_space.at(0).getDescription();
+    size_t nv = desc->getNv();
+
+    arma::mat mat(this->size(), nv);
+    mat.fill(NAN);
+    std::vector<num_t> vec(nv);
+
+    for(size_t row = 0; row < this->state_space.size(); ++row){
+	for(auto& e: vec) e = NAN;
+	auto &t = this->state_space[row];
+	t.getv(1, &vec);
+	for(size_t col = 0; col < nv; ++col){
+	    mat(row, col) = vec[col];
+	}
+    }
+
+    return mat;
 }
 
 template<>
