@@ -25,13 +25,15 @@ const int ss_vect_n_dim = 6;
  */
 template<typename T>
 class ss_vect{
+private:
+    std::vector<T> state_space;
 
 public:
     inline ss_vect(const std::shared_ptr<gtpsa::desc> desc, const ord_t mo, const size_t n=ss_vect_n_dim) {
 	this->state_space.reserve(n);
 	for(size_t i=0; i<n; ++i){
 	    T tmp(desc, mo);
-	    state_space.push_back(tmp);
+	    this->state_space.push_back(tmp);
 	}
     }
     inline ss_vect(const T& t, const size_t n=ss_vect_n_dim)
@@ -166,28 +168,15 @@ public:
     inline std::vector<double> cst(void)        const { std::vector<double> r(this->state_space.size()); this->cst(r); return r; }
 
 
-    inline void show(std::ostream& strm, int level=1, bool with_endl=true) const {
-	for(size_t i= 0; i<this->state_space.size(); ++i){
-	    this->state_space[i].show(strm, level);
-	    strm << " ";
-	}
-	if(with_endl) {	strm << "\n";        }
-    }
+    void show(std::ostream& strm, int level=1, bool with_endl=true) const;
+    std::string pstr(void);
+    std::string repr(void);
 
-    inline std::string pstr(void) {
-	std::stringstream strm;
-	this->show(strm);
-	return strm.str();
-    }
-    inline std::string repr(void) {
-	std::stringstream strm;
-	this->show(strm, 10);
-	return strm.str();
-    }
+
     inline arma::mat toMatrix(void){
 	    throw std::runtime_error("only implemented for tps(a)");
     }
-    inline arma::mat jacobian(void){
+    inline arma::mat jacobian(void) const {
 	    throw std::runtime_error("only implemented for tps(a)");
     }
 
@@ -212,7 +201,6 @@ private:
 	}
     }
     //
-    std::vector<T> state_space;
 };
 
 
@@ -223,7 +211,9 @@ std::ostream& operator<<(std::ostream& strm, ss_vect<T>& s)
     return strm;
 }
 
-
+/*
+ * @brief special installation
+ */
 template<>
 inline ss_vect<double>::ss_vect(const std::shared_ptr<gtpsa::desc> d,  ord_t m,  const size_t n)
     : state_space(n)
@@ -249,42 +239,9 @@ inline ss_vect<gtpsa::tpsa>::ss_vect(const gtpsa::tpsa&t,  const size_t n)
 */
 
 template<>
-inline void ss_vect<double>::show(std::ostream& strm, int level, bool with_endl) const {
-    for(size_t i= 0; i<this->state_space.size(); ++i){
-	strm << " " << this->state_space[i];
-    }
-    if(with_endl) {	strm << "\n";        }
-}
-
+void ss_vect<double>::show(std::ostream& strm, int level, bool with_endl) const;
 template<>
-inline void ss_vect<gtpsa::tpsa>::show(std::ostream& strm, int level, bool with_endl) const {
-    int precision = 6;
-
-    strm << std::scientific << std::setprecision(precision);
-    strm  << "cst\n";
-    for(size_t i= 0; i<this->state_space.size(); ++i){
-	auto& t_tpsa = this->state_space[i];
-	auto val = t_tpsa.getsm(std::vector<idx_t>{0, 0});
-	strm << std::setw(14) << val << " ";
-    }
-    if(with_endl || (level >= 1)) {	strm << "\n";        }
-    if(level == 0){
-	return;
-    }
-
-    strm  << "map\n";
-    // preserve order
-    for(size_t i= 0; i<this->state_space.size(); ++i){
-	auto& t_tpsa = this->state_space[i];
-	for (int j = 0; j<6; ++j){
-	    // todo: validate index
-	    auto val = t_tpsa.getsm(std::vector<idx_t>{int(j+1), 1});
-	    strm << std::setw(14) << val << " ";
-	}
-	strm << "\n";
-    }
-}
-
+void ss_vect<gtpsa::tpsa>::show(std::ostream& strm, int level, bool with_endl) const;
 
 template<>
 inline void ss_vect<double>::cst(std::vector<double>& r) const {
@@ -334,8 +291,12 @@ inline void ss_vect<gtpsa::tpsa>::set_identity(void)
     //std::for_each(this->state_space.begin(), this->state_space.end(), [](gtpsa::tpsa& v){ v.clear(); };
 }
 
+/**
+ * @brief collect all first deriviatives in a matrix
+ *
+ */
 template<>
-inline arma::mat ss_vect<gtpsa::tpsa>::jacobian(void){
+inline arma::mat ss_vect<gtpsa::tpsa>::jacobian(void) const {
 
     auto desc = this->state_space.at(0).getDescription();
     size_t nv = desc->getNv();
@@ -356,6 +317,12 @@ inline arma::mat ss_vect<gtpsa::tpsa>::jacobian(void){
     return mat;
 }
 
+/**
+ * @brief first derivatives and cst term
+ *
+ * constant term at last session
+ * @warning review if
+ */
 template<>
 inline arma::mat ss_vect<gtpsa::tpsa>::toMatrix(void){
 

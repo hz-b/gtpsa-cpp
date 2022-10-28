@@ -38,9 +38,10 @@ if(CMAKE_COMPILER_IS_GNUCXX)
      )
  endif()
 add_subdirectory(c)
-add_subdirectory(c++)
 # Required info in the directories below
+# need to build proper package support
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c++)
+add_subdirectory(c++)
 add_subdirectory(python)
 add_subdirectory(examples)
 add_subdirectory(tests)

@@ -23,6 +23,7 @@ extern "C" {
 #include <mad_ctpsa.h>
 }
 
+#include <gtpsa/tpsa.hpp>
 #ifdef GTPSA_CLASS
 #undef GTPSA_CLASS
 #endif
@@ -44,10 +45,12 @@ extern "C" {
 namespace gtpsa {
     typedef GTPSA_CLASS(WithOp) CTpsaWithOp;
 }
-#undef GTPSA_CLASS
-#undef GTPSA_METH
-#undef T
-#undef P
+/*
+  #undef GTPSA_CLASS
+  #undef GTPSA_METH
+  #undef T
+  #undef P
+*/
 
 namespace gtpsa {
 

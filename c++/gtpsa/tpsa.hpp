@@ -42,10 +42,12 @@ extern "C" {
 namespace gtpsa {
     typedef GTPSA_CLASS(WithOp) TpsaWithOp;
 }
-#undef GTPSA_CLASS
-#undef GTPSA_METH
-#undef T
-#undef P
+/*
+  #undef GTPSA_CLASS
+  #undef GTPSA_METH
+  #undef T
+  #undef P
+*/
 
 namespace gtpsa {
 
@@ -83,16 +85,14 @@ namespace gtpsa {
 	tpsa clone(void) const { return static_cast<tpsa>( TpsaWithOp::clone());  }
 
 	inline tpsa& operator =  (const TpsaWithOp& o ) { this->_copyInPlace(o); return *this; }
+	inline tpsa& operator =  (const num_t o )       { this->set(0, o); return *this; }
 	inline tpsa& operator =  (const tpsa& o )       { this->_copyInPlace(o); return *this; }
-	/*
-	 * required
-	*/
 
-	inline bool  operator >= (const num_t a ) { return this->cst() >= a; }
-	inline bool  operator <= (const num_t a ) { return this->cst() <= a; }
-	inline bool  operator >  (const num_t a ) { return this->cst() >  a; }
-	inline bool  operator <  (const num_t a ) { return this->cst() <  a; }
-	inline tpsa& operator =  (const num_t o ) { this->set(0, o); return *this; }
+	inline bool  operator >= (const num_t a ) const { return this->cst() >= a; }
+	inline bool  operator <= (const num_t a ) const { return this->cst() <= a; }
+	inline bool  operator >  (const num_t a ) const { return this->cst() >  a; }
+	inline bool  operator <  (const num_t a ) const { return this->cst() <  a; }
+
 
 	inline tpsa& operator += (const tpsa& o ) { add(*this, o, this); return *this; }
 	inline tpsa& operator -= (const tpsa& o ) { sub(*this, o, this); return *this; }

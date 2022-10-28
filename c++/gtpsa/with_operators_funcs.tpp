@@ -181,5 +181,8 @@ namespace gtpsa {
 	return ret;
     }
 
+    inline GTPSA_CLASS(WithOp) pow   (const GTPSA_CLASS(WithOp)& a,  int n){ auto r = GTPSA_CLASS(WithOp)(a, mad_tpsa_same); pow(a, n, &r); return r; }
+    inline GTPSA_CLASS(WithOp) pow   (const GTPSA_CLASS(WithOp)& a,  T   v){ auto r = GTPSA_CLASS(WithOp)(a, mad_tpsa_same); pow(a, v, &r); return r; }
+
 
 } // namespace gtpsa

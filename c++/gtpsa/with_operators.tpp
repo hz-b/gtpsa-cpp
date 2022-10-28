@@ -105,41 +105,17 @@ namespace gtpsa {
 
 #endif
 	// forward declaration ... needs to be implemented in the derived class
-	 inline void show(std::ostream& strm, int level) const {
-
-	    strm << "gtpsa  cst:\n\t" << this->cst();
-	    if(this->ord()){
-		// at least first order ...
-		auto nv = this->getDescription()->getNv(0, 0, 0);
-		std::vector<T> v(nv);
-		this->getv(1, &v);
-
-		strm  << "\ngtpsa linear :\n"
-		      << std::scientific << std::setw(20);
-		for(auto& e: v) strm <<  std::scientific << std::setw(20) << e << " ";
-	    }
-	    strm << "\n";
-	}
-
-
+	void show(std::ostream& strm, int level) const;
 
 	/**
 	 * @brief support python representation of this object
 	 */
-	inline std::string repr(void) const {
-	    std::stringstream strm;
-	    this->show(strm, 10);
-	    return strm.str();
-	}
-
+	std::string repr(void) const;
 	/**
 	 * @brief support python __str__ of this object
 	 */
-	inline std::string pstr(void) const {
-	    std::stringstream strm;
-	    this->show(strm, 10);
-	    return strm.str();
-	}
+	std::string pstr(void) const;
+
     private:
 
 	friend inline GTPSA_CLASS(WithOp) process2(const GTPSA_CLASS(WithOp)& a, const GTPSA_CLASS(WithOp)& b,
