@@ -1,3 +1,4 @@
+#include <gtpsa/ctpsa.hpp>
 #include <gtpsa/ss_vect.h>
 
 
@@ -18,6 +19,13 @@ std::string gtpsa::ss_vect<T>::repr(void)
 }
 
 
+template std::string gtpsa::ss_vect<double>::repr(void);
+template std::string gtpsa::ss_vect<double>::pstr(void);
+template std::string gtpsa::ss_vect<gtpsa::tpsa>::repr(void);
+template std::string gtpsa::ss_vect<gtpsa::tpsa>::pstr(void);
+template std::string gtpsa::ss_vect<gtpsa::ctpsa>::repr(void);
+template std::string gtpsa::ss_vect<gtpsa::ctpsa>::pstr(void);
+
 template<>
 void gtpsa::ss_vect<double>::show(std::ostream& strm, int level, bool with_endl) const
 {
@@ -27,8 +35,8 @@ void gtpsa::ss_vect<double>::show(std::ostream& strm, int level, bool with_endl)
     if(with_endl) {	strm << "\n";        }
 }
 
-template<>
-void gtpsa::ss_vect<gtpsa::tpsa>::show(std::ostream& strm, int level, bool with_endl) const
+template<typename T>
+void gtpsa::ss_vect<T>::show(std::ostream& strm, int level, bool with_endl) const
 {
     int precision = 6;
 
@@ -56,3 +64,6 @@ void gtpsa::ss_vect<gtpsa::tpsa>::show(std::ostream& strm, int level, bool with_
 	strm << "\n";
     }
 }
+
+template void gtpsa::ss_vect<gtpsa::tpsa>::show(std::ostream& strm, int level, bool with_endl) const;
+template void gtpsa::ss_vect<gtpsa::ctpsa>::show(std::ostream& strm, int level, bool with_endl) const;

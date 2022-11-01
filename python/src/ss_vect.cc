@@ -83,13 +83,22 @@ void py_gtpsa_init_ss_vect(py::module &m)
 	AddMethods<gtpsa::ss_vect<double>> double_cls;
 	double_cls.add_methods<double>(ss_vect_double);
 
+	/*
+	typedef std::complex<double> dcplx;
+	py::class_<gtpsa::ss_vect<dcplx>>  ss_vect_dcplx (m, "ss_vect_complex_double");
+	AddMethods<gtpsa::ss_vect<dcplx>> dcplx_cls;
+	dcplx_cls.add_methods<dcplx>(ss_vect_dcplx);
+	*/
+
         py::class_<gtpsa::ss_vect<gtpsa::tpsa>>  ss_vect_tpsa   (m, "ss_vect_tpsa");
 	AddMethods<gtpsa::ss_vect<gtpsa::tpsa>> tpsa_cls;
 	tpsa_cls.add_methods<gtpsa::tpsa>(ss_vect_tpsa);
 	tpsa_cls.add_methods_tpsa<gtpsa::tpsa>(ss_vect_tpsa);
 
+	/*
         py::class_<gtpsa::ss_vect<gtpsa::ctpsa>> ss_vect_ctpsa  (m, "ss_vect_ctpsa");
-	// py::class_<gtpsa::ss_vect<gtpsa::tpsa>> ss_vect_tpsa(m, "ss_vect_double");
-	//py::class_<gtpsa::ss_vect<gtpsa::ctpsa> ss_vect_ctpsa(m, "ss_vect_double");
-
+	AddMethods<gtpsa::ss_vect<gtpsa::ctpsa>> ctpsa_cls;
+	ctpsa_cls.add_methods<gtpsa::ctpsa>(ss_vect_ctpsa);
+	ctpsa_cls.add_methods_tpsa<gtpsa::ctpsa>(ss_vect_ctpsa);
+	*/
 }

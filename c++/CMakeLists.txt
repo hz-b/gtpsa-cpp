@@ -12,6 +12,8 @@ set(gtpsa_c++_HEADERS
   gtpsa/utils.hpp
   gtpsa/utils_tps.hpp
 
+  gtpsa/complex_utils.hpp
+
   gtpsa/funcs.h
   gtpsa/ss_vect.h
 

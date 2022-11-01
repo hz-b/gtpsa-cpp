@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <complex>
 #include <armadillo>
 
 namespace gtpsa {
@@ -218,6 +219,10 @@ template<>
 inline ss_vect<double>::ss_vect(const std::shared_ptr<gtpsa::desc> d,  ord_t m,  const size_t n)
     : state_space(n)
 {}
+template<>
+inline ss_vect<std::complex<double>>::ss_vect(const std::shared_ptr<gtpsa::desc> d,  ord_t m,  const size_t n)
+    : state_space(n)
+{}
 
 template<>
 inline ss_vect<gtpsa::tpsa>::ss_vect(const gtpsa::tpsa&t,  const size_t n)
@@ -239,15 +244,16 @@ inline ss_vect<gtpsa::tpsa>::ss_vect(const gtpsa::tpsa&t,  const size_t n)
 */
 
 template<>
-void ss_vect<double>::show(std::ostream& strm, int level, bool with_endl) const;
-template<>
-void ss_vect<gtpsa::tpsa>::show(std::ostream& strm, int level, bool with_endl) const;
-
-template<>
 inline void ss_vect<double>::cst(std::vector<double>& r) const {
     for(size_t i = 0; i < this->size(); ++i){ r[i] = this->state_space[i]; }
     //std::transform(begin(), this->state_space.end(), r.state_space.begin(), [](T& elem) { return elem.cst();});
 }
+
+//template<>
+//inline void ss_vect<std::complex<double>>::cst(std::vector<std::complex<double>>& r) const {
+//    for(size_t i = 0; i < this->size(); ++i){ r[i] = this->state_space[i]; }
+//    //std::transform(begin(), this->state_space.end(), r.state_space.begin(), [](T& elem) { return elem.cst();});
+//}
 
 
 template<>
@@ -294,6 +300,9 @@ inline void ss_vect<gtpsa::tpsa>::set_identity(void)
 /**
  * @brief collect all first deriviatives in a matrix
  *
+ * @todo is that necessarily the jacobian
+ *
+ * It depends how the
  */
 template<>
 inline arma::mat ss_vect<gtpsa::tpsa>::jacobian(void) const {
@@ -314,7 +323,7 @@ inline arma::mat ss_vect<gtpsa::tpsa>::jacobian(void) const {
 	}
     }
 
-    return mat;
+     return mat;
 }
 
 /**

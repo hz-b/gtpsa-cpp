@@ -9,7 +9,7 @@ void gtpsa::GTPSA_CLASS(WithOp)::show(std::ostream& strm, int level) const
     if(this->ord()){
 	// at least first order ...
 	auto nv = this->getDescription()->getNv(0, 0, 0);
-	std::vector<T> v(nv);
+	std::vector<GTPSA_BASE_T> v(nv);
 	this->getv(1, &v);
 
 	strm  << "\ngtpsa linear :\n"

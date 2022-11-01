@@ -43,7 +43,7 @@ Args:\n\
 	.def("isvalidsm"      , &gtpsa::desc::isvalidsm )
 	.def("indexsm"        , &gtpsa::desc::idxsm     )
 	.def("isvalid"        , py::overload_cast<const std::vector<ord_t>&>( &gtpsa::desc::isvalid, py::const_ ))
-	.def("index"          , py::overload_cast<const std::vector<ord_t>&>( &gtpsa::desc::idx, py::const_     ))
+	.def("index"          , py::overload_cast<const std::vector<ord_t>&>( &gtpsa::desc::idx,     py::const_ ))
 	.def(py::init<int, ord_t>(),             desc_newv_doc,
 	     py::arg("nv"), py::arg("mo") = 0)
 	.def(py::init<int, int, ord_t, ord_t>(), desc_newvp_doc,

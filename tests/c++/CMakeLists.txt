@@ -19,15 +19,16 @@ target_link_libraries(test_arithmetic
 )
 add_test(arithmetic test_arithmetic)
 
-#  add_executable(test_complex_arithmetic test_complex_arithmetic.cc)
-#  target_link_libraries(test_complex_arithmetic
-#    gtpsa
-#    lapack
-#    blas
-#    ${Boost_PRG_EXEC_MONITOR_LIBRARY}
-#    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-#  )
-#  add_test(complex_arithmetic test_complex_arithmetic)
+add_executable(test_complex_arithmetic test_complex_arithmetic.cc)
+target_link_libraries(test_complex_arithmetic
+  gtpsa-c++
+  gtpsa
+  lapack
+  blas
+  ${Boost_PRG_EXEC_MONITOR_LIBRARY}
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  )
+add_test(complex_arithmetic test_complex_arithmetic)
 
 add_executable(test_consistency test_consistency.cc)
 target_link_libraries(test_consistency

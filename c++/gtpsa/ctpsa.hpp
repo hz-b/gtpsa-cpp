@@ -18,12 +18,14 @@
 #include <memory>
 #include <ostream>
 #include <vector>
+#include <complex>
 
 extern "C" {
 #include <mad_ctpsa.h>
 }
 
 #include <gtpsa/tpsa.hpp>
+#include <gtpsa/complex_utils.hpp>
 #ifdef GTPSA_CLASS
 #undef GTPSA_CLASS
 #endif
@@ -32,25 +34,29 @@ extern "C" {
 #undef GTPSA_METH
 #endif
 #define GTPSA_METH(func) mad_ctpsa_ ## func
-#ifdef T
-#undef T
+#ifdef GTPSA_BASE_T
+#undef GTPSA_BASE_T
 #endif
-#define T cnum_t
-#ifdef P
-#undef P
+#define GTPSA_BASE_T cnum_t
+#ifdef GTPSA_PTR_T
+#undef GTPSA_PTR_T
 #endif
-#define P ctpsa_t
+#define GTPSA_PTR_T ctpsa_t
 #include <gtpsa/common.tpp>
 
+#include <complex>
 namespace gtpsa {
     typedef GTPSA_CLASS(WithOp) CTpsaWithOp;
 }
-/*
-  #undef GTPSA_CLASS
-  #undef GTPSA_METH
-  #undef T
-  #undef P
-*/
+
+
+#ifndef GTPSA_KEEP_MACROS
+#undef GTPSA_CLASS
+#undef GTPSA_METH
+#undef T
+#undef GTPSA_PTR_T
+#endif /*  GTPSA_KEEP_MACROS */
+
 
 namespace gtpsa {
 
@@ -60,8 +66,16 @@ namespace gtpsa {
 	    : CTpsaWithOp(desc, mo)
 	    {}
 
+	inline ctpsa(const ctpsa&             t, const ord_t mo)
+	    : CTpsaWithOp(t.getDescription(),   mo)
+	    {}
+
 	inline ctpsa(const tpsa&              t, const ord_t mo)
 	    : CTpsaWithOp(t.getDescription(),   mo)
+	    {}
+
+	inline ctpsa(const CTpsaWithOp&& o)
+	    : CTpsaWithOp(std::move(o))
 	    {}
 
 	/**
@@ -95,28 +109,77 @@ namespace gtpsa {
 	    mad_ctpsa_print(this->getPtr(), name_, eps_, nohdr_, stream_);
 	}
 
+	/* compatible to complex part */
+	inline void set(                             const std::complex<double> a, const std::complex<double> b) {
+	    CTpsaWithOp::set(std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
+	}
+	inline void set(const idx_t i,               const std::complex<double> a, const std::complex<double> b) {
+	    CTpsaWithOp::set(i, std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
+	}
+
+	inline void set(const std::string& s,        const std::complex<double> a, const std::complex<double> b) {
+	    CTpsaWithOp::set(s, std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
+	}
+
+	inline void set(const std::vector<ord_t>& m, const std::complex<double> a, const std::complex<double> b) {
+	    CTpsaWithOp::set(m, std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
+	}
+
+	inline void setsm(const std::vector<int>& m, const std::complex<double> a, const std::complex<double> b) {
+	    CTpsaWithOp::setsm(m, std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
+	}
+
+	inline ctpsa& operator += (const ctpsa& o ) { CTpsaWithOp::operator += (o) ; return *this; }
+	inline ctpsa& operator -= (const ctpsa& o ) { CTpsaWithOp::operator -= (o) ; return *this; }
+	inline ctpsa& operator *= (const ctpsa& o ) { CTpsaWithOp::operator *= (o) ; return *this; }
+	inline ctpsa& operator /= (const ctpsa& o ) { CTpsaWithOp::operator /= (o) ; return *this; }
+
+
+	inline ctpsa& operator += (const cnum_t o ) { CTpsaWithOp::operator += (o) ; return *this; }
+	inline ctpsa& operator -= (const cnum_t o ) { CTpsaWithOp::operator -= (o) ; return *this; }
+	inline ctpsa& operator *= (const cnum_t o ) { CTpsaWithOp::operator *= (o) ; return *this; }
+	inline ctpsa& operator /= (const cnum_t o ) { CTpsaWithOp::operator /= (o) ; return *this; }
+
+
+	inline ctpsa  operator  - ( void         ) const { return ctpsa( CTpsaWithOp::operator-(*this) ); }
+
 	/*
-	 *  @warning: no compatible version in mad_ctpsa ...
-	 *  @todo: review method
+	 * add operators that accept std::complex<double> ... needs to be converted to cnum_t
 	 */
-	// inline void show(std::ostream& strm, int level) const override final {
-	//
-	//     strm << "gctpsa  cst:\n\t" << this->cst();
-	//     if(this->ord()){
-	// 	// at least first order ...
-	// 	auto nv = this->getDescription()->getNv(0, 0, 0);
-	// 	std::vector<cnum_t> v(nv);
-	// 	this->getv(1, &v);
-	//
-	// 	strm  << "\ng ctpsa linear :\n"
-	// 	      << std::scientific << std::setw(20);
-	// 	for(auto& e: v) strm <<  std::scientific << std::setw(20) << e << " ";
-	//     }
-	//     strm << "\n";
-	// }
+	inline ctpsa& operator += ( const std::complex<double>& o )       { return operator += (std_complex_double_to_cnum_t(o)) ; }
+	inline ctpsa& operator -= ( const std::complex<double>& o )       { return operator -= (std_complex_double_to_cnum_t(o)) ; }
+	inline ctpsa& operator *= ( const std::complex<double>& o )       { return operator *= (std_complex_double_to_cnum_t(o)) ; }
+	inline ctpsa& operator /= ( const std::complex<double>& o )       { return operator /= (std_complex_double_to_cnum_t(o)) ; }
+
+	inline ctpsa  operator +  ( const ctpsa&  o ) const { return ctpsa( std::move( CTpsaWithOp::operator+ (o) ) ) ; }
+	inline ctpsa  operator -  ( const ctpsa&  o ) const { return ctpsa( std::move( CTpsaWithOp::operator- (o) ) ) ; }
+	inline ctpsa  operator *  ( const ctpsa&  o ) const { return ctpsa( std::move( CTpsaWithOp::operator* (o) ) ) ; }
+	inline ctpsa  operator /  ( const ctpsa&  o ) const { return ctpsa( std::move( CTpsaWithOp::operator/ (o) ) ) ; }
+
+	inline ctpsa  operator +  ( const cnum_t o ) const { return ctpsa( CTpsaWithOp::operator+ (std_complex_double_to_cnum_t(o)) ) ; }
+	inline ctpsa  operator -  ( const cnum_t o ) const { return ctpsa( CTpsaWithOp::operator- (std_complex_double_to_cnum_t(o)) ) ; }
+	inline ctpsa  operator *  ( const cnum_t o ) const { return ctpsa( CTpsaWithOp::operator* (std_complex_double_to_cnum_t(o)) ) ; }
+	inline ctpsa  operator /  ( const cnum_t o ) const { return ctpsa( CTpsaWithOp::operator/ (std_complex_double_to_cnum_t(o)) ) ; }
+
+	inline ctpsa  operator +  ( const std::complex<double>& o ) const { return ctpsa( this->operator+ (std_complex_double_to_cnum_t(o)) ) ; }
+	inline ctpsa  operator -  ( const std::complex<double>& o ) const { return ctpsa( this->operator- (std_complex_double_to_cnum_t(o)) ) ; }
+	inline ctpsa  operator *  ( const std::complex<double>& o ) const { return ctpsa( this->operator* (std_complex_double_to_cnum_t(o)) ) ; }
+	inline ctpsa  operator /  ( const std::complex<double>& o ) const { return ctpsa( this->operator/ (std_complex_double_to_cnum_t(o)) ) ; }
 
 
 }; // class ctpsa
+
+
+    inline ctpsa operator +  (const cnum_t a, const ctpsa& b)  { return a + CTpsaWithOp(b); }
+    inline ctpsa operator -  (const cnum_t a, const ctpsa& b)  { return a - CTpsaWithOp(b); }
+    inline ctpsa operator *  (const cnum_t a, const ctpsa& b)  { return a * CTpsaWithOp(b); }
+    inline ctpsa operator /  (const cnum_t a, const ctpsa& b)  { return a / CTpsaWithOp(b); }
+
+    inline ctpsa operator +  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cnum_t(a) + CTpsaWithOp(b); }
+    inline ctpsa operator -  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cnum_t(a) - CTpsaWithOp(b); }
+    inline ctpsa operator *  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cnum_t(a) * CTpsaWithOp(b); }
+    inline ctpsa operator /  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cnum_t(a) / CTpsaWithOp(b); }
+
 
 
 } // namespace gtsa

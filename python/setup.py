@@ -30,7 +30,7 @@ ext_modules = [
             "src/ss_vect.cc",
         ]),
         include_dirs=[inc_dir],
-        libraries=["gtpsa"],
+        libraries=["gtpsa", "gtpsa-c++"],
         library_dirs=[lib_dir],
     )
 ]
