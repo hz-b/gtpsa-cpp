@@ -46,7 +46,7 @@ struct AddMethods
 	    .def(py::self - py::self)
 	    .def(py::init<const T&, const size_t> (), init_ss_vect_doc, py::arg("T"),
 		 py::arg("dim") = gtpsa::ss_vect_n_dim)
-	    .def(py::init<const std::shared_ptr<gtpsa::desc>, const ord_t, const size_t> (),
+	    .def(py::init<const std::shared_ptr<gtpsa::mad::desc>, const ord_t, const size_t> (),
 		 init_ss_vect_desc_doc,
 		 py::arg("desc"), py::arg("ord"), py::arg("dim") = gtpsa::ss_vect_n_dim
 		)

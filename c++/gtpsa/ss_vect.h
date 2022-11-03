@@ -30,7 +30,7 @@ private:
     std::vector<T> state_space;
 
 public:
-    inline ss_vect(const std::shared_ptr<gtpsa::desc> desc, const ord_t mo, const size_t n=ss_vect_n_dim) {
+    inline ss_vect(const std::shared_ptr<mad::desc> desc, const ord_t mo, const size_t n=ss_vect_n_dim) {
 	this->state_space.reserve(n);
 	for(size_t i=0; i<n; ++i){
 	    T tmp(desc, mo);
@@ -216,17 +216,17 @@ std::ostream& operator<<(std::ostream& strm, ss_vect<T>& s)
  * @brief special installation
  */
 template<>
-inline ss_vect<double>::ss_vect(const std::shared_ptr<gtpsa::desc> d,  ord_t m,  const size_t n)
+inline ss_vect<double>::ss_vect(const std::shared_ptr<mad::desc> d,  ord_t m,  const size_t n)
     : state_space(n)
 {}
 template<>
-inline ss_vect<std::complex<double>>::ss_vect(const std::shared_ptr<gtpsa::desc> d,  ord_t m,  const size_t n)
+inline ss_vect<std::complex<double>>::ss_vect(const std::shared_ptr<mad::desc> d,  ord_t m,  const size_t n)
     : state_space(n)
 {}
 
 template<>
-inline ss_vect<gtpsa::tpsa>::ss_vect(const gtpsa::tpsa&t,  const size_t n)
-    : state_space(n, gtpsa::tpsa(t, mad_tpsa_same) )
+inline ss_vect<tpsa>::ss_vect(const tpsa&t,  const size_t n)
+    : state_space(n, tpsa(t, mad_tpsa_same) )
 {}
 /*
 {
@@ -257,9 +257,9 @@ inline void ss_vect<double>::cst(std::vector<double>& r) const {
 
 
 template<>
-inline void ss_vect<gtpsa::tpsa>::set_zero(void)
+inline void ss_vect<tpsa>::set_zero(void)
 {
-    std::for_each(this->state_space.begin(), this->state_space.end(), [](gtpsa::tpsa& v){ v.clear(); });
+    std::for_each(this->state_space.begin(), this->state_space.end(), [](tpsa& v){ v.clear(); });
 }
 template<>
 inline void ss_vect<double>::set_zero(void)
@@ -279,7 +279,7 @@ inline ss_vect<double> ss_vect<double>::clone(void) const {
     }
 
 template<>
-inline void ss_vect<gtpsa::tpsa>::set_identity(void)
+inline void ss_vect<tpsa>::set_identity(void)
 {
 
     this->checkSize(this->state_space);
@@ -305,7 +305,7 @@ inline void ss_vect<gtpsa::tpsa>::set_identity(void)
  * It depends how the
  */
 template<>
-inline arma::mat ss_vect<gtpsa::tpsa>::jacobian(void) const {
+inline arma::mat ss_vect<tpsa>::jacobian(void) const {
 
     auto desc = this->state_space.at(0).getDescription();
     size_t nv = desc->getNv();
@@ -333,7 +333,7 @@ inline arma::mat ss_vect<gtpsa::tpsa>::jacobian(void) const {
  * @warning review if
  */
 template<>
-inline arma::mat ss_vect<gtpsa::tpsa>::toMatrix(void){
+inline arma::mat ss_vect<tpsa>::toMatrix(void){
 
     arma::mat mat(this->size(), this->size());
 

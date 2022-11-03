@@ -1,3 +1,3 @@
-#define GTPSA_KEEP_MACROS
 #include <gtpsa/ctpsa.hpp>
-#include "gtpsa/gtpsa.tcc"
+
+template void gtpsa::TpsaWithOp<gtpsa::CTpsaTypeBridgeInfo>::show(std::ostream& strm, int level) const;

@@ -2,8 +2,11 @@ set(gtpsa_c++_HEADERS
   gtpsa/common.tpp
   gtpsa/forward_decl.tpp
   gtpsa/mad_gtpsa_wrapper.tpp
-  gtpsa/with_operators_funcs.tpp
-  gtpsa/with_operators.tpp
+  gtpsa/mad_tpsa_wrapper.hpp
+  gtpsa/mad_ctpsa_wrapper.hpp
+
+  gtpsa/with_operators_funcs.hpp
+  gtpsa/with_operators.hpp
 
   gtpsa/forward_decl.hpp
   gtpsa/desc.hpp
@@ -25,6 +28,8 @@ install(FILES ${gtpsa_c++_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gtpsa
 #)
 
 set(gtpsa_c++_FILES
+  gtpsa/mad_tpsa_wrapper.cc
+  gtpsa/mad_ctpsa_wrapper.cc
   gtpsa/tpsa.cc
   gtpsa/ctpsa.cc
   gtpsa/ss_vect.cc

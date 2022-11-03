@@ -2,7 +2,6 @@
 #define _GTPSA_DESC_H_ 1
 #include <gtpsa/forward_decl.hpp>
 extern "C" {
-    typedef bool _Bool;
 #include <mad_desc.h>
 }
 
@@ -12,18 +11,9 @@ extern "C" {
 #include <sstream>
 #include <memory>
 
-namespace gtpsa {
 
-class tpsa;
-class ctpsa;
+namespace gtpsa::mad {
 
-    /*
-     *@brief how to initalise new object if an other is presented
-     */
-    enum init {
-	default_ = ord_t(-1),
-	same     = ord_t(-2)
-    };
 
     /**
      * @brief manages ptr lifetime
@@ -122,8 +112,10 @@ class ctpsa;
 	inline void show(std::ostream& o) const { o << this->repr(); }
 
 	friend std::ostream& operator<<(std::ostream&, const desc& d);
-	friend class TPSAWrapper;
-	friend class CTPSAWrapper;
+	friend class  mad::_TpsaWrapper;
+	//friend class   TpsaWrapper;
+	friend class mad::_CTpsaWrapper;
+	friend class mad:: CTpsaWrapper;
 
 private:
 	std::unique_ptr<desc_mgr> dm;
@@ -132,5 +124,9 @@ private:
     inline std::ostream& operator<<(std::ostream& o, const desc& d) { d.show(o); return o; }
 
 
-} /* namespace gtpsa */
+} /* namespace gtpsa mad */
+namespace gtpsa {
+    using mad::desc;
+    using mad::init;
+}
 #endif /* _GTPSA_DESC_H_ */

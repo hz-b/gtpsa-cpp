@@ -2,29 +2,6 @@
 #include <gtpsa/ss_vect.h>
 
 
-template<typename T>
-std::string gtpsa::ss_vect<T>::pstr(void)
-{
-    std::stringstream strm;
-    this->show(strm);
-    return strm.str();
-}
-
-template<typename T>
-std::string gtpsa::ss_vect<T>::repr(void)
-{
-    	std::stringstream strm;
-	this->show(strm, 10);
-	return strm.str();
-}
-
-
-template std::string gtpsa::ss_vect<double>::repr(void);
-template std::string gtpsa::ss_vect<double>::pstr(void);
-template std::string gtpsa::ss_vect<gtpsa::tpsa>::repr(void);
-template std::string gtpsa::ss_vect<gtpsa::tpsa>::pstr(void);
-template std::string gtpsa::ss_vect<gtpsa::ctpsa>::repr(void);
-template std::string gtpsa::ss_vect<gtpsa::ctpsa>::pstr(void);
 
 template<>
 void gtpsa::ss_vect<double>::show(std::ostream& strm, int level, bool with_endl) const
@@ -67,3 +44,27 @@ void gtpsa::ss_vect<T>::show(std::ostream& strm, int level, bool with_endl) cons
 
 template void gtpsa::ss_vect<gtpsa::tpsa>::show(std::ostream& strm, int level, bool with_endl) const;
 template void gtpsa::ss_vect<gtpsa::ctpsa>::show(std::ostream& strm, int level, bool with_endl) const;
+
+template<typename T>
+std::string gtpsa::ss_vect<T>::pstr(void)
+{
+    std::stringstream strm;
+    this->show(strm);
+    return strm.str();
+}
+
+template<typename T>
+std::string gtpsa::ss_vect<T>::repr(void)
+{
+    std::stringstream strm;
+    this->show(strm, 10);
+    return strm.str();
+}
+
+
+template std::string gtpsa::ss_vect<double>::repr(void);
+template std::string gtpsa::ss_vect<double>::pstr(void);
+template std::string gtpsa::ss_vect<gtpsa::tpsa>::repr(void);
+template std::string gtpsa::ss_vect<gtpsa::tpsa>::pstr(void);
+template std::string gtpsa::ss_vect<gtpsa::ctpsa>::repr(void);
+template std::string gtpsa::ss_vect<gtpsa::ctpsa>::pstr(void);

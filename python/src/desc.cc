@@ -27,23 +27,23 @@ Args:\n\
     no: vector of orders?\n\
     po: maximum order (of parameters)?\n\
 ";
-    py::class_<gtpsa::desc  , std::shared_ptr<gtpsa::desc>>   desc  (m, "desc" );
+    py::class_<gtpsa::mad::desc  , std::shared_ptr<gtpsa::mad::desc>>   desc  (m, "desc" );
     desc
-	.def_property_readonly("number_of_variables", &gtpsa::desc::getNv  )
-	.def_property_readonly("maximum_orders",      &gtpsa::desc::maxOrd )
-	.def_property_readonly("maximum_length",      &gtpsa::desc::maxLen )
+	.def_property_readonly("number_of_variables", &gtpsa::mad::desc::getNv  )
+	.def_property_readonly("maximum_orders",      &gtpsa::mad::desc::maxOrd )
+	.def_property_readonly("maximum_length",      &gtpsa::mad::desc::maxLen )
 	// rename this mehtod
-	.def("ordLen"         , &gtpsa::desc::ordLen    )
-	.def("truncate"       , &gtpsa::desc::trunc     )
-	//.def("index"        ,    &gtpsa::desc::nxtbyvar )
-	.def("nextByVariable" , &gtpsa::desc::nxtbyvar  )
-	.def("nextByOrder"    , &gtpsa::desc::nxtbyord  )
-	.def("mono"           , &gtpsa::desc::mono      )
-	.def("__repr__"       , &gtpsa::desc::repr      )
-	.def("isvalidsm"      , &gtpsa::desc::isvalidsm )
-	.def("indexsm"        , &gtpsa::desc::idxsm     )
-	.def("isvalid"        , py::overload_cast<const std::vector<ord_t>&>( &gtpsa::desc::isvalid, py::const_ ))
-	.def("index"          , py::overload_cast<const std::vector<ord_t>&>( &gtpsa::desc::idx,     py::const_ ))
+	.def("ordLen"         , &gtpsa::mad::desc::ordLen    )
+	.def("truncate"       , &gtpsa::mad::desc::trunc     )
+	//.def("index"        ,    &gtpsa::mad::desc::nxtbyvar )
+	.def("nextByVariable" , &gtpsa::mad::desc::nxtbyvar  )
+	.def("nextByOrder"    , &gtpsa::mad::desc::nxtbyord  )
+	.def("mono"           , &gtpsa::mad::desc::mono      )
+	.def("__repr__"       , &gtpsa::mad::desc::repr      )
+	.def("isvalidsm"      , &gtpsa::mad::desc::isvalidsm )
+	.def("indexsm"        , &gtpsa::mad::desc::idxsm     )
+	.def("isvalid"        , py::overload_cast<const std::vector<ord_t>&>( &gtpsa::mad::desc::isvalid, py::const_ ))
+	.def("index"          , py::overload_cast<const std::vector<ord_t>&>( &gtpsa::mad::desc::idx,     py::const_ ))
 	.def(py::init<int, ord_t>(),             desc_newv_doc,
 	     py::arg("nv"), py::arg("mo") = 0)
 	.def(py::init<int, int, ord_t, ord_t>(), desc_newvp_doc,
