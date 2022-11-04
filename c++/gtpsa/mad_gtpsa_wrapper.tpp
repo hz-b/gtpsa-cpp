@@ -239,6 +239,10 @@ namespace gtpsa::mad {
 	    GTPSA_METH(print)(this->getPtr(), name, eps, nohdr, stream);
 	}
 
+	inline void pow (const GTPSA_CLASS(Wrapper)& a, const GTPSA_CLASS(Wrapper)& b){ process2w_(a, b, this, GTPSA_METH(pow)); }
+	inline void pow (const GTPSA_CLASS(Wrapper)& a, const int n                  ){ GTPSA_METH(powi) (a.getPtr(), n, this->getPtr()); }
+	inline void pow (const GTPSA_CLASS(Wrapper)& a, const GTPSA_BASE_T v         ){ process2w_(a, v, this, GTPSA_METH(pown)); }
+
     protected:
 	inline const GTPSA_PTR_T*    getPtr(void) const { return this->ltm->getPtr(); }
 	inline       GTPSA_PTR_T*    getPtr(void)       { return this->ltm->getPtr(); }
@@ -266,8 +270,6 @@ namespace gtpsa::mad {
 	/*
 	 * functions with a single call pattern
 	 */
-	friend inline void pow_       (const GTPSA_CLASS(Wrapper)& a, const int          n           , GTPSA_CLASS(Wrapper)* r );
-	friend inline void pow_       (const GTPSA_CLASS(Wrapper)& a, const GTPSA_BASE_T v           , GTPSA_CLASS(Wrapper)* r );
 	friend inline void taylor     (const GTPSA_CLASS(Wrapper)& a, std::vector<GTPSA_BASE_T> coeff, GTPSA_CLASS(Wrapper)* c);
     }; /* class GTPSA_CLASS(Wrapper) */
 
@@ -343,9 +345,9 @@ namespace gtpsa::mad {
     inline void mul_   (const GTPSA_CLASS(Wrapper)& a, const GTPSA_CLASS(Wrapper)& b,  GTPSA_CLASS(Wrapper)* r ){ process2w_(a, b, r, GTPSA_METH(mul)); }
     inline void div_   (const GTPSA_CLASS(Wrapper)& a, const GTPSA_CLASS(Wrapper)& b,  GTPSA_CLASS(Wrapper)* r ){ process2w_(a, b, r, GTPSA_METH(div)); }
 
-    inline void pow_   (const GTPSA_CLASS(Wrapper)& a, const GTPSA_CLASS(Wrapper)& b,  GTPSA_CLASS(Wrapper)* r ){ process2w_(a, b, r, GTPSA_METH(pow)); }
-    inline void pow_   (const GTPSA_CLASS(Wrapper)& a, const int n                  ,  GTPSA_CLASS(Wrapper)* r ){ GTPSA_METH(powi) (a.getPtr(), n, r->getPtr()); }
-    inline void pow_   (const GTPSA_CLASS(Wrapper)& a, const GTPSA_BASE_T v         ,  GTPSA_CLASS(Wrapper)* r ){ GTPSA_METH(pown) (a.getPtr(), v, r->getPtr()); }
+    inline void pow_   (const GTPSA_CLASS(Wrapper)& a, const GTPSA_CLASS(Wrapper)& b,  GTPSA_CLASS(Wrapper)* r ){ r->pow(a, b); }
+    inline void pow_   (const GTPSA_CLASS(Wrapper)& a, const int n                  ,  GTPSA_CLASS(Wrapper)* r ){ r->pow(a, n); }
+    inline void pow_   (const GTPSA_CLASS(Wrapper)& a, const GTPSA_BASE_T v         ,  GTPSA_CLASS(Wrapper)* r ){ r->pow(a, v); }
 
     /**
      * @brief single argument in, single argument out, return argument allocated
@@ -353,19 +355,19 @@ namespace gtpsa::mad {
     /**
      * @brief c += v*a, aliasing OK
      */
-    inline void acc   (const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T v, GTPSA_CLASS(Wrapper) *c) { process2w_(a, v, c, &GTPSA_METH(acc)    ); }
+    inline void acc_   (const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T& v, GTPSA_CLASS(Wrapper) *c) { process2w_(a, v, c, &GTPSA_METH(acc)    ); }
     /**
      * @brief c = v*a, aliasing OK ?
      */
-    inline void scl  (const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T v, GTPSA_CLASS(Wrapper) *c) { process2w_(a, v, c, &GTPSA_METH(scl)    ); }
+    inline void scl_  (const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T& v, GTPSA_CLASS(Wrapper) *c) { process2w_(a, v, c, &GTPSA_METH(scl)    ); }
     /**
      * @brief c = v/a, aliasing OK ?
      */
-    inline void inv (const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T v, GTPSA_CLASS(Wrapper) *c) { process2w_(a, v, c, &GTPSA_METH(inv)    ); }
+    inline void inv_ (const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T& v, GTPSA_CLASS(Wrapper) *c) { process2w_(a, v, c, &GTPSA_METH(inv)    ); }
     /**
      * @brief c = v/sqrt(a), aliasing OK ?
      */
-    inline void invsqrt (const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T v, GTPSA_CLASS(Wrapper) *c) { process2w_(a, v, c, &GTPSA_METH(invsqrt) ); }
+    inline void invsqrt_ (const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T& v, GTPSA_CLASS(Wrapper) *c) { process2w_(a, v, c, &GTPSA_METH(invsqrt) ); }
 
 
     inline void sincos (const GTPSA_CLASS(Wrapper)& t, GTPSA_CLASS(Wrapper)* r1, GTPSA_CLASS(Wrapper)* r2) { process1to2w_(t, r1, r2, GTPSA_METH(sincos)  ) ; }

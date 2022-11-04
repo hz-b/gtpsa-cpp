@@ -20,9 +20,10 @@
 #include <complex>
 
 #include <gtpsa/desc.hpp>
+#include <gtpsa/mad_tpsa_wrapper.hpp>
+#include <gtpsa/mad_ctpsa_wrapper.hpp>
 #include <gtpsa/tpsa.hpp>
 
-#include <gtpsa/mad_ctpsa_wrapper.hpp>
 #include <gtpsa/complex_utils.hpp>
 #include <gtpsa/bridge.hpp>
 #include <gtpsa/with_operators.hpp>
@@ -36,25 +37,39 @@ namespace gtpsa {
     /* Bridge to the mad gtpsa c++ wrapper */
     typedef struct TpsaBridge<CTpsaTypeInfo> ctpsa_bridge;
 
-    /* c++ style functionality of the operator functions. */
-    inline void radd ( const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge* r ) { apply2_with_return_object<ctpsa_bridge, mad::CTpsaWrapper>(a, b, r,  mad::add ); }
-    inline void rsub ( const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge* r ) { apply2_with_return_object<ctpsa_bridge, mad::CTpsaWrapper>(a, b, r,  mad::sub ); }
-    inline void rmul ( const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge* r ) { apply2_with_return_object<ctpsa_bridge, mad::CTpsaWrapper>(a, b, r,  mad::mul ); }
-    inline void rdiv ( const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge* r ) { apply2_with_return_object<ctpsa_bridge, mad::CTpsaWrapper>(a, b, r,  mad::div ); }
+    /*
+     * c++ style functionality of the operator functions.
+     * with return object thus name started with an r
+     */
 
-    inline void pow  ( const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge* r ) { mad::pow_(a.m_impl, b.m_impl, &r->m_impl); }
-    inline void pow  ( const ctpsa_bridge& a, const int           i, ctpsa_bridge* r ) { mad::pow_(a.m_impl, i,        &r->m_impl); }
-    inline void pow  ( const ctpsa_bridge& a, const num_t         v, ctpsa_bridge* r ) { mad::pow_(a.m_impl, v,        &r->m_impl); }
+    inline void radd (const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge* r)  { r->apply2_with_return_object(a, b, mad::add ); }
+    inline void rsub (const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge* r)  { r->apply2_with_return_object(a, b, mad::sub ); }
+    inline void rmul (const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge* r)  { r->apply2_with_return_object(a, b, mad::mul ); }
+    inline void rdiv (const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge* r)  { r->apply2_with_return_object(a, b, mad::div ); }
 
+    inline void racc     (const ctpsa_bridge& a, const cnum_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::acc ); }
+    inline void rscl     (const ctpsa_bridge& a, const cnum_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::scl ); }
+    inline void rinv     (const ctpsa_bridge& a, const cnum_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::inv ); }
+    inline void rinvsqrt (const ctpsa_bridge& a, const cnum_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::invsqrt ); }
 
+    inline void rpow (const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge *r) { r->pow(a, b);  }
+    inline void rpow (const ctpsa_bridge& a, const int           i, ctpsa_bridge *r) { /* r->pow(a, i);*/ }
+    inline void rpow (const ctpsa_bridge& a, const cnum_t        v, ctpsa_bridge *r) { /* r->pow(a, v);*/ }
+
+    /* return newly allocated object */
     inline ctpsa_bridge add ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { return apply2<ctpsa_bridge>(a, b, radd ); }
     inline ctpsa_bridge sub ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { return apply2<ctpsa_bridge>(a, b, rsub ); }
     inline ctpsa_bridge mul ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { return apply2<ctpsa_bridge>(a, b, rmul ); }
     inline ctpsa_bridge div ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { return apply2<ctpsa_bridge>(a, b, rdiv ); }
 
-    inline ctpsa_bridge pow ( const ctpsa_bridge& a, const ctpsa_bridge& b ){  ctpsa_bridge r = a.newFromThis(); pow(a, b, &r); return r; }
-    inline ctpsa_bridge pow ( const ctpsa_bridge& a, const int           i ){  ctpsa_bridge r = a.newFromThis(); pow(a, i, &r); return r; }
-    inline ctpsa_bridge pow ( const ctpsa_bridge& a, const num_t         v ){  ctpsa_bridge r = a.newFromThis(); pow(a, v, &r); return r; }
+    inline ctpsa_bridge pow ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { ctpsa_bridge r = a.newFromThis(); rpow(a, b, &r); return r; }
+    inline ctpsa_bridge pow ( const ctpsa_bridge& a, const int           i ) { ctpsa_bridge r = a.newFromThis(); rpow(a, i, &r); return r; }
+    inline ctpsa_bridge pow ( const ctpsa_bridge& a, const cnum_t        v ) { ctpsa_bridge r = a.newFromThis(); rpow(a, v, &r); return r; }
+
+    //inline tpsa_bridge acc     (const ctpsa_bridge& a, const cnum_t b)  { return apply2_base<ctpsa_bridge, cnum_t>(a, b, racc); }
+    //inline tpsa_bridge scl     (const ctpsa_bridge& a, const cnum_t b)  { return apply2_base<ctpsa_bridge, cnum_t>(a, b, rscl); }
+    //inline tpsa_bridge inv     (const ctpsa_bridge& a, const cnum_t b)  { return apply2_base<ctpsa_bridge, cnum_t>(a, b, rinv); }
+    //inline tpsa_bridge invsqrt (const ctpsa_bridge& a, const cnum_t b)  { return apply2_base<ctpsa_bridge, cnum_t>(a, b, rinvsqrt); }
 
 
     /* required for the template adding operators */
@@ -205,6 +220,10 @@ namespace gtpsa {
     inline ctpsa operator *  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cnum_t(a) * ctpsa::base(b); }
     inline ctpsa operator /  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cnum_t(a) / ctpsa::base(b); }
 
+    inline ctpsa pow (const ctpsa& a,  const ctpsa& b){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), static_cast<const ctpsa::base&>(b) ) ); }
+    inline ctpsa pow (const ctpsa& a,  const int    i){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), i) ); }
+    inline ctpsa pow (const ctpsa& a,  const cnum_t v){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), v  )); }
+
     inline std::ostream& operator<<(std::ostream& strm, const ctpsa& a)
     {
 	a.show(strm, 0);
@@ -222,7 +241,7 @@ namespace gtpsa {
 #undef GTPSA_FUNC_ARG1_WITH_RET_ARG
 #endif
 #define GTPSA_FUNC_ARG1_WITH_RET_ARG(fname) \
-    inline void fname ## _ (const ctpsa& t, ctpsa* r){ return apply_with_return_object<ctpsa, mad::_CTpsaWrapper>(t, r, mad::fname);  }
+    inline void fname ## _ (const ctpsa& t, ctpsa* r){ return r->apply_with_return_object(t, mad::fname);  }
 #define GTPSA_FUNC_ARG1_NO_RET_ARG(fname)				\
     inline ctpsa fname (const ctpsa& t){ return apply<ctpsa>(t, fname ## _);  }
 #define GTPSA_FUNC_ARG1(fname) GTPSA_FUNC_ARG1_WITH_RET_ARG(fname) GTPSA_FUNC_ARG1_NO_RET_ARG(fname)

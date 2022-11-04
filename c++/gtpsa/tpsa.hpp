@@ -18,9 +18,9 @@
 #include <ostream>
 
 #include <gtpsa/mad_tpsa_wrapper.hpp>
+#include <gtpsa/templated_funcs.hpp>
 #include <gtpsa/bridge.hpp>
 #include <gtpsa/with_operators.hpp>
-#include <gtpsa/templated_funcs.hpp>
 
 
 namespace gtpsa {
@@ -48,23 +48,23 @@ namespace gtpsa {
     typedef struct TpsaBridge<TpsaTypeInfo> tpsa_bridge;
 
     /* c++ style functionality of the operator functions. */
-    inline void radd (const tpsa_bridge& a, const tpsa_bridge& b, tpsa_bridge* r)  { apply2_with_return_object<tpsa_bridge, mad::TpsaWrapper>(a, b, r,  mad::add ); }
-    inline void rsub (const tpsa_bridge& a, const tpsa_bridge& b, tpsa_bridge* r)  { apply2_with_return_object<tpsa_bridge, mad::TpsaWrapper>(a, b, r,  mad::sub ); }
-    inline void rmul (const tpsa_bridge& a, const tpsa_bridge& b, tpsa_bridge* r)  { apply2_with_return_object<tpsa_bridge, mad::TpsaWrapper>(a, b, r,  mad::mul ); }
-    inline void rdiv (const tpsa_bridge& a, const tpsa_bridge& b, tpsa_bridge* r)  { apply2_with_return_object<tpsa_bridge, mad::TpsaWrapper>(a, b, r,  mad::div ); }
+    inline void radd (const tpsa_bridge& a, const tpsa_bridge& b, tpsa_bridge* r)  { r->apply2_with_return_object(a, b, mad::add ); }
+    inline void rsub (const tpsa_bridge& a, const tpsa_bridge& b, tpsa_bridge* r)  { r->apply2_with_return_object(a, b, mad::sub ); }
+    inline void rmul (const tpsa_bridge& a, const tpsa_bridge& b, tpsa_bridge* r)  { r->apply2_with_return_object(a, b, mad::mul ); }
+    inline void rdiv (const tpsa_bridge& a, const tpsa_bridge& b, tpsa_bridge* r)  { r->apply2_with_return_object(a, b, mad::div ); }
 
-    inline void acc     (const tpsa_bridge& a, const num_t v, tpsa_bridge* r) { apply2_base_with_return_object<tpsa_bridge, num_t, mad::_TpsaWrapper>(a, v, r, &mad::acc ); }
-    inline void scl     (const tpsa_bridge& a, const num_t v, tpsa_bridge* r) { apply2_base_with_return_object<tpsa_bridge, num_t, mad::_TpsaWrapper>(a, v, r, mad::scl ); }
-    inline void inv     (const tpsa_bridge& a, const num_t v, tpsa_bridge* r) { apply2_base_with_return_object<tpsa_bridge, num_t, mad::_TpsaWrapper>(a, v, r, mad::inv ); }
-    inline void invsqrt (const tpsa_bridge& a, const num_t v, tpsa_bridge* r) { apply2_base_with_return_object<tpsa_bridge, num_t, mad::_TpsaWrapper>(a, v, r, mad::invsqrt ); }
+    inline void racc     (const tpsa_bridge& a, const num_t v, tpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::acc ); }
+    inline void rscl     (const tpsa_bridge& a, const num_t v, tpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::scl ); }
+    inline void rinv     (const tpsa_bridge& a, const num_t v, tpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::inv ); }
+    inline void rinvsqrt (const tpsa_bridge& a, const num_t v, tpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::invsqrt ); }
 
-    inline void pow     (const tpsa_bridge& a, const tpsa_bridge& b,  tpsa_bridge* r ) { mad::pow_(a.m_impl, b.m_impl, &r->m_impl); }
-    inline void pow     (const tpsa_bridge& a, const int          i,  tpsa_bridge* r ) { mad::pow_(a.m_impl, i,        &r->m_impl); }
-    inline void pow     (const tpsa_bridge& a, const num_t        v,  tpsa_bridge* r ) { mad::pow_(a.m_impl, v,        &r->m_impl); }
+    inline void rpow (const tpsa_bridge& a, const tpsa_bridge& b, tpsa_bridge *r) { r->pow(a, b); }
+    inline void rpow (const tpsa_bridge& a, const int          i, tpsa_bridge *r) { r->pow(a, i); }
+    inline void rpow (const tpsa_bridge& a, const num_t        v, tpsa_bridge *r) { r->pow(a, v); }
 
-    inline tpsa_bridge pow (const tpsa_bridge& a, const tpsa_bridge& b) { tpsa_bridge r = a.newFromThis(); pow(a, b, &r); return r;}
-    inline tpsa_bridge pow (const tpsa_bridge& a, const int          i) { tpsa_bridge r = a.newFromThis(); pow(a, i, &r); return r;}
-    inline tpsa_bridge pow (const tpsa_bridge& a, const num_t        v) { tpsa_bridge r = a.newFromThis(); pow(a, v, &r); return r;}
+    inline tpsa_bridge pow (const tpsa_bridge& a, const tpsa_bridge& b) { tpsa_bridge r = a.newFromThis(); rpow(a, b, &r); return r;}
+    inline tpsa_bridge pow (const tpsa_bridge& a, const int          i) { tpsa_bridge r = a.newFromThis(); rpow(a, i, &r); return r;}
+    inline tpsa_bridge pow (const tpsa_bridge& a, const num_t        v) { tpsa_bridge r = a.newFromThis(); rpow(a, v, &r); return r;}
 
 
     inline tpsa_bridge add (const tpsa_bridge& a, const tpsa_bridge& b ) { return apply2<tpsa_bridge>(a, b, radd); }
@@ -72,10 +72,10 @@ namespace gtpsa {
     inline tpsa_bridge mul (const tpsa_bridge& a, const tpsa_bridge& b ) { return apply2<tpsa_bridge>(a, b, rmul); }
     inline tpsa_bridge div (const tpsa_bridge& a, const tpsa_bridge& b ) { return apply2<tpsa_bridge>(a, b, rdiv); }
 
-    inline tpsa_bridge acc     (const tpsa_bridge& a, const num_t b)  { return apply2_base<tpsa_bridge, num_t>(a, b, acc); }
-    inline tpsa_bridge scl     (const tpsa_bridge& a, const num_t b)  { return apply2_base<tpsa_bridge, num_t>(a, b, scl); }
-    inline tpsa_bridge inv     (const tpsa_bridge& a, const num_t b)  { return apply2_base<tpsa_bridge, num_t>(a, b, inv); }
-    inline tpsa_bridge invsqrt (const tpsa_bridge& a, const num_t b)  { return apply2_base<tpsa_bridge, num_t>(a, b, invsqrt); }
+    inline tpsa_bridge acc     (const tpsa_bridge& a, const num_t b)  { return apply2_base<tpsa_bridge, num_t>(a, b, racc); }
+    inline tpsa_bridge scl     (const tpsa_bridge& a, const num_t b)  { return apply2_base<tpsa_bridge, num_t>(a, b, rscl); }
+    inline tpsa_bridge inv     (const tpsa_bridge& a, const num_t b)  { return apply2_base<tpsa_bridge, num_t>(a, b, rinv); }
+    inline tpsa_bridge invsqrt (const tpsa_bridge& a, const num_t b)  { return apply2_base<tpsa_bridge, num_t>(a, b, rinvsqrt); }
 
 
     struct TpsaTypeBridgeInfo {
@@ -211,7 +211,7 @@ namespace gtpsa {
 #undef GTPSA_FUNC_ARG1_WITH_RET_ARG
 #endif
 #define GTPSA_FUNC_ARG1_WITH_RET_ARG(fname) \
-    inline void fname ## _ (const tpsa& t, tpsa* r){ return apply_with_return_object<tpsa, mad::_TpsaWrapper>(t, r, mad::fname);  }
+    inline void fname ## _ (const tpsa& t, tpsa* r){ return r->apply_with_return_object(t, mad::fname);  }
 #define GTPSA_FUNC_ARG1_NO_RET_ARG(fname)				\
     inline tpsa fname (const tpsa& t){ return apply<tpsa>(t, fname ## _);  }
 #define GTPSA_FUNC_ARG1(fname) GTPSA_FUNC_ARG1_WITH_RET_ARG(fname) GTPSA_FUNC_ARG1_NO_RET_ARG(fname)
