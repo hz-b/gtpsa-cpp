@@ -10,6 +10,8 @@ set(gtpsa_c++_HEADERS
 
   gtpsa/forward_decl.hpp
   gtpsa/desc.hpp
+  gtpsa/templated_funcs.hpp
+  gtpsa/bridge.hpp
   gtpsa/tpsa.hpp
   gtpsa/ctpsa.hpp
   gtpsa/utils.hpp

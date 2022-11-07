@@ -13,6 +13,7 @@ target_link_libraries(lib_gtpsa
   pybind11::module
   pybind11::lto
   pybind11::windows_extras
+  gtpsa-c++
   gtpsa
   #
   )
@@ -23,3 +24,29 @@ set_target_properties(lib_gtpsa
   PROPERTIES CXX_VISIBILITY_PRESET "hidden"
   CUDA_VISIBILITY_PRESET "hidden"
   )
+
+
+# For development ... let's copy the built shared objects to thor_scsi
+# For final installation: use setup.py
+if(PYTHON_MODULE_DEVELOPMENT_INSTALL)
+  message(STATUS "copying python dynamic built libraries to source dir ${CMAKE_CURRENT_SOURCE_DIR}")
+  install(TARGETS lib_gtpsa DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/gtpsa)
+endif()
+
+# detect virtualenv and set Pip args accordingly
+if(DEFINED ENV{VIRTUAL_ENV} OR DEFINED ENV{CONDA_PREFIX})
+  set(_pip_args)
+else()
+  set(_pip_args "--user")
+endif()
+
+
+if(PYTHON_MODULE_INSTALL)
+    # not proper code (nor tested)
+    # execute_process(COMMAND ${Python3_EXECUTABLE} -m pip install ${_pip_args} ${_pypkg_name})
+endif()
+if(PYTHON_MODULE_DEVELOPMENT_INSTALL)
+    # not proper code (nor tested)
+    # install Python package locally in development mode
+    #  execute_process(COMMAND ${Python3_EXECUTABLE} -m pip install ${_pip_args} -e )
+endif()

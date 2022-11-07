@@ -14,9 +14,9 @@ namespace gtpsa {
     template<typename T, typename B, typename Bridge>
     struct GTpsaTypeInfo
     {
-	using ptr_type = typeof(T);
-	using base_type = typeof(B);
-	using bridge_type = typeof(Bridge);
+	using ptr_type =  T;
+	using base_type =  B;
+	using bridge_type = Bridge;
     };
 
     //class TPSAWrapper;

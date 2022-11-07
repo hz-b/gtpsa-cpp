@@ -28,6 +28,7 @@ template<typename T>
 class ss_vect{
 private:
     std::vector<T> state_space;
+    std::string m_name = "";
 
 public:
     inline ss_vect(const std::shared_ptr<mad::desc> desc, const ord_t mo, const size_t n=ss_vect_n_dim) {
@@ -68,17 +69,40 @@ public:
 	: state_space(vec)
 	{  this->checkSize(this->state_space); }
 
-    inline void operator+= (const ss_vect<T>& o){ this->inplace_op(o, [] (T& t, const T&     o){ t += o;}); };
-    inline void operator-= (const ss_vect<T>& o){ this->inplace_op(o, [] (T& t, const T&     o){ t -= o;}); };
+
+    void setName(std::string& name){
+	this->m_name = name;
+    }
+
+    std::string name(void){
+	return this->m_name;
+    }
+
+    inline ss_vect<T>&  operator+= (const ss_vect<T>& o){ this->inplace_op(o, [] (T& t, const T&     o){ t += o;}); return *this; }
+    inline ss_vect<T>&  operator-= (const ss_vect<T>& o){ this->inplace_op(o, [] (T& t, const T&     o){ t -= o;}); return *this; }
     /*
-    inline void operator*= (const ss_vect<T>& o){ this->inplace_op(o, [] (T& t, const T&     o){ t *= o;}); };
-    inline void operator/= (const ss_vect<T>& o){ this->inplace_op(o, [] (T& t, const T&     o){ t /= o;}); };
+    inline ss_vect<T>&  operator*= (const ss_vect<T>& o){ this->inplace_op(o, [] (T& t, const T&     o){ t *= o;}); return *this; }
+    inline ss_vect<T>&  operator/= (const ss_vect<T>& o){ this->inplace_op(o, [] (T& t, const T&     o){ t /= o;}); return *this; }
     */
 
-    inline void operator+= (const double      o){ this->inplace_op(o, [] (T& t, const double o){ t += o;}); };
-    inline void operator-= (const double      o){ this->inplace_op(o, [] (T& t, const double o){ t -= o;}); };
-    inline void operator*= (const double      o){ this->inplace_op(o, [] (T& t, const double o){ t *= o;}); };
-    inline void operator/= (const double      o){ this->inplace_op(o, [] (T& t, const double o){ t /= o;}); };
+
+    inline ss_vect<T>&  operator+= (const double      o){ this->inplace_op(o, [] (T& t, const double o){ t += o;}); return *this; }
+    inline ss_vect<T>&  operator-= (const double      o){ this->inplace_op(o, [] (T& t, const double o){ t -= o;}); return *this; }
+    inline ss_vect<T>&  operator*= (const double      o){ this->inplace_op(o, [] (T& t, const double o){ t *= o;}); return *this; }
+    inline ss_vect<T>&  operator/= (const double      o){ this->inplace_op(o, [] (T& t, const double o){ t /= o;}); return *this; }
+
+
+    template<typename U>
+    inline ss_vect<T>&  operator+= (const ss_vect<U>& o){ this->inplace_op<U>(o, [] (T& t, const U&     o){ t += o;}); return *this; }
+    template<typename U>
+    inline ss_vect<T>&  operator-= (const ss_vect<U>& o){ this->inplace_op<U>(o, [] (T& t, const U&     o){ t -= o;}); return *this; }
+
+    /*
+    template<typename U>
+    inline ss_vect<T>&  operator*= (const ss_vect<double>& o){ this->inplace_op(o, [] (T& t, const T&     o){ t *= o;}); return *this; }
+    template<typename U>
+    inline ss_vect<T>&  operator/= (const ss_vect<double>& o){ this->inplace_op(o, [] (T& t, const T&     o){ t /= o;}); return *this; }
+    */
 
     inline void set_zero(void);/*{
 	std::for_each(this->state_space.begin(), this->state_space.end(), [](gtpsa::tpsa& v){v = 0.0;});
@@ -196,6 +220,22 @@ private:
 	    f(this->state_space[i], o.state_space[i]);
 	}
     }
+
+
+    template<typename U>
+    inline void inplace_op(const ss_vect<U>& o, void f(T&, const U&)){
+	std::cout << "inplace t->U ";
+	for(size_t i=0; i<this->state_space.size(); ++i){
+	    f(this->state_space[i], o[i]);
+	    std::cout << i << " " << this->state_space[i] << " " << o[i];
+	}
+	std::cout << std::endl;
+	return;
+	throw std::runtime_error("inplace operation with space state vector of"
+				 " other type only defined in sepcial cases!");
+    }
+
+
     inline void inplace_op(const double o, void f(T&, const double)){
 	for(size_t i=0; i<this->state_space.size(); ++i){
 	    f(this->state_space[i], o);
@@ -203,6 +243,13 @@ private:
     }
     //
 };
+#if 0
+    template<double>
+    void ss_vect<tpsa>::inplace_op(const ss_vect<double>& o, void f(ss_vect<tpsa>&, const double&));
+    {
+    }
+#endif
+
 
 
 template<typename T> inline

@@ -28,14 +28,18 @@ struct AddMethods
 
 
 	a_cls
-	    .def("length",         &Cls::length)
-	    .def("getDescription", &Cls::getDescription)
-	    .def("clear",          &Cls::clear)
-	    .def("isNull",         &Cls::isNull)
-	    .def("mono",           &Cls::mono)
-	    //.def("index",          py::overload_cast<const std::vector<ord_t>&>( &Cls::index, py::const_))
-	    // .def("get",            py::overload_cast<>( &Cls::get, py::const_))
-	    //.def("get",            py::overload_cast<const std::vector<ord_t>&>( &Cls::get, py::const_))
+	    .def("length",          &Cls::length)
+	    .def("get_description", &Cls::getDescription)
+	    .def("clear",           &Cls::clear)
+	    .def("is_null",         &Cls::isNull)
+	    .def("mono",            &Cls::mono)
+	    .def("get",             [](const Cls& inst){
+					return inst.get();
+				    })
+	    .def("get",             [](const Cls& inst, const std::vector<ord_t>& m){
+					return inst.get(m);
+				    })
+	    .def("index",          [](const Cls& inst, const std::vector<ord_t>& m){ return inst.index(m);})
 	    // make it more pythonic!
 	    .def("getv",           [](const Cls& inst, idx_t i){
 				       std::vector<T> tmp(inst.length()); inst.getv(i, &tmp);
@@ -45,7 +49,7 @@ struct AddMethods
 	    .def("getsm",          &Cls::getsm)
 	    // problems with complex values ....
 	    // .def("set",            py::overload_cast<const std::vector<ord_t>&, T, T>( &Cls::set))
-	    .def("setVariable",    &Cls::setVariable, "set the variable?",
+	    .def("set_variable",    &Cls::setVariable, "set the variable?",
 		 py::arg("v"), py::arg("iv") = 0, py::arg("scl") = 0)
 	    .def_property("name",  &Cls::name, &Cls::setName)
 	    .def_property("uid",   [](Cls& inst){ return inst.uid(0);}, &Cls::uid)
@@ -106,26 +110,28 @@ void py_gtpsa_init_tpsa(py::module &m)
     typedef gtpsa::TpsaWithOp<gtpsa::CTpsaTypeBridgeInfo> CTpsaOp;
 
     py::class_<TpsaOp, std::shared_ptr<TpsaOp>> tpsa_with_op  (m, "_TPSAWithOp");
-    AddMethods<TpsaOp> tpsa_m;
-    tpsa_m.add_methods<TpsaOp, num_t>(tpsa_with_op);
+    AddMethods<TpsaOp> tpsa_m_op;
+    tpsa_m_op.add_methods<TpsaOp, num_t>(tpsa_with_op);
     py::class_<gtpsa::tpsa, std::shared_ptr<gtpsa::tpsa>>   tpsa  (m, "tpsa",  tpsa_with_op);
+    AddMethods<gtpsa::tpsa> tpsa_m;
+    tpsa_m.add_methods_ops<gtpsa::tpsa, num_t>(tpsa);
     tpsa
-	.def("set", py::overload_cast<num_t, num_t>( &gtpsa::tpsa::set))
-	.def("set", py::overload_cast<const std::vector<ord_t>&, num_t, num_t>( &gtpsa::tpsa::set))
-	//.def(py::self += double())
-	//.def(py::self -= double())
-	//.def(py::self *= double())
-	//.def(py::self /= double())
+	//.def("set", py::overload_cast<num_t, num_t>( &gtpsa::tpsa::set))
+	//.def("set", py::overload_cast<const std::vector<ord_t>&, num_t, num_t>( &gtpsa::tpsa::set))
+	.def(py::self += double())
+	.def(py::self -= double())
+	.def(py::self *= double())
+	.def(py::self /= double())
 	//
-	//.def(py::self + double())
-	//.def(py::self - double())
-	//.def(py::self * double())
-	//.def(py::self / double())
+	.def(py::self + double())
+	.def(py::self - double())
+	.def(py::self * double())
+	.def(py::self / double())
 	//
-	//.def(double() + py::self)
-	//.def(double() - py::self)
-	//.def(double() * py::self)
-	//.def(double() / py::self)
+	.def(double() + py::self)
+	.def(double() - py::self)
+	.def(double() * py::self)
+	.def(double() / py::self)
 	.def(py::init<std::shared_ptr<gtpsa::mad::desc>, const ord_t>(), tpsa_init_desc_doc,
 	     py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::default_)
 	    )
