@@ -2,7 +2,7 @@
 #include "gtpsa_module.h"
 
 
-PYBIND11_MODULE(lib_gtpsa, m) {
+PYBIND11_MODULE(_gtpsa, m) {
     m.doc() = "gtpsa python wrapper";
 
     py_gtpsa_init_desc(m);

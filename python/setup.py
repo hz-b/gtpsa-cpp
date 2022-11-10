@@ -22,7 +22,7 @@ lib_dir = os.path.join(prefix, "lib")
 
 ext_modules = [
     Pybind11Extension(
-        "lib_gtpsa",
+        "_gtpsa",
         sorted([
             "src/gtpsa_module.cc",
             "src/desc.cc",

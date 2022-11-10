@@ -2,4 +2,4 @@
 
 This wrapper covers
 """
-from .lib_gtpsa import *
+from ._gtpsa import *
