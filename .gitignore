@@ -36,3 +36,8 @@ build/
 *.exe
 *.out
 *.app
+
+#python files
+*.pyc
+__pycache__/
+*.egg-info

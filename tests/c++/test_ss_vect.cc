@@ -75,6 +75,67 @@ BOOST_AUTO_TEST_CASE(test12_sv_tpsa_identity)
     // std::cout << v1 << std::endl;
 }
 
+/*
+ * This functionallity is not that easily reimplemented in
+ * python
+ *
+ * Here only reference to internal tpsa object
+ */
+BOOST_AUTO_TEST_CASE(test15_sv_tpsa_component_get_set)
+{
+
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 1);
+    gtpsa::ss_vect<gtpsa::tpsa> v1(a_desc, 1), v3(a_desc, 1);
+
+    v1.set_zero();
+    v3.set_zero();
+
+    double val = 3e0;
+    /* here same object, pybind11 currently seems to make an internal copy */
+    v1[2].set(0, val);
+    v3.at(2).set(0, val);
+
+    // check that operator and at both set the value
+    BOOST_CHECK_CLOSE(v1[2].get(), val, 1e-12);
+    BOOST_CHECK_CLOSE(v3[2].get(), val, 1e-12);
+
+    // check that value is also retrievable by at
+    BOOST_CHECK_CLOSE(v1.at(2).get(), val, 1e-12);
+    BOOST_CHECK_CLOSE(v3.at(2).get(), val, 1e-12);
+
+    gtpsa::ss_vect<gtpsa::tpsa> v2(a_desc, 1);
+    v2.set_zero();
+
+    auto& t = v2[2];
+    t.set(0, 115e0);
+
+    BOOST_CHECK_CLOSE(t.get(),     115, 1e-12);
+    BOOST_CHECK_CLOSE(v2[2].get(), 115, 1e-12);
+
+}
+
+/*
+ * check that assignment of a new variable works ...
+ */
+BOOST_AUTO_TEST_CASE(test16_sv_tpsa_component_set_from_tpsa)
+{
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 1);
+    gtpsa::ss_vect<gtpsa::tpsa> v1(a_desc, 1);
+    double val = 355e0;
+
+    // defined start
+    v1.set_zero();
+
+    gtpsa::tpsa t1(a_desc, 1);
+    t1.set(0e0, val);
+
+    BOOST_CHECK_SMALL(v1.at(2).get(), 1e-12);
+    v1.at(2) = t1;
+
+    BOOST_CHECK_CLOSE(v1.at(2).get(), val, 1e-12);
+
+}
+
 BOOST_AUTO_TEST_CASE(test20_sv_tpsa_clone)
 {
     const double a = 0e0, b1=113e0, b2=355e0;
@@ -100,7 +161,7 @@ BOOST_AUTO_TEST_CASE(test20_sv_tpsa_clone)
 BOOST_AUTO_TEST_CASE(test21_sv_double_clone)
 {
     auto t1 = 0e0;
-    const double b1=113e0, b2=355e0;
+    const double b1=113e0;
 
     gtpsa::ss_vect<double> v1(t1);
 

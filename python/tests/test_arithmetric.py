@@ -2,10 +2,26 @@ import pytest
 import numpy as np
 import gtpsa
 
+def test_1_get_set():
+    desc = gtpsa.desc(nv=6, mo=4)
+    t1 = gtpsa.tpsa(desc, 3)
+
+    t1.set(0, 2)
+
+    assert t1.get() == 2
+
+
+def test_11_radd_double():
+    desc = gtpsa.desc(nv=6, mo=4)
+    t1 = gtpsa.tpsa(desc, 3)
+
+    t1 += 2
 
 def test_20_radd():
     desc = gtpsa.desc(nv=6, mo=4)
     t1 = gtpsa.tpsa(desc, 3)
+
+    # Check if lifetime of desc is correctly handled ...
     del desc
 
     a = np.pi / 6

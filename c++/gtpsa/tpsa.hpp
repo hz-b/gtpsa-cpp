@@ -211,7 +211,7 @@ namespace gtpsa {
 #undef GTPSA_FUNC_ARG1_WITH_RET_ARG
 #endif
 #define GTPSA_FUNC_ARG1_WITH_RET_ARG(fname) \
-    inline void fname ## _ (const tpsa& t, tpsa* r){ return r->apply_with_return_object(t, mad::fname);  }
+    inline void fname ## _ (const tpsa& t, tpsa* r){ r->apply_with_return_object(t, mad::fname);  }
 #define GTPSA_FUNC_ARG1_NO_RET_ARG(fname)				\
     inline tpsa fname (const tpsa& t){ return apply<tpsa>(t, fname ## _);  }
 #define GTPSA_FUNC_ARG1(fname) GTPSA_FUNC_ARG1_WITH_RET_ARG(fname) GTPSA_FUNC_ARG1_NO_RET_ARG(fname)

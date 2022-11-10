@@ -7,6 +7,7 @@
 #include <gtpsa/ctpsa.hpp>
 #include <string>
 #include <sstream>
+#include <vector>
 
 #include "gtpsa_module.h"
 
@@ -39,6 +40,12 @@ struct AddMethods
 	    .def("get",             [](const Cls& inst, const std::vector<ord_t>& m){
 					return inst.get(m);
 				    })
+	    .def("set",             [](Cls& inst,      const std::vector<ord_t>& m, T a, T b){
+					inst.set(m, a, b);
+				    })
+	    .def("set",             [](Cls& inst,                                   T a, T b){
+					inst.set(a, b);
+				    })
 	    .def("index",          [](const Cls& inst, const std::vector<ord_t>& m){ return inst.index(m);})
 	    // make it more pythonic!
 	    .def("getv",           [](const Cls& inst, idx_t i){
@@ -47,8 +54,6 @@ struct AddMethods
 				   })
 	    .def("setv",           &Cls::setv)
 	    .def("getsm",          &Cls::getsm)
-	    // problems with complex values ....
-	    // .def("set",            py::overload_cast<const std::vector<ord_t>&, T, T>( &Cls::set))
 	    .def("set_variable",    &Cls::setVariable, "set the variable?",
 		 py::arg("v"), py::arg("iv") = 0, py::arg("scl") = 0)
 	    .def_property("name",  &Cls::name, &Cls::setName)
@@ -139,10 +144,10 @@ void py_gtpsa_init_tpsa(py::module &m)
 	     py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::same))
 	;
 
-#define GTPSA_FUNC_ARG1(func) \
-    m.def(#func,       py::overload_cast<const TpsaOp&>(&gtpsa:: func)); \
-    m.def(#func  "_",  py::overload_cast<const TpsaOp&, TpsaOp*>(&gtpsa:: func ## _));
-// #include <gtpsa/funcs.h>
+#define GTPSA_FUNC_ARG1(func)                                                                     \
+    m.def(#func       , py::overload_cast<const gtpsa::tpsa&>              (&gtpsa:: func     )); \
+    m.def(#func  "_"  , py::overload_cast<const gtpsa::tpsa&, gtpsa::tpsa*>(&gtpsa:: func ## _));
+#include <gtpsa/funcs.h>
 
 #undef GTPSA_FUNC_ARG1
 
@@ -153,20 +158,20 @@ void py_gtpsa_init_tpsa(py::module &m)
     ctpsa
 	.def("set0",  &gtpsa::ctpsa::_set0)
 	.def("setm",  &gtpsa::ctpsa::_setm)
-	//.def(py::self += std::complex<double>())
-	//.def(py::self -= std::complex<double>())
-	//.def(py::self *= std::complex<double>())
-	//.def(py::self /= std::complex<double>())
-	//
-	//.def(py::self + std::complex<double>())
-	//.def(py::self - std::complex<double>())
-	//.def(py::self * std::complex<double>())
-	//.def(py::self / std::complex<double>())
+	.def(py::self += std::complex<double>())
+	.def(py::self -= std::complex<double>())
+	.def(py::self *= std::complex<double>())
+	.def(py::self /= std::complex<double>())
 
-	//.def(std::complex<double>() + py::self)
-	//.def(std::complex<double>() - py::self)
-	//.def(std::complex<double>() * py::self)
-	//.def(std::complex<double>() / py::self)
+	.def(py::self + std::complex<double>())
+	.def(py::self - std::complex<double>())
+	.def(py::self * std::complex<double>())
+	.def(py::self / std::complex<double>())
+
+	.def(std::complex<double>() + py::self)
+	.def(std::complex<double>() - py::self)
+	.def(std::complex<double>() * py::self)
+	.def(std::complex<double>() / py::self)
 
 	.def(py::init<std::shared_ptr<gtpsa::mad::desc>, const ord_t>(), tpsa_init_desc_doc,
 	     py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::default_)
@@ -176,11 +181,11 @@ void py_gtpsa_init_tpsa(py::module &m)
 	;
 	;
 
-#define GTPSA_FUNC_ARG1(func) \
-   m.def(#func,       py::overload_cast<const CTpsaOp&>(&gtpsa:: func)); \
-   m.def(#func  "_",  py::overload_cast<const CTpsaOp&, CTpsaOp*>(&gtpsa:: func ## _));
 
-// #include <gtpsa/funcs.h>
+#define GTPSA_FUNC_ARG1(func) \
+   m.def(#func,       py::overload_cast<const gtpsa::ctpsa&               >(&gtpsa:: func     )); \
+   m.def(#func  "_",  py::overload_cast<const gtpsa::ctpsa&, gtpsa::ctpsa*>(&gtpsa:: func ## _));
+#include <gtpsa/funcs.h>
 #undef GTPSA_FUNC_ARG1
 
 

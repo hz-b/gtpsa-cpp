@@ -3,7 +3,7 @@ import numpy as np
 
 desc = gtpsa.desc(6, 4)
 t1 = gtpsa.tpsa(desc, gtpsa.init.default)
-t2 = gtpsa.tpsa(t1.getDescription(), gtpsa.init.default)
+t2 = gtpsa.tpsa(t1.get_description(), gtpsa.init.default)
 
 nums = [np.pi / 6] + [1] * 6
 t1.setv(0, nums)

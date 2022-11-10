@@ -62,7 +62,11 @@ BOOST_AUTO_TEST_CASE(test02_get_set)
 
     auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
-    t1.set(a, b);
+    t1.set(0, b);
+
+    BOOST_CHECK_CLOSE(t1.get(), b, 1e-12);
+    t1.set(0, a);
+    BOOST_CHECK_CLOSE(t1.get(), a, 1e-12);
 
 }
 

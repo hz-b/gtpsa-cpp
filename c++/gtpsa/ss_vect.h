@@ -224,15 +224,9 @@ private:
 
     template<typename U>
     inline void inplace_op(const ss_vect<U>& o, void f(T&, const U&)){
-	std::cout << "inplace t->U ";
 	for(size_t i=0; i<this->state_space.size(); ++i){
 	    f(this->state_space[i], o[i]);
-	    std::cout << i << " " << this->state_space[i] << " " << o[i];
 	}
-	std::cout << std::endl;
-	return;
-	throw std::runtime_error("inplace operation with space state vector of"
-				 " other type only defined in sepcial cases!");
     }
 
 
