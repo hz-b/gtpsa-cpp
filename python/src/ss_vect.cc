@@ -9,7 +9,10 @@
 namespace py=pybind11;
 
 static const char init_ss_vect_doc [] = \
-    "Initialise the space state vector";
+    "Initialise the space state vector using one vector argument as reference and its size";
+
+static const char init_ss_vect_from_vec_doc [] = \
+    "Initialise the space state vector providing a standard vector as argument";
 
 static const char init_ss_vect_desc_doc [] = \
     "Initialise the space state vector with a description";
@@ -22,13 +25,16 @@ struct AddMethods
     template<typename T>
     void add_methods(py::class_<WrappedClass, P_MGR> &a_cls){
 	a_cls
-	    .def("set_zero",   &WrappedClass::set_zero)
-	    .def("__str__",   &WrappedClass::pstr)
-	    .def("__repr__",  &WrappedClass::repr)
-	    .def("__len__",     &WrappedClass::size)
-	    .def("cst",         [](const WrappedClass& self) {
+	    .def("set_zero",     &WrappedClass::set_zero)
+	    .def("__str__",      &WrappedClass::pstr)
+	    .def("__repr__",     &WrappedClass::repr)
+	    .def("__len__",      &WrappedClass::size)
+	    .def("cst_as_array", [](const WrappedClass& self) {
 				    return py::array(py::cast(self.cst()));
-				})
+				 })
+	    .def("cst",          [](const WrappedClass& self) {
+				     return gtpsa::ss_vect<double>(self.cst());
+				 })
 	    .def("__getitem__", [](WrappedClass &self, const long int idx){
 				    return self.at(idx);
 				})
@@ -36,10 +42,8 @@ struct AddMethods
 				     self.at(idx) = v;
 				})
 	    .def("__copy__",  [](gtpsa::ss_vect<T> &self) {
-				  throw std::runtime_error("copy not (yet) implemented");
-				      //return gtpsa::ss_vect<T>(self);
+				  return self.clone();
 			      })
-
 	    .def_property("name",  &WrappedClass::name, &WrappedClass::setName)
 	    .def(py::self += py::self)
 	    .def(py::self -= py::self)
@@ -47,6 +51,7 @@ struct AddMethods
 	    .def(py::self - py::self)
 	    .def(py::init<const T&, const size_t> (), init_ss_vect_doc, py::arg("T"),
 		 py::arg("dim") = gtpsa::ss_vect_n_dim)
+	    .def(py::init<const std::vector<T>&> (), init_ss_vect_from_vec_doc)
 	    .def(py::init<const std::shared_ptr<gtpsa::mad::desc>, const ord_t, const size_t> (),
 		 init_ss_vect_desc_doc,
 		 py::arg("desc"), py::arg("ord"), py::arg("dim") = gtpsa::ss_vect_n_dim
@@ -71,8 +76,12 @@ struct AddMethods
     template<typename T>
     void add_methods_tpsa(py::class_<WrappedClass, P_MGR> &a_cls){
 	a_cls
-	    .def("set_identity",   &WrappedClass::set_identity)
-	    .def("jacobian",      &WrappedClass::jacobian)
+	    .def("set_identity", &WrappedClass::set_identity)
+	    .def("jacobian",     [](const WrappedClass& self) {
+				    return py::array(
+					py::cast( self.jacobian() )
+					);
+				 })
 	;
     }
 };
@@ -102,6 +111,8 @@ void py_gtpsa_init_ss_vect(py::module &m)
 	ss_vect_tpsa
 	   .def(py::self += gtpsa::ss_vect<double>(0e0))
 	   .def(py::self -= gtpsa::ss_vect<double>(0e0))
+	   .def(py::self +  gtpsa::ss_vect<double>(0e0))
+	   .def(py::self -  gtpsa::ss_vect<double>(0e0))
 	   ;
 	/*
         py::class_<gtpsa::ss_vect<gtpsa::ctpsa>> ss_vect_ctpsa  (m, "ss_vect_ctpsa");

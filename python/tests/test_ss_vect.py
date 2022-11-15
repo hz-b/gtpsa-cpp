@@ -61,6 +61,18 @@ def test_03_set_tpsa_cst_object():
     assert(ss1.cst()[1] == 2)
 
 
+def test_09_ss_vect_from_double_vect():
+    vec = np.array([1, 2, 3, 4, 5, 6], np.double)
+    ss_vect = gtpsa.ss_vect_double(vec)
+
+    assert ( ss_vect[0] == 1 )
+    assert ( ss_vect[1] == 2 )
+    assert ( ss_vect[2] == 3 )
+    assert ( ss_vect[3] == 4 )
+    assert ( ss_vect[4] == 5 )
+    assert ( ss_vect[5] == 6 )
+
+
 def test_10_index():
     d = 0.0
     ss = gtpsa.ss_vect_double(d)
@@ -73,12 +85,14 @@ def test_10_index():
 
     print(ss.cst() )
 
+
 def test_11_index_off_range():
     d = 0.0
     ss = gtpsa.ss_vect_double(d)
 
     with pytest.raises(IndexError):
         ss[len(ss)] = 2
+
 
 def test_12_radd_double():
     """add a double value to a double ss vector
@@ -114,6 +128,7 @@ def test_20_add_double():
     assert(ss3[1] == 2)
     assert(ss3[3] == 5)
 
+
 def test_21_radd_double():
     d = 0.0
     ss1 = gtpsa.ss_vect_double(d)
@@ -129,6 +144,7 @@ def test_21_radd_double():
 
     assert(ss1[1] == 2)
     assert(ss1[3] == 5)
+
 
 def test_22_sub_double():
     d = 0.0
@@ -146,6 +162,7 @@ def test_22_sub_double():
     assert(ss3[1] == 2)
     assert(ss3[3] == -5)
 
+
 def test_23_rsub_double():
     d = 0.0
     ss1 = gtpsa.ss_vect_double(d)
@@ -161,6 +178,7 @@ def test_23_rsub_double():
 
     assert(ss1[1] == 2)
     assert(ss1[3] == -5)
+
 
 @pytest.mark.skip
 def test_30_tpsa_radd_double():
@@ -184,7 +202,7 @@ def test_30_tpsa_radd_double():
     # thus I think it will be inconsistent to the user
     # ss1[1] = 2
     # ss2[3] = 5
-    # Aequivalent form below
+    # Equivalent form below
     ss1[1].set(0, 2)
 
     ss2[3] = 5
@@ -202,18 +220,22 @@ def test_30_tpsa_radd_double():
     assert(ss1[1] == 2)
     assert(ss1[3] == 5)
 
+
 if __name__ == "__main__":
-    # test_10_index()
+    test_09_ss_vect_from_double_vect()
+
+
+if __name__ == "__main__":
     test_12_radd_double()
 
+
 if __name__ == "__main__":
-    # test_10_index()
     test_03_set_tpsa_cst_object()
 
-if __name__ == "__main__":
-    # test_10_index()
-    test_02_set_tpsa_cst()
 
 if __name__ == "__main__":
-    # test_10_index()
-    test_30_radd_double()
+    test_02_set_tpsa_cst()
+
+
+if __name__ == "__main__":
+    test_30_tpsa_radd_double()

@@ -246,3 +246,45 @@ BOOST_AUTO_TEST_CASE(test40_ss_vect_double_dbl_assignment)
     // gtpsa::ss_vect<double> ps = ps.clone();
 
 }
+
+BOOST_AUTO_TEST_CASE(test40_ss_vect_radd_dbl_vec)
+{
+    const double a = 1/2., b = 2/3., c = 3/4.,  d = 4/5., e = 5/6., f = 6/7.;
+
+    const auto desc = std::make_shared<gtpsa::desc> (6, 2);
+    gtpsa::ss_vect<gtpsa::tpsa> ss1(desc, 1);
+
+    std::vector<double> v1_vals {a, b, c, d, e, f};
+    const gtpsa::ss_vect<double> v2(v1_vals);
+
+    ss1 += v2;
+
+    BOOST_CHECK_CLOSE(ss1[0].cst(), a, 1e-12);
+    BOOST_CHECK_CLOSE(ss1[1].cst(), b, 1e-12);
+    BOOST_CHECK_CLOSE(ss1[2].cst(), c, 1e-12);
+    BOOST_CHECK_CLOSE(ss1[3].cst(), d, 1e-12);
+    BOOST_CHECK_CLOSE(ss1[4].cst(), e, 1e-12);
+    BOOST_CHECK_CLOSE(ss1[5].cst(), f, 1e-12);
+
+}
+
+
+BOOST_AUTO_TEST_CASE(test40_ss_vect_add_dbl_vec)
+{
+    const double a = 1/2., b = 2/3., c = 3/4.,  d = 4/5., e = 5/6., f = 6/7.;
+
+    const auto desc = std::make_shared<gtpsa::desc> (6, 2);
+    const gtpsa::ss_vect<gtpsa::tpsa> ss1(desc, 1);
+
+    std::vector<double> v1_vals {a, b, c, d, e, f};
+    const gtpsa::ss_vect<double> v2(v1_vals);
+
+    auto ss2 = ss1 + v2;
+
+    BOOST_CHECK_CLOSE(ss2[0].cst(), a, 1e-12);
+    BOOST_CHECK_CLOSE(ss2[1].cst(), b, 1e-12);
+    BOOST_CHECK_CLOSE(ss2[2].cst(), c, 1e-12);
+    BOOST_CHECK_CLOSE(ss2[3].cst(), d, 1e-12);
+    BOOST_CHECK_CLOSE(ss2[4].cst(), e, 1e-12);
+    BOOST_CHECK_CLOSE(ss2[5].cst(), f, 1e-12);
+}

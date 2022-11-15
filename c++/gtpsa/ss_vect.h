@@ -132,9 +132,10 @@ public:
 	std::copy(o.state_space.begin(), o.state_space.end(), std::back_inserter(this->state_space));
     }
     */
+    ss_vect(const ss_vect& o) = default;
 #else
-#endif /* GTSPA_ONLY_OPTIMISED_OPS */
     ss_vect(const ss_vect& o) = delete;
+#endif /* GTSPA_ONLY_OPTIMISED_OPS */
 
     inline ss_vect(const ss_vect<T>&& o) noexcept : state_space(std::move(o.state_space)) {};
     inline ss_vect<T>& operator=(const ss_vect<T>&& o) noexcept {
@@ -247,7 +248,7 @@ private:
 
 
 template<typename T> inline
-std::ostream& operator<<(std::ostream& strm, ss_vect<T>& s)
+std::ostream& operator<<(std::ostream& strm, const ss_vect<T>& s)
 {
     s.show(strm, 1);
     return strm;
@@ -403,11 +404,11 @@ inline void ss_vect<double>::_copyInPlace(const ss_vect<double>& o) {
 	std::transform(o.state_space.begin(), o.state_space.end(), this->state_space.begin(), [](const double& elem) -> double { return elem; });
 }
 
+
+inline ss_vect<gtpsa::tpsa> operator + (const ss_vect<gtpsa::tpsa>& v1, const ss_vect<double>& v2) { auto r = v1.clone(); r+= v2; return r; }
+inline ss_vect<gtpsa::tpsa> operator - (const ss_vect<gtpsa::tpsa>& v1, const ss_vect<double>& v2) { auto r = v1.clone(); r-= v2; return r; }
+
 } /* namespace gtpsa */
-
-
-
-
 #endif /* _GTPSA_SS_VECT_H_ */
 /*
  * Local Variables:
