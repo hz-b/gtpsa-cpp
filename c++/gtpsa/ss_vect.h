@@ -202,7 +202,12 @@ public:
     inline arma::mat toMatrix(void){
 	    throw std::runtime_error("only implemented for tps(a)");
     }
+
     inline arma::mat jacobian(void) const {
+	    throw std::runtime_error("only implemented for tps(a)");
+    }
+
+    inline void setJacobian(arma::mat jac) {
 	    throw std::runtime_error("only implemented for tps(a)");
     }
 
@@ -320,6 +325,10 @@ inline ss_vect<double> ss_vect<double>::clone(void) const {
 	return nv;
     }
 
+/**
+ * @todo: review if not implemented using setJacobian and arma::mat(6, 6, arma::fill::eye)
+ *
+ */
 template<>
 inline void ss_vect<tpsa>::set_identity(void)
 {
@@ -367,6 +376,38 @@ inline arma::mat ss_vect<tpsa>::jacobian(void) const {
 
      return mat;
 }
+
+
+template<>
+inline void ss_vect<tpsa>::setJacobian(arma::mat jac) {
+
+    auto desc = this->state_space.at(0).getDescription();
+    size_t nv = desc->getNv();
+
+    if (jac.n_rows != this->state_space.size()) {
+	std::stringstream strm;
+	strm << "Jacobian matrix has " << jac.n_rows << " rows, but state space has size "
+	     << this->state_space.size();
+	throw std::runtime_error(strm.str());
+    }
+
+    if (jac.n_cols != nv) {
+	std::stringstream strm;
+	strm << "Jacobian matrix has " << jac.n_cols << " cols, but tpsa expects  "
+	     << nv << " values!";
+	throw std::runtime_error(strm.str());
+    }
+
+    for(size_t row = 0; row < this->state_space.size(); ++row){
+	arma::mat row_vec = jac.row(row);
+	std::vector<double> v(jac.n_cols);
+	for(size_t col=0; col < jac.n_cols; ++col){
+	    v.at(col) = row_vec[col];
+	}
+	this->state_space[row].setv(1, v);
+    }
+}
+
 
 /**
  * @brief first derivatives and cst term

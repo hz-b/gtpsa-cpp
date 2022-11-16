@@ -2,7 +2,6 @@
 #include <gtpsa/ss_vect.h>
 
 
-
 template<>
 void gtpsa::ss_vect<double>::show(std::ostream& strm, int level, bool with_endl) const
 {

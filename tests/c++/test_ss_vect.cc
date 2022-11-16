@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(test40_ss_vect_radd_dbl_vec)
 }
 
 
-BOOST_AUTO_TEST_CASE(test40_ss_vect_add_dbl_vec)
+BOOST_AUTO_TEST_CASE(test41_ss_vect_add_dbl_vec)
 {
     const double a = 1/2., b = 2/3., c = 3/4.,  d = 4/5., e = 5/6., f = 6/7.;
 
@@ -287,4 +287,91 @@ BOOST_AUTO_TEST_CASE(test40_ss_vect_add_dbl_vec)
     BOOST_CHECK_CLOSE(ss2[3].cst(), d, 1e-12);
     BOOST_CHECK_CLOSE(ss2[4].cst(), e, 1e-12);
     BOOST_CHECK_CLOSE(ss2[5].cst(), f, 1e-12);
+}
+
+BOOST_AUTO_TEST_CASE(test50_set_jacobian_identity)
+{
+    const auto desc = std::make_shared<gtpsa::desc> (6, 2);
+    gtpsa::ss_vect<gtpsa::tpsa> ss1(desc, 1);
+
+    arma::mat jac(6, 6, arma::fill::eye);
+
+    ss1.setJacobian(jac);
+
+    test_identity(ss1);
+
+}
+
+
+BOOST_AUTO_TEST_CASE(test51_set_jacobian_primes)
+{
+    const auto desc = std::make_shared<gtpsa::desc> (6, 2);
+    gtpsa::ss_vect<gtpsa::tpsa> ss1(desc, 1);
+    std::string name = "ss1";
+    ss1.setName(name);
+
+    arma::mat jac(6, 6, arma::fill::zeros);
+
+    jac(0, 1) =  2;
+    jac(1, 0) =  3;
+    jac(2, 3) =  5;
+    jac(3, 2) =  7;
+    jac(4, 5) = 11;
+    jac(5, 4) = 13;
+
+    ss1.setJacobian(jac);
+
+    BOOST_CHECK_CLOSE( 2, ss1[0].get(1 + 1), 1e-14);
+    BOOST_CHECK_CLOSE( 3, ss1[1].get(1 + 0), 1e-14);
+
+    BOOST_CHECK_CLOSE( 5, ss1[2].get(1 + 3), 1e-14);
+    BOOST_CHECK_CLOSE( 7, ss1[3].get(1 + 2), 1e-14);
+
+    BOOST_CHECK_CLOSE(11, ss1[4].get(1 + 5), 1e-14);
+    BOOST_CHECK_CLOSE(13, ss1[5].get(1 + 4), 1e-14);
+
+
+    BOOST_CHECK_SMALL(ss1[0].get(1 + 0), 1e-14);
+    // BOOST_CHECK_SMALL(ss1[0].get(1 + 1), 1e-14);
+    BOOST_CHECK_SMALL(ss1[0].get(1 + 2), 1e-14);
+    BOOST_CHECK_SMALL(ss1[0].get(1 + 3), 1e-14);
+    BOOST_CHECK_SMALL(ss1[0].get(1 + 4), 1e-14);
+    BOOST_CHECK_SMALL(ss1[0].get(1 + 5), 1e-14);
+
+    // BOOST_CHECK_SMALL(ss1[1].get(1 + 0), 1e-14);
+    BOOST_CHECK_SMALL(ss1[1].get(1 + 1), 1e-14);
+    BOOST_CHECK_SMALL(ss1[1].get(1 + 2), 1e-14);
+    BOOST_CHECK_SMALL(ss1[1].get(1 + 3), 1e-14);
+    BOOST_CHECK_SMALL(ss1[1].get(1 + 4), 1e-14);
+    BOOST_CHECK_SMALL(ss1[1].get(1 + 5), 1e-14);
+
+    BOOST_CHECK_SMALL(ss1[2].get(1 + 0), 1e-14);
+    BOOST_CHECK_SMALL(ss1[2].get(1 + 1), 1e-14);
+    BOOST_CHECK_SMALL(ss1[2].get(1 + 2), 1e-14);
+    // BOOST_CHECK_SMALL(ss1[2].get(1 + 3), 1e-14);
+    BOOST_CHECK_SMALL(ss1[2].get(1 + 4), 1e-14);
+    BOOST_CHECK_SMALL(ss1[2].get(1 + 5), 1e-14);
+
+    BOOST_CHECK_SMALL(ss1[3].get(1 + 0), 1e-14);
+    BOOST_CHECK_SMALL(ss1[3].get(1 + 1), 1e-14);
+    //BOOST_CHECK_SMALL(ss1[3].get(1 + 2), 1e-14);
+    BOOST_CHECK_SMALL(ss1[3].get(1 + 3), 1e-14);
+    BOOST_CHECK_SMALL(ss1[3].get(1 + 4), 1e-14);
+    BOOST_CHECK_SMALL(ss1[3].get(1 + 5), 1e-14);
+
+    BOOST_CHECK_SMALL(ss1[4].get(1 + 0), 1e-14);
+    BOOST_CHECK_SMALL(ss1[4].get(1 + 1), 1e-14);
+    BOOST_CHECK_SMALL(ss1[4].get(1 + 2), 1e-14);
+    BOOST_CHECK_SMALL(ss1[4].get(1 + 3), 1e-14);
+    BOOST_CHECK_SMALL(ss1[4].get(1 + 4), 1e-14);
+    //BOOST_CHECK_SMALL(ss1[4].get(1 + 5), 1e-14);
+
+    BOOST_CHECK_SMALL(ss1[5].get(1 + 0), 1e-14);
+    BOOST_CHECK_SMALL(ss1[5].get(1 + 1), 1e-14);
+    BOOST_CHECK_SMALL(ss1[5].get(1 + 2), 1e-14);
+    BOOST_CHECK_SMALL(ss1[5].get(1 + 3), 1e-14);
+    //BOOST_CHECK_SMALL(ss1[5].get(1 + 4), 1e-14);
+    BOOST_CHECK_SMALL(ss1[5].get(1 + 5), 1e-14);
+
+
 }

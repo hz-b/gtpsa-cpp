@@ -5,8 +5,50 @@
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
 #include <pybind11/complex.h>
+#include <armadillo>
 
 namespace py=pybind11;
+
+
+/**
+ * @brief convert a numpy matrix to a armadillo matrix
+ *
+ * using the buffer protocol
+ *
+ * It is not intended to leak armadillo arrays to python
+ */
+static arma::mat from_np_array(py::array_t<double, py::array::c_style|py::array::forcecast>& buffer) {
+	/* Request a buffer descriptor from Python */
+	py::buffer_info info = buffer.request();
+
+	/* Some sanity checks ... */
+	if (info.format != py::format_descriptor<double>::format())
+		throw std::runtime_error("Incompatible format: expected a double array!");
+
+	if (info.ndim != 2){
+		std::stringstream strm;
+		strm << "Incompatible buffer: expected 2 but got "
+		     << info.ndim << "dimensions!";
+		throw std::runtime_error(strm.str());
+	}
+
+	bool need_transpose = false;
+	if(info.strides[0] != sizeof(double)){
+		need_transpose = true;
+	}
+	/*
+	  std::cerr << "Strides [" << info.strides[0] << ", " << info.strides[1] << "]"
+	  << ": need_transpose " << std::boolalpha << need_transpose << std::endl;
+	*/
+	auto mat = arma::mat(static_cast<const double *>(info.ptr),
+			     info.shape[0], info.shape[1]);
+	if(need_transpose){
+		arma::inplace_trans(mat);
+	}
+	return mat;
+}
+
+
 
 static const char init_ss_vect_doc [] = \
     "Initialise the space state vector using one vector argument as reference and its size";
@@ -73,6 +115,7 @@ struct AddMethods
 	    // .def( gtpsa::ss_vect<double>() - py::self)
 	    ;
     }
+
     template<typename T>
     void add_methods_tpsa(py::class_<WrappedClass, P_MGR> &a_cls){
 	a_cls
@@ -81,6 +124,9 @@ struct AddMethods
 				    return py::array(
 					py::cast( self.jacobian() )
 					);
+				 })
+	    .def("set_jacobian", [](WrappedClass& self, py::array_t<double, py::array::c_style|py::array::forcecast>& buffer){
+				     self.setJacobian(from_np_array(buffer));
 				 })
 	;
     }
