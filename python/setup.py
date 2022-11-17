@@ -17,6 +17,8 @@ gtpsa_inc_dir = os.path.join(t_dir, os.pardir, "c++")
 mad_inc_dir = os.path.join(t_dir, os.pardir, "mad-ng", "src")
 
 prefix = os.path.abspath(os.path.join(os.environ["HOME"], ".local"))
+prefix = os.path.abspath(os.path.join(os.environ["HOME"], "git", "ts-lib-dev",
+                                      "local"))
 inc_dir = os.path.join(prefix, "include")
 lib_dir = os.path.join(prefix, "lib")
 
@@ -29,9 +31,9 @@ ext_modules = [
             "src/gtpsa.cc",
             "src/ss_vect.cc",
         ]),
-        include_dirs=[inc_dir],
-        libraries=["gtpsa", "gtpsa-c++"],
-        library_dirs=[lib_dir],
+        include_dirs=[inc_dir, "/usr/local/include"],
+        libraries=["gtpsa", "gtpsa-c++", "armadillo"],
+        library_dirs=[lib_dir, "/usr/local/lib"],
     )
 ]
 

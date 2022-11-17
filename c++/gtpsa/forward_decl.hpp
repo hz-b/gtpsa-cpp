@@ -1,11 +1,14 @@
 #ifndef _GTPSA_FORWARED_DECL_H_
 #define _GTPSA_FORWARED_DECL_H_ 1
 
-/* a non standard hack */
-// typedef bool _Bool;
+#define __USE_C99_MATH
+
 #include <stdbool.h>
 
 extern "C" {
+/* a non standard hack */
+// typedef bool _Bool;
+
 #include <mad_mono.h>
 }
 
