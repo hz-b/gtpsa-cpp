@@ -7,7 +7,8 @@ set(GTPSA_VERSION 0.0.1)
 
 find_package(BLAS)
 find_package(LAPACK)
-find_package(OpenMP)
+#find_package(OpenMP)
+find_package(Armadillo REQUIRED)
 
 IF(OPENMP_FOUND)
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")

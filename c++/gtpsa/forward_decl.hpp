@@ -2,7 +2,8 @@
 #define _GTPSA_FORWARED_DECL_H_ 1
 
 /* a non standard hack */
-typedef bool _Bool;
+// typedef bool _Bool;
+#include <stdbool.h>
 
 extern "C" {
 #include <mad_mono.h>

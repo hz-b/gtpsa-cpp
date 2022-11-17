@@ -42,7 +42,13 @@ add_library(gtpsa-c++ SHARED
   ${gtpsa_c++_FILES}
   ${gtpsa_c++_HEADERS}
 )
-target_link_libraries(gtpsa-c++ gtpsa lapack blas ${OpenMP_C_LIBRARIES})
+target_link_libraries(gtpsa-c++ gtpsa lapack blas ${OpenMP_C_LIBRARIES} ${ARMADILLO_LIBRARIES})
+
+target_include_directories(gtpsa-c++ PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+  $<INSTALL_INTERFACE:include/>  # <prefix>/include/mylib
+  ${ARMADILLO_INCLUDE_DIRS}
+  ) 
 
 set(GTPSA_C++_CMAKE_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/")
 configure_package_config_file(

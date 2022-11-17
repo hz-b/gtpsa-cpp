@@ -157,6 +157,9 @@ namespace gtpsa {
 	inline void set(                             const std::complex<double> a, const std::complex<double> b) {
 	    base::set(std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
 	}
+	inline void set(                             const cnum_t a, const cnum_t b) {
+	    base::set(a, b);
+	}
 	inline void set(const idx_t i,               const std::complex<double> a, const std::complex<double> b) {
 	    base::set(i, std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
 	}
@@ -167,6 +170,9 @@ namespace gtpsa {
 
 	inline void set(const std::vector<ord_t>& m, const std::complex<double> a, const std::complex<double> b) {
 	    base::set(m, std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
+	}
+	inline void set(const std::vector<ord_t>& m, const cnum_t a, const cnum_t b) {
+	    base::set(m, a, b);
 	}
 
 	inline void setsm(const std::vector<int>& m, const std::complex<double> a, const std::complex<double> b) {
@@ -198,10 +204,10 @@ namespace gtpsa {
 	inline ctpsa  operator *  ( const ctpsa&  o ) const { return ctpsa( std::move( base::operator* (o) ) ) ; }
 	inline ctpsa  operator /  ( const ctpsa&  o ) const { return ctpsa( std::move( base::operator/ (o) ) ) ; }
 
-	inline ctpsa  operator +  ( const cnum_t o ) const { return ctpsa( base::operator+ (std_complex_double_to_cnum_t(o)) ) ; }
-	inline ctpsa  operator -  ( const cnum_t o ) const { return ctpsa( base::operator- (std_complex_double_to_cnum_t(o)) ) ; }
-	inline ctpsa  operator *  ( const cnum_t o ) const { return ctpsa( base::operator* (std_complex_double_to_cnum_t(o)) ) ; }
-	inline ctpsa  operator /  ( const cnum_t o ) const { return ctpsa( base::operator/ (std_complex_double_to_cnum_t(o)) ) ; }
+	inline ctpsa  operator +  ( const cnum_t o ) const { return ctpsa( base::operator+ (o) ) ; }
+	inline ctpsa  operator -  ( const cnum_t o ) const { return ctpsa( base::operator- (o) ) ; }
+	inline ctpsa  operator *  ( const cnum_t o ) const { return ctpsa( base::operator* (o) ) ; }
+	inline ctpsa  operator /  ( const cnum_t o ) const { return ctpsa( base::operator/ (o) ) ; }
 
 	inline ctpsa  operator +  ( const std::complex<double>& o ) const { return ctpsa( this->operator+ (std_complex_double_to_cnum_t(o)) ) ; }
 	inline ctpsa  operator -  ( const std::complex<double>& o ) const { return ctpsa( this->operator- (std_complex_double_to_cnum_t(o)) ) ; }
