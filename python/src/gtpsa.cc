@@ -74,6 +74,7 @@ struct AddMethods
 	    .def("__repr__", &Cls::repr)
 	    .def("__str__" , &Cls::pstr)
 	    .def("__copy__", &Cls::clone)
+	    .def("copy",     &Cls::clone)
 	    .def(py::self += py::self)
 	    .def(py::self -= py::self)
 	    .def(py::self *= py::self)

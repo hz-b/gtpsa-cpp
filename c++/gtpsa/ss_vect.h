@@ -207,8 +207,28 @@ public:
 	    throw std::runtime_error("only implemented for tps(a)");
     }
 
-    inline void setJacobian(arma::mat jac) {
+    inline void setJacobian(arma::mat& jac) {
 	    throw std::runtime_error("only implemented for tps(a)");
+    }
+
+    inline void setConstantPartWithoutCheck(const std::vector<double>& vec) {
+	throw std::runtime_error("Needs to be implemented as specialisation");
+    }
+    inline void setConstant(const std::vector<double>& vec) {
+	if ( vec.size() != this->state_space.size() ) {
+	    std::stringstream strm;
+	    strm << "Vector size " << vec.size()
+		 << " does not match size of space state "
+		 << this->state_space.size();
+	    throw std::runtime_error(strm.str());
+	}
+	this->setConstantPartWithoutCheck(vec);
+#if 0
+#endif
+
+	for(size_t i=0; i<this->state_space.size(); ++i){
+	    // this->state_space{i] = vec[i];
+	}
     }
 
 private:
@@ -295,6 +315,17 @@ inline void ss_vect<double>::cst(std::vector<double>& r) const {
     for(size_t i = 0; i < this->size(); ++i){ r[i] = this->state_space[i]; }
     //std::transform(begin(), this->state_space.end(), r.state_space.begin(), [](T& elem) { return elem.cst();});
 }
+template<>
+inline void ss_vect<double>::setConstantPartWithoutCheck(const std::vector<double>& r) {
+       for(size_t i = 0; i < this->size(); ++i){  this->state_space[i] = r[i]; }
+
+}
+
+template<>
+inline void ss_vect<tpsa>::setConstantPartWithoutCheck(const std::vector<double>& r) {
+    for(size_t i = 0; i < this->size(); ++i){  this->state_space[i].set(0, r[i]); }
+}
+
 
 //template<>
 //inline void ss_vect<std::complex<double>>::cst(std::vector<std::complex<double>>& r) const {
@@ -379,7 +410,7 @@ inline arma::mat ss_vect<tpsa>::jacobian(void) const {
 
 
 template<>
-inline void ss_vect<tpsa>::setJacobian(arma::mat jac) {
+inline void ss_vect<tpsa>::setJacobian(arma::mat& jac) {
 
     auto desc = this->state_space.at(0).getDescription();
     size_t nv = desc->getNv();

@@ -48,6 +48,26 @@ static arma::mat from_np_array(py::array_t<double, py::array::c_style|py::array:
 	return mat;
 }
 
+static py::array_t<double> from_arma_mat(arma::mat& mat)
+{
+
+    /* thought I could avoid the double copy */
+    // auto mat_ptr = std::make_unique<arma::mat>(mat);
+
+    auto result = py::array_t<double>(
+	/* dimensions */
+	{mat.n_rows, mat.n_cols},
+	/*  strides */
+	{
+	    /* Strides (in bytes) for each index */
+	    static_cast<py::ssize_t>(sizeof(double)),
+	    static_cast<py::ssize_t>(sizeof(double) * mat.n_cols)
+	},
+	mat.memptr()
+	);
+    return result;
+}
+
 
 
 static const char init_ss_vect_doc [] = \
@@ -77,16 +97,20 @@ struct AddMethods
 	    .def("cst",          [](const WrappedClass& self) {
 				     return gtpsa::ss_vect<double>(self.cst());
 				 })
-	    .def("__getitem__", [](WrappedClass &self, const long int idx){
+	    .def("__getitem__",  [](WrappedClass &self, const long int idx){
 				    return self.at(idx);
-				})
-	    .def("__setitem__", [](WrappedClass &self, const long int idx, const T& v){
+				 })
+	    .def("__setitem__",  [](WrappedClass &self, const long int idx, const T& v){
 				     self.at(idx) = v;
-				})
-	    .def("__copy__",  [](gtpsa::ss_vect<T> &self) {
+				 })
+	    .def("__copy__",     [](gtpsa::ss_vect<T> &self) {
 				  return self.clone();
-			      })
-	    .def_property("name",  &WrappedClass::name, &WrappedClass::setName)
+				 })
+	    .def("copy",         [](gtpsa::ss_vect<T> &self) {
+				  return self.clone();
+				 })
+	    .def("set_constant",  &WrappedClass::setConstant)
+	    .def_property("name", &WrappedClass::name, &WrappedClass::setName)
 	    .def(py::self += py::self)
 	    .def(py::self -= py::self)
 	    .def(py::self + py::self)
@@ -98,10 +122,10 @@ struct AddMethods
 		 init_ss_vect_desc_doc,
 		 py::arg("desc"), py::arg("ord"), py::arg("dim") = gtpsa::ss_vect_n_dim
 		)
-	    .def(py::self  += double())
-	    .def(py::self  -= double())
-	    .def(py::self  *= double())
-	    .def(py::self  /= double())
+	    .def(py::self += double())
+	    .def(py::self -= double())
+	    .def(py::self *= double())
+	    .def(py::self /= double())
 
 	    .def(py::self  + double())
 	    .def(py::self  - double())
@@ -121,12 +145,13 @@ struct AddMethods
 	a_cls
 	    .def("set_identity", &WrappedClass::set_identity)
 	    .def("jacobian",     [](const WrappedClass& self) {
-				    return py::array(
-					py::cast( self.jacobian() )
+				     return py::array(
+					 py::cast( self.jacobian() )
 					);
 				 })
 	    .def("set_jacobian", [](WrappedClass& self, py::array_t<double, py::array::c_style|py::array::forcecast>& buffer){
-				     self.setJacobian(from_np_array(buffer));
+				     arma::mat mat = from_np_array(buffer);
+				     self.setJacobian(mat);
 				 })
 	;
     }
