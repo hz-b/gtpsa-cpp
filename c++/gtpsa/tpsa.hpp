@@ -17,10 +17,10 @@
 #include <iomanip>
 #include <ostream>
 
-#include <gtpsa/mad_tpsa_wrapper.hpp>
-#include <gtpsa/templated_funcs.hpp>
-#include <gtpsa/bridge.hpp>
-#include <gtpsa/with_operators.hpp>
+#include <gtpsa/mad/tpsa_wrapper.hpp>
+#include <gtpsa/intern/templated_funcs.hpp>
+#include <gtpsa/bridge/bridge.hpp>
+#include <gtpsa/intern/with_operators.hpp>
 
 
 namespace gtpsa {

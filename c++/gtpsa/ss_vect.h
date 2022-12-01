@@ -3,7 +3,7 @@
 
 #include <gtpsa/desc.hpp>
 #include <gtpsa/tpsa.hpp>
-#include <gtpsa/gtpsa_container.hpp>
+#include <gtpsa/intern/gtpsa_container.hpp>
 #include <algorithm>
 #include <ostream>
 #include <sstream>

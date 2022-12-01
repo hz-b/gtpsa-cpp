@@ -7,8 +7,8 @@
 
 #include <algorithm>
 #include <vector>
-#include <gtpsa/bridge.hpp>
-#include <gtpsa/bridge_container.hpp>
+#include <gtpsa/bridge/bridge.hpp>
+#include <gtpsa/bridge/container.hpp>
 
 namespace gtpsa {
     /**

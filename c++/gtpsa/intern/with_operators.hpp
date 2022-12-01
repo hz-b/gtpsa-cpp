@@ -1,7 +1,7 @@
 /* -*- c++ -*- */
 #ifndef _GTPSA_TPSA_WITH_OPERATORS_H_
 #define _GTPSA_TPSA_WITH_OPERATORS_H_ 1
-#include <gtpsa/bridge.hpp>
+#include <gtpsa/bridge/bridge.hpp>
 namespace gtpsa {
 
     /**

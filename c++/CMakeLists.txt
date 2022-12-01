@@ -1,51 +1,70 @@
-set(gtpsa_c++_HEADERS
-  gtpsa/common.tpp
-  gtpsa/forward_decl.tpp
-  gtpsa/mad_gtpsa_wrapper.tpp
-  gtpsa/mad_tpsa_wrapper.hpp
-  gtpsa/mad_ctpsa_wrapper.hpp
+set(gtpsa_c++_mad_HEADERS
+  gtpsa/mad/wrapper.tpp
+  gtpsa/mad/tpsa_wrapper.hpp
+  gtpsa/mad/ctpsa_wrapper.hpp
+  gtpsa/mad/container_wrapper.tpp
+  )
 
-  gtpsa/with_operators_funcs.hpp
-  gtpsa/with_operators.hpp
+set(gtpsa_c++_bridge_HEADERS
+  gtpsa/bridge/bridge.hpp
+  gtpsa/bridge/container.hpp
+)
+
+set(gtpsa_c++_intern_HEADERS
+  gtpsa/intern/complex_utils.hpp
+  gtpsa/intern/gtpsa_container.hpp
+  gtpsa/intern/templated_funcs.hpp
+  gtpsa/intern/with_operators_funcs.hpp
+  gtpsa/intern/with_operators.hpp
+  )
+
+set(gtpsa_c++_HEADERS
+  gtpsa/funcs.h
 
   gtpsa/forward_decl.hpp
+  gtpsa/utils.hpp
   gtpsa/desc.hpp
-  gtpsa/templated_funcs.hpp
-  gtpsa/bridge.hpp
   gtpsa/tpsa.hpp
   gtpsa/ctpsa.hpp
-  gtpsa/utils.hpp
-  gtpsa/utils_tps.hpp
 
-  gtpsa/complex_utils.hpp
-
-  gtpsa/funcs.h
   gtpsa/ss_vect.h
 
-  gtpsa/gtpsa_container.hpp
-  gtpsa/bridge_container.hpp
-  gtpsa/mad_gtpsa_container_wrapper.tpp
+  gtpsa/utils_tps.hpp
+  )
 
-)
-install(FILES ${gtpsa_c++_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gtpsa/)
-#install(TARGETS gtpsa-c++
-#        EXPORT gtpsaTargets
-#        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-#)
+install(FILES ${gtpsa_c++_HEADERS}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gtpsa
+  )
+
+install(FILES ${gtpsa_c++_mad_HEADERS}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gtpsa/mad/
+  )
+install(FILES ${gtpsa_c++_bridge_HEADERS}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gtpsa/bridge/
+  )
+install(FILES ${gtpsa_c++_intern_HEADERS}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gtpsa/intern/
+  )
+
 
 set(gtpsa_c++_FILES
-  gtpsa/mad_tpsa_wrapper.cc
-  gtpsa/mad_ctpsa_wrapper.cc
+  gtpsa/mad/tpsa_wrapper.cc
+  gtpsa/mad/ctpsa_wrapper.cc
+
   gtpsa/tpsa.cc
   gtpsa/ctpsa.cc
   gtpsa/ss_vect.cc
-        )
+  )
 
 add_library(gtpsa-c++ SHARED
   ${gtpsa_c++_FILES}
   ${gtpsa_c++_FILES}
   ${gtpsa_c++_HEADERS}
-)
+  ${gtpsa_c++_mad_HEADERS}
+  ${gtpsa_c++_bridge_HEADERS}
+  ${gtpsa_c++_intern_HEADERS}
+  )
+
 target_link_libraries(gtpsa-c++ gtpsa lapack blas ${OpenMP_C_LIBRARIES} ${ARMADILLO_LIBRARIES})
 
 target_include_directories(gtpsa-c++ PUBLIC
@@ -67,7 +86,6 @@ write_basic_package_version_file(
     COMPATIBILITY SameMajorVersion
 )
 
-install(FILES ${gtpsa_c++_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(TARGETS gtpsa-c++
         EXPORT gtpsa-c++Targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

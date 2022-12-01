@@ -8,7 +8,7 @@
 
 #include <vector>
 // bridge container forward declaration
-#include <gtpsa/bridge.hpp>
+#include <gtpsa/bridge/bridge.hpp>
 
 namespace gtpsa {
     /**

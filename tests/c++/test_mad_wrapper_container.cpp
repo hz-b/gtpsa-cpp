@@ -5,7 +5,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include <gtpsa/mad_tpsa_wrapper.hpp>
+#include <gtpsa/mad/tpsa_wrapper.hpp>
 #include <vector>
 #include <gtpsa/desc.hpp>
 #include <gtpsa/utils.hpp>

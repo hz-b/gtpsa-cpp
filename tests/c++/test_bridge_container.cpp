@@ -3,7 +3,7 @@
 //
 #include <gtpsa/desc.hpp>
 #include <gtpsa/tpsa.hpp>
-#include <gtpsa/bridge_container.hpp>
+#include <gtpsa/bridge/container.hpp>
 
 #define BOOST_TEST_MODULE gtpsa_bridge_container
 #define BOOST_TEST_DYN_LINK

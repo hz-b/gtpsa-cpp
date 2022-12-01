@@ -20,14 +20,14 @@
 #include <complex>
 
 #include <gtpsa/desc.hpp>
-#include <gtpsa/mad_tpsa_wrapper.hpp>
-#include <gtpsa/mad_ctpsa_wrapper.hpp>
+#include <gtpsa/mad/tpsa_wrapper.hpp>
+#include <gtpsa/mad/ctpsa_wrapper.hpp>
 #include <gtpsa/tpsa.hpp>
 
-#include <gtpsa/complex_utils.hpp>
-#include <gtpsa/bridge.hpp>
-#include <gtpsa/with_operators.hpp>
-#include <gtpsa/templated_funcs.hpp>
+#include <gtpsa/bridge/bridge.hpp>
+#include <gtpsa/intern/complex_utils.hpp>
+#include <gtpsa/intern/templated_funcs.hpp>
+#include <gtpsa/intern/with_operators.hpp>
 
 
 namespace gtpsa {
