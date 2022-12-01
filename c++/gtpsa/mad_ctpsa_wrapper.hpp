@@ -36,6 +36,7 @@ extern "C" {
 #define GTPSA_PTR_T ctpsa_t
 
 #include <gtpsa/mad_gtpsa_wrapper.tpp>
+#include <gtpsa/mad_gtpsa_container_wrapper.tpp>
 
 #ifndef GTPSA_KEEP_MACROS
 #undef GTPSA_CLASS

@@ -22,6 +22,10 @@ set(gtpsa_c++_HEADERS
   gtpsa/funcs.h
   gtpsa/ss_vect.h
 
+  gtpsa/gtpsa_container.hpp
+  gtpsa/bridge_container.hpp
+  gtpsa/mad_gtpsa_container_wrapper.tpp
+
 )
 install(FILES ${gtpsa_c++_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gtpsa/)
 #install(TARGETS gtpsa-c++
@@ -35,7 +39,7 @@ set(gtpsa_c++_FILES
   gtpsa/tpsa.cc
   gtpsa/ctpsa.cc
   gtpsa/ss_vect.cc
-  )
+        )
 
 add_library(gtpsa-c++ SHARED
   ${gtpsa_c++_FILES}
@@ -48,7 +52,7 @@ target_include_directories(gtpsa-c++ PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
   $<INSTALL_INTERFACE:include/>  # <prefix>/include/mylib
   ${ARMADILLO_INCLUDE_DIRS}
-  ) 
+  )
 
 set(GTPSA_C++_CMAKE_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/")
 configure_package_config_file(

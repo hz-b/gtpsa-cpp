@@ -1,6 +1,9 @@
 /* -*- c++ -*- */
 #ifndef _GTPSA_TPSA_WITH_OPERATORS_FUNCS_H_
 #define _GTPSA_TPSA_WITH_OPERATORS_FUNCS_H_ 1
+#include <algorithm>
+#include <vector>
+
 
 namespace gtpsa {
     // ------------------------------------------------------------------------------
@@ -58,15 +61,31 @@ namespace gtpsa {
 
     template<typename T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
     inline TpsaWithOp<T> taylor(const TpsaWithOp<T>& a, std::vector<typename T::base_type> coeff) {
-	auto ret = a.newFromThis(); //TpsaWithOp<T>(a, gtpsa::init::same);
-	mad::taylor(a, coeff, &ret);
-	return ret;
+	    auto ret = a.newFromThis(); //TpsaWithOp<T>(a, gtpsa::init::same);
+	    mad::taylor(a, coeff, &ret);
+	    return ret;
     }
 
     template<typename T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
     inline TpsaWithOp<T> pow (const TpsaWithOp<T>& a, int n         ){ auto r = a.newFromThis(); pow(a, n, &r); return r; }
     template<typename T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
     inline TpsaWithOp<T> pow (const TpsaWithOp<T>& a, typename T::base_type v){ auto r = a.newFromThis(); pow(a, v, &r); return r; }
+
+    /*
+    template<typename T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
+    inline  rcompose (const std::vector<TpsaWithOp<T>>& ma, std::vector<TpsaWithOp<T>>& mb, std::vector<TpsaWithOp<T>> *mc){
+        mad::r(ma, mb, mc);
+    }
+
+    template<typename T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
+    inline void  compose (const std::vector<TpsaWithOp<T>>& ma, std::vector<TpsaWithOp<T>>& mb ){
+        std::vector<TpsaWithOp<T>> mc;
+        mc.reserve(ma.size());
+        std::transform(ma.begin(), ma.end(), std::back_inserter(mc), [](const TpsaWithOp<T>& o){ return o.newFromThis(); });
+        rconvolve(ma, mb, &mc);
+        return mc;
+    }
+    */
 
 } // namespace gtpsa
 

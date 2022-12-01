@@ -32,10 +32,10 @@
 
 namespace gtpsa {
 
-    class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper>  {};
+class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper, mad::_CTpsaWrapper, mad::_CTpsaContainerWrapper>  {};
 
     /* Bridge to the mad gtpsa c++ wrapper */
-    typedef struct TpsaBridge<CTpsaTypeInfo> ctpsa_bridge;
+    typedef TpsaBridge<CTpsaTypeInfo> ctpsa_bridge;
 
     /*
      * c++ style functionality of the operator functions.
@@ -52,9 +52,9 @@ namespace gtpsa {
     inline void rinv     (const ctpsa_bridge& a, const cnum_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::inv ); }
     inline void rinvsqrt (const ctpsa_bridge& a, const cnum_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::invsqrt ); }
 
-    inline void rpow (const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge *r) { r->pow(a, b);  }
-    inline void rpow (const ctpsa_bridge& a, const int           i, ctpsa_bridge *r) { /* r->pow(a, i);*/ }
-    inline void rpow (const ctpsa_bridge& a, const cnum_t        v, ctpsa_bridge *r) { /* r->pow(a, v);*/ }
+    // inline void rpow (const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge *r) { r->pow(a, b);  }
+    // inline void rpow (const ctpsa_bridge& a, const int           i, ctpsa_bridge *r) { r->pow(a, i);  }
+    // inline void rpow (const ctpsa_bridge& a, const cnum_t        v, ctpsa_bridge *r) { r->pow(a, v);  }
 
     /* return newly allocated object */
     inline ctpsa_bridge add ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { return apply2<ctpsa_bridge>(a, b, radd ); }
@@ -62,9 +62,9 @@ namespace gtpsa {
     inline ctpsa_bridge mul ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { return apply2<ctpsa_bridge>(a, b, rmul ); }
     inline ctpsa_bridge div ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { return apply2<ctpsa_bridge>(a, b, rdiv ); }
 
-    inline ctpsa_bridge pow ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { ctpsa_bridge r = a.newFromThis(); rpow(a, b, &r); return r; }
-    inline ctpsa_bridge pow ( const ctpsa_bridge& a, const int           i ) { ctpsa_bridge r = a.newFromThis(); rpow(a, i, &r); return r; }
-    inline ctpsa_bridge pow ( const ctpsa_bridge& a, const cnum_t        v ) { ctpsa_bridge r = a.newFromThis(); rpow(a, v, &r); return r; }
+    // inline ctpsa_bridge pow ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { ctpsa_bridge r = a.newFromThis(); rpow(a, b, &r); return r; }
+    // inline ctpsa_bridge pow ( const ctpsa_bridge& a, const int           i ) { ctpsa_bridge r = a.newFromThis(); rpow(a, i, &r); return r; }
+    // inline ctpsa_bridge pow ( const ctpsa_bridge& a, const cnum_t        v ) { ctpsa_bridge r = a.newFromThis(); rpow(a, v, &r); return r; }
 
     //inline tpsa_bridge acc     (const ctpsa_bridge& a, const cnum_t b)  { return apply2_base<ctpsa_bridge, cnum_t>(a, b, racc); }
     //inline tpsa_bridge scl     (const ctpsa_bridge& a, const cnum_t b)  { return apply2_base<ctpsa_bridge, cnum_t>(a, b, rscl); }
@@ -73,21 +73,23 @@ namespace gtpsa {
 
 
     /* required for the template adding operators */
+#if 0
     struct CTpsaTypeBridgeInfo {
 	using base_type = cnum_t;
 	using bridge = ctpsa_bridge;
 
     };
-
+#endif
+    typedef TpsaWithOp<CTpsaTypeInfo> ctpsa_with_op ;
     /*
      * @brief Complex truncated power series
      *
      * @todo add missing functionality
      */
-    class ctpsa : public TpsaWithOp<CTpsaTypeBridgeInfo> {
+    class ctpsa : public ctpsa_with_op {
 
     public:
-	using base = TpsaWithOp<CTpsaTypeBridgeInfo>;
+	using base = ctpsa_with_op;
 
 	/*
 	 * @brief ctor using description and mo
