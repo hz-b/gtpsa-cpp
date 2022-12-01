@@ -37,7 +37,7 @@ namespace gtpsa {
             return this->m_vec.size();
         }
 
-        inline void rcompose(TpsaBridgeContainer<T> &ma, TpsaBridgeContainer<T> &mb) {
+        inline void rcompose(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
             if (ma.size() != this->size()) {
                 std::stringstream strm;
                 strm << "ma size" << ma.size() << " !=  mc size " << this->size();
@@ -45,7 +45,7 @@ namespace gtpsa {
             }
 
             using ContainerBridge = typename T::bridge_container_type;
-            ContainerBridge ma_c(ma.getBridgePtrs()), mb_c(mb.getBridgePtrs());
+            const ContainerBridge ma_c(ma.getBridgePtrs()), mb_c(mb.getBridgePtrs());
             ContainerBridge mc_c(this->getBridgePtrs());
 
             mc_c.rcompose(ma_c, mb_c);
@@ -53,7 +53,7 @@ namespace gtpsa {
         }
 
     protected:
-        inline std::vector<typename T::bridge_base_type *> getBridgePtrs(void) {
+        inline std::vector<typename T::bridge_base_type *> getBridgePtrs(void) const {
             std::vector<typename T::bridge_base_type *> vec(this->size());
             std::transform(this->m_vec.begin(), this->m_vec.end(), vec.begin(),
                            [](TpsaBridge<T> *ptr) { return (&(ptr->m_impl)); });

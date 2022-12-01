@@ -46,7 +46,7 @@ namespace gtpsa {
         inline void rcompose(Container &ma, Container &mb) {
 
             using bridge_container_type = TpsaBridgeContainer<T>;
-            bridge_container_type ma_b(ma.getBasePtrs()), mb_b(mb.getBasePtrs());
+            const bridge_container_type ma_b(ma.getBasePtrs()), mb_b(mb.getBasePtrs());
             bridge_container_type mc_b(this->getBasePtrs());
 
             mc_b.rcompose(ma_b, mb_b);
