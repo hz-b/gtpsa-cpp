@@ -562,3 +562,4 @@ BOOST_AUTO_TEST_CASE(test50_mul_first_order_dbl)
     BOOST_CHECK_SMALL(v[5],                1e-12);
 
 }
+

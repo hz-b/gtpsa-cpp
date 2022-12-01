@@ -25,18 +25,6 @@ namespace gtpsa {
     using bridge_container_type = BridgeContainer;
     };
 
-#if 0
-    template<typename Base, typename Bridge>
-    struct GTpsaContainerTypeInfo
-    {
-        using base_type = Base;
-        using bridge_type = Bridge;
-    };
-#endif
-    //class TPSAWrapper;
-
-    // class tpsa;
-    // class ctpsa;
 
     namespace mad {
 	class _TpsaWrapper;

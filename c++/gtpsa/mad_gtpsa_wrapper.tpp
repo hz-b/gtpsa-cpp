@@ -91,9 +91,6 @@ namespace gtpsa::mad {
     friend class GTPSA_CLASS(ContainerWrapper);
 
     public:
-        // for the adaptor/ bridge pattern ?
-        // friend class GTPSA_CLASS(WithOp);
-
         inline auto getDescription(void) const {
             return this->t_desc;
         }
@@ -326,16 +323,6 @@ namespace gtpsa::mad {
         friend inline void
         taylor(const GTPSA_CLASS(Wrapper) &a, std::vector<GTPSA_BASE_T> coeff, GTPSA_CLASS(Wrapper) *c);
 
-        /*
-         * functions with a single call pattern
-         * but also allocating temporary buffers
-         */
-        // friend inline num_t mnrm(const std::vector<GTPSA_CLASS(Wrapper)> &v);
-        // friend inline void compose(const std::vector<GTPSA_CLASS(Wrapper)> &ma, const std::vector<GTPSA_CLASS(Wrapper)> &mb,
-        //                     std::vector<GTPSA_CLASS(Wrapper)> *mc);
-        friend inline void _extractPointers(const std::vector<GTPSA_CLASS(Wrapper) *> &m, std::vector<GTPSA_PTR_T*> * vec);
-        friend inline void _extractConstPointers(const std::vector<const GTPSA_CLASS(Wrapper) * > &m, std::vector<const GTPSA_PTR_T*> * vec);
-
     }; /* class GTPSA_CLASS(Wrapper) */
 
 /*
@@ -486,18 +473,6 @@ namespace gtpsa::mad {
       inline GTPSA_CLASS(Wrapper) div (const GTPSA_CLASS(Wrapper)& a, const GTPSA_CLASS(Wrapper)& b){ return process2w(a, b, div_wr); }
     */
 
-        /**
-         *
-         * @param vector to calculate the multinrom for
-         * @return norm
-         *
-         * @todo should I add tmp as argument to a work space?
-         */
-    /* inline num_t mnrm(const std::vector<GTPSA_CLASS(Wrapper)> &v) {
-            std::vector<const GTPSA_PTR_T*> tmp(v.size());
-            std::transform(v.begin(), v.end(), tmp.begin(), [](const GTPSA_CLASS(Wrapper) &o) { return o.getPtr(); });
-            return GTPSA_METH(mnrm)(tmp.size(), tmp.data());
-    }
-    */
+
 
 } // namespace gtpsa::mad

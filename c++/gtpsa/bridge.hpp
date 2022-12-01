@@ -191,46 +191,13 @@ namespace gtpsa {
 
 	inline void pow (const TpsaBridge<T>& a, const TpsaBridge<T>& b) { this->m_impl.pow(a.m_impl, b.m_impl);  }
 	inline void pow (const TpsaBridge<T>& a, const int            i) { this->m_impl.pow(a.m_impl, i       );  }
-	inline void pow (const TpsaBridge<T>& a, const num_t          v) { this->m_impl.pow(a.m_impl, v       );  }
+	inline void pow (const TpsaBridge<T>& a, const typename T::base_type v) { this->m_impl.pow(a.m_impl, v       );  }
 
 	/* |                                                                |
 	   O----------------------------------------------------------------O */
 
-#if 0
-    //template<class U, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
-    friend inline void _extractBridge(const std::vector<TpsaBridge<T> *> &m, std::vector<typename T::bridge_type* > * vec);
-
-    //template<class T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
-    friend inline void _extractConstBridge(const std::vector<const TpsaBridge<T>*> &m, std::vector<const typename T::bridge_type* > * vec);
-#endif
         };
 
-#if 0
-    template<class T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
-    inline void _extractBridge(const std::vector<TpsaBridge<T> *> &m, std::vector<typename T::bridge_type* > * vec){
-        auto convert = [](TpsaBridge<T>* o) {return &o->m_impl; };
-        std::transform(m.begin(), m.end(), vec->begin(), convert);
-    }
-    template<class T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
-    inline void _extractConstBridge(const std::vector<const TpsaBridge<T>*> &m, std::vector<const typename T::bridge_type* > * vec){
-        auto convert = [](const TpsaBridge<T>* o) {return  &o->m_impl; };
-        std::transform(m.begin(), m.end(), vec->begin(), convert);
-    }
-
-    template<class T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
-    inline void bridge_rcompose(const std::vector<const TpsaBridge<T>*>& ma,
-                                const std::vector<const TpsaBridge<T>*>& mb,
-                                std::vector<TpsaBridge<T>*> *mc
-                                ){
-        std::vector<const typename T::bridge_type *> ma_b (ma.size()), mb_b (mb.size());
-        std::vector<typename T::bridge_type*> mc_b (mc->size());
-        _extractConstBridge<T>(ma, &ma_b);
-        _extractConstBridge<T>(mb, &mb_b);
-        _extractBridge<T>(*mc, &mc_b);
-
-        //mad::rcompose(ma_b, mb_b, &mc_b);
-    }
-#endif
 } // namespace gtpsa
 
 #endif //  _GTPSA_TPSA_BRIDGE_H_

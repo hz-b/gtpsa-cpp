@@ -11,15 +11,6 @@
 #include <gtpsa/bridge_container.hpp>
 
 namespace gtpsa {
-    // B tpsa type ...
-    //class GTpsaContainerTypeInfo
-    template<typename Base, typename Bridge, typename BridgeContainer>
-    struct GTpsaBridgeContainerInfo {
-        using base_type = Base;    ///< typically tpsa or ctpsa
-        using bridge_type = Bridge; ///< typically templated TpsaBridge<> / tpsa_bridge
-        using bridge_container_type = BridgeContainer; ///< typically templated TpsaBridgeContainer
-    };
-
     /**
      * @brief  support methods using a container or sequence of (c)tpsa objects
      *

@@ -71,22 +71,6 @@ namespace gtpsa {
     template<typename T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
     inline TpsaWithOp<T> pow (const TpsaWithOp<T>& a, typename T::base_type v){ auto r = a.newFromThis(); pow(a, v, &r); return r; }
 
-    /*
-    template<typename T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
-    inline  rcompose (const std::vector<TpsaWithOp<T>>& ma, std::vector<TpsaWithOp<T>>& mb, std::vector<TpsaWithOp<T>> *mc){
-        mad::r(ma, mb, mc);
-    }
-
-    template<typename T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
-    inline void  compose (const std::vector<TpsaWithOp<T>>& ma, std::vector<TpsaWithOp<T>>& mb ){
-        std::vector<TpsaWithOp<T>> mc;
-        mc.reserve(ma.size());
-        std::transform(ma.begin(), ma.end(), std::back_inserter(mc), [](const TpsaWithOp<T>& o){ return o.newFromThis(); });
-        rconvolve(ma, mb, &mc);
-        return mc;
-    }
-    */
-
 } // namespace gtpsa
 
 #endif /* _GTPSA_TPSA_WITH_OPERATORS_FUNCS_H_ */
