@@ -218,14 +218,25 @@ namespace gtpsa {
          *  allocateLikeMe ?
          */
         inline ss_vect<T> allocateLikeMe(void) const {
-            // ss_vect<T> nv = ss_vect(vec[0], vec[1], vec[2], vec[3], vec[4], vec[5]);
-            throw std::runtime_error("Implement me but decide on method name first!");
-        }
+            const std::vector<T> &vec = this->state_space;
+            this->checkSize(vec);
 
+            // back inserted as the single argument is not default constructable
+            std::vector<T> nvec;
+            nvec.reserve(this->state_space.size());
+            std::transform(vec.begin(), vec.end(), std::back_inserter(nvec),
+                           [](const T &elem) -> T { return same_as_instance(elem); });
+            auto ret =  ss_vect(nvec);
+            // a paranoic extra
+            ret.set_zero();
+            return ret;
+        }
+#if 0
+       /* seems the other name won the race */
         inline ss_vect<T> newFromThis(void) const {
             throw std::runtime_error("Implement me but decide on method name first!");
         }
-
+#endif
         /**
          * @todo implement a more flexible clone
          */
@@ -303,19 +314,8 @@ namespace gtpsa {
                 throw std::runtime_error(strm.str());
             }
             this->setConstantPartWithoutCheck(vec);
-#if 0
-#endif
-
-            for (size_t i = 0; i < this->state_space.size(); ++i) {
-                // this->state_space{i] = vec[i];
-            }
         }
 
-        /*
-            inline void rconvolve(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b){
-                rconvolve(a.state_space, b.state_space, &this->state_space);
-            }
-        */
         inline void rcompose(ss_vect<T>& a, ss_vect<T>& b){
             throw std::runtime_error("currently only implemented for tpsa");
         }
@@ -351,27 +351,7 @@ namespace gtpsa {
                 f(this->state_space[i], o);
             }
         }
-        //
-/*
-        inline void rconvolve(const ss_vect<T>& a, const ss_vect<T>& b, const ss_vect<T>* c) {
-            throw std::runtime_error("(r)convolve currenty implemnted for tpsa");
-        }
-
-        inline ss_vect<T> convolve(const ss_vect<T>& a, const ss_vect<T>& b, const ss_vect<T>* c) {
-            throw std::runtime_error("convolve currenty implemnted for tpsa");
-        }
-*/
-
-
     };
-
-#if 0
-    template<double>
-    void ss_vect<tpsa>::inplace_op(const ss_vect<double>& o, void f(ss_vect<tpsa>&, const double&));
-    {
-    }
-#endif
-
 
     template<typename T>
     inline std::ostream &operator<<(std::ostream &strm, const ss_vect<T> &s) {
@@ -597,13 +577,11 @@ namespace gtpsa {
     template<>
     inline void  ss_vect<tpsa>::rcompose(ss_vect<tpsa>& a, ss_vect<tpsa>& b)
     {
-#if 1
         typedef Container<tpsa, gtpsa::TpsaTypeInfo> tpsa_container;
 
         tpsa_container ma_c(a.state_space), mb_c(b.state_space);
         tpsa_container mc_c(this->state_space);
         mc_c.rcompose(ma_c, mb_c);
-#endif
     }
 
     inline ss_vect<tpsa> compose(ss_vect<tpsa>& a, ss_vect<tpsa>& b)
