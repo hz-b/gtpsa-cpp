@@ -62,7 +62,11 @@ add_library(gtpsa SHARED
 )
 target_link_libraries(gtpsa lapack blas ${OpenMP_C_LIBRARIES})
 
-
+target_include_directories(gtpsa
+                           PUBLIC
+                           "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+                           "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+)
 message(STATUS "Building gtpsa.cmake")
 set(GTPSA_CMAKE_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/")
 
@@ -76,9 +80,11 @@ write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/gtpsaConfigVersion.cmake
     VERSION "${GTPSA_VERSION}"
     COMPATIBILITY SameMajorVersion
+    # check the destination file
+    # INSTALL_DESTINATION ${GTPSA_CMAKE_LIB_DIR}
 )
 
-install(FILES ${gtpsa_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
 install(TARGETS gtpsa
         EXPORT gtpsaTargets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -86,6 +92,8 @@ install(TARGETS gtpsa
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+message(STATUS "cmake  ${CMAKE_INSTALL_INCLUDEDIR}")
+install(FILES ${gtpsa_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(
     EXPORT gtpsaTargets

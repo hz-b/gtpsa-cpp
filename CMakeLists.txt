@@ -38,6 +38,9 @@ if(CMAKE_COMPILER_IS_GNUCXX)
      -fexpensive-optimizations
      )
  endif()
+
+include(CMakePackageConfigHelpers)
+
 add_subdirectory(c)
 # Required info in the directories below
 # need to build proper package support
