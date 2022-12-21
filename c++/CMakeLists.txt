@@ -58,7 +58,6 @@ set(gtpsa_c++_FILES
 
 add_library(gtpsa-c++ SHARED
   ${gtpsa_c++_FILES}
-  ${gtpsa_c++_FILES}
   ${gtpsa_c++_HEADERS}
   ${gtpsa_c++_mad_HEADERS}
   ${gtpsa_c++_bridge_HEADERS}
@@ -68,23 +67,13 @@ add_library(gtpsa-c++ SHARED
 target_link_libraries(gtpsa-c++ gtpsa lapack blas ${OpenMP_C_LIBRARIES} ${ARMADILLO_LIBRARIES})
 
 target_include_directories(gtpsa-c++ PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+  #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
   $<INSTALL_INTERFACE:include/>  # <prefix>/include/mylib
   ${ARMADILLO_INCLUDE_DIRS}
   )
 
 set(GTPSA_C++_CMAKE_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/")
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/gtpsa-c++Config.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++Config.cmake"
-    INSTALL_DESTINATION ${GTPSA_C++_CMAKE_LIB_DIR}
-)
-
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++ConfigVersion.cmake
-    VERSION "${GTPSA_VERSION}"
-    COMPATIBILITY SameMajorVersion
-)
 
 install(TARGETS gtpsa-c++
         EXPORT gtpsa-c++Targets
@@ -101,8 +90,21 @@ install(
     NAMESPACE gtpsa::
 )
 
-install(FILES
-         "${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++Config.cmake"
-         "${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++ConfigVersion.cmake"
-	 DESTINATION ${GTPSA_C++_CMAKE_LIB_DIR}
+configure_package_config_file(
+		${CMAKE_CURRENT_SOURCE_DIR}/cmake/gtpsa-c++Config.cmake.in
+		"${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++Config.cmake"
+		INSTALL_DESTINATION ${GTPSA_C++_CMAKE_LIB_DIR}
 )
+
+write_basic_package_version_file(
+		${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++ConfigVersion.cmake
+		VERSION "${GTPSA_VERSION}"
+		COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+		"${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++Config.cmake"
+		"${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++ConfigVersion.cmake"
+		DESTINATION ${GTPSA_C++_CMAKE_LIB_DIR}
+		)
+

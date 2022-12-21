@@ -21,10 +21,10 @@ ENDIF()
 
 set(mad_ng_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/mad-ng/src/)
 
-include_directories(
-  ${mad_ng_SRC_DIR}/libgtpsa/
-  ${mad_ng_SRC_DIR}
-)
+#include_directories(
+#  ${mad_ng_SRC_DIR}/libgtpsa/
+#  ${mad_ng_SRC_DIR}
+#)
 
 # specify the C standard
 set(CMAKE_C_STANDARD 11)
@@ -42,10 +42,15 @@ if(CMAKE_COMPILER_IS_GNUCXX)
      -fexpensive-optimizations
      )
  endif()
+
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
+
 add_subdirectory(c)
+
 # Required info in the directories below
 # need to build proper package support
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c++)
+# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c++)
 add_subdirectory(c++)
 add_subdirectory(python)
 add_subdirectory(examples)
