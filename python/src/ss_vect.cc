@@ -151,9 +151,14 @@ struct AddMethods
 					);
 				 })
 	    .def("set_jacobian", [](WrappedClass& self, py::array_t<double, py::array::c_style|py::array::forcecast>& buffer){
-				     arma::mat mat = from_np_array(buffer);
-				     self.setJacobian(mat);
-				 })
+		arma::mat mat = from_np_array(buffer);
+		self.setJacobian(mat);
+	    })
+	    .def("hessian",     [](const WrappedClass& self) {
+                return py::array(
+                        py::cast( self.hessian() )
+                );
+            })
 	;
     }
 };

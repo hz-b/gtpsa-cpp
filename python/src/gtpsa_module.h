@@ -6,5 +6,6 @@
 void py_gtpsa_init_desc(pybind11::module &m);
 void py_gtpsa_init_tpsa(pybind11::module &m);
 void py_gtpsa_init_ss_vect(pybind11::module &m);
+void py_gtpsa_init_arma(pybind11::module &m);
 
 #endif /* _GTPSA_MODULE_H_ */

@@ -9,12 +9,14 @@ def test_00_init_double():
 
     ss.set_zero()
 
+
 def test_01_init_tpsa():
     desc = gtpsa.desc(6, 4)
     t1 = gtpsa.tpsa(desc, 1)
     ss = gtpsa.ss_vect_tpsa(t1)
 
     ss.set_identity()
+
 
 @pytest.mark.skip
 def test_02_set_tpsa_cst():
@@ -31,8 +33,8 @@ def test_02_set_tpsa_cst():
     ss1 = gtpsa.ss_vect_tpsa(desc, 1)
 
     ss1[1].set(0, 2)
-    assert(ss1[1].get() == 2)
-    assert(ss1.cst()[1] == 2)
+    assert ss1[1].get() == 2
+    assert ss1.cst()[1] == 2
 
 
 def test_03_set_tpsa_cst_object():
@@ -52,25 +54,25 @@ def test_03_set_tpsa_cst_object():
     desc = gtpsa.desc(6, 2)
     ss1 = gtpsa.ss_vect_tpsa(desc, 1)
 
-    a_tpsa_obj= ss1[1]
+    a_tpsa_obj = ss1[1]
     a_tpsa_obj.set(0, 2)
     ss1[1] = a_tpsa_obj
     del a_tpsa_obj
 
-    assert(ss1[1].get() == 2)
-    assert(ss1.cst()[1] == 2)
+    assert ss1[1].get() == 2
+    assert ss1.cst()[1] == 2
 
 
 def test_09_ss_vect_from_double_vect():
     vec = np.array([1, 2, 3, 4, 5, 6], np.double)
     ss_vect = gtpsa.ss_vect_double(vec)
 
-    assert ( ss_vect[0] == 1 )
-    assert ( ss_vect[1] == 2 )
-    assert ( ss_vect[2] == 3 )
-    assert ( ss_vect[3] == 4 )
-    assert ( ss_vect[4] == 5 )
-    assert ( ss_vect[5] == 6 )
+    assert ss_vect[0] == 1
+    assert ss_vect[1] == 2
+    assert ss_vect[2] == 3
+    assert ss_vect[3] == 4
+    assert ss_vect[4] == 5
+    assert ss_vect[5] == 6
 
 
 def test_10_index():
@@ -83,7 +85,7 @@ def test_10_index():
 
     print(ss.cst() + 1)
 
-    print(ss.cst() )
+    print(ss.cst())
 
 
 def test_11_index_off_range():
@@ -106,10 +108,10 @@ def test_12_radd_double():
     ss1.set_zero()
     ss1 += 2.0
 
-    assert(ss1 is not None)
+    assert ss1 is not None
 
-    assert(ss1[1] == 2)
-    assert(ss1[3] == 2)
+    assert ss1[1] == 2
+    assert ss1[3] == 2
 
 
 def test_20_add_double():
@@ -125,8 +127,8 @@ def test_20_add_double():
     ss2[3] = 5
     ss3 = ss1 + ss2
 
-    assert(ss3[1] == 2)
-    assert(ss3[3] == 5)
+    assert ss3[1] == 2
+    assert ss3[3] == 5
 
 
 def test_21_radd_double():
@@ -142,8 +144,8 @@ def test_21_radd_double():
     ss2[3] = 5
     ss1 += ss2
 
-    assert(ss1[1] == 2)
-    assert(ss1[3] == 5)
+    assert ss1[1] == 2
+    assert ss1[3] == 5
 
 
 def test_22_sub_double():
@@ -159,8 +161,8 @@ def test_22_sub_double():
 
     ss3 = ss1 - ss2
 
-    assert(ss3[1] == 2)
-    assert(ss3[3] == -5)
+    assert ss3[1] == 2
+    assert ss3[3] == -5
 
 
 def test_23_rsub_double():
@@ -176,8 +178,8 @@ def test_23_rsub_double():
 
     ss1 -= ss2
 
-    assert(ss1[1] == 2)
-    assert(ss1[3] == -5)
+    assert ss1[1] == 2
+    assert ss1[3] == -5
 
 
 @pytest.mark.skip
@@ -207,18 +209,19 @@ def test_30_tpsa_radd_double():
 
     ss2[3] = 5
 
-    assert(ss1[1].get() == 2)
-    assert(ss2[3] == 5)
+    assert ss1[1].get() == 2
+    assert ss2[3] == 5
 
     print("Adding values")
     ss1 += ss2
     print("Adding values")
 
-    assert(ss1 is not None)
+    assert ss1 is not None
 
     print(ss1.cst())
-    assert(ss1[1] == 2)
-    assert(ss1[3] == 5)
+    assert ss1[1] == 2
+    assert ss1[3] == 5
+
 
 def test_50_compose():
 
@@ -236,6 +239,47 @@ def test_50_compose():
 
     ss3 = gtpsa.compose(ss1, ss2)
     print(ss3)
+
+
+def test70_sst_hessian():
+    desc = gtpsa.desc(6, 3)
+    ss_vect = gtpsa.ss_vect_tpsa(desc, 2)
+    ss_vect.set_identity()
+    for i, val in enumerate([1, 2, 3, 5, 7, 11]):
+        ss_vect[i] += val
+
+    vec = ss_vect.copy()
+    # fmt: off
+    vec[0] =  1 * ss_vect[0] * ss_vect[0];
+    vec[1] =  2 * ss_vect[1] * ss_vect[1];
+    vec[2] =  3 * ss_vect[2] * ss_vect[2];
+    vec[3] =  5 * ss_vect[3] * ss_vect[3];
+    vec[4] =  7 * ss_vect[4] * ss_vect[4];
+    vec[5] = 11 * ss_vect[5] * ss_vect[5];
+    # fmt: on
+
+    hes = vec.hessian()
+    assert type(hes) == np.ndarray
+
+    assert hes[0, 0, 0] == 1
+    assert hes[1, 1, 1] == 2
+    assert hes[2, 2, 2] == 3
+    assert hes[3, 3, 3] == 5
+    assert hes[4, 4, 4] == 7
+    assert hes[5, 5, 5] == 11
+
+    hes[0, 0, 0] = 0
+    hes[1, 1, 1] = 0
+    hes[2, 2, 2] = 0
+    hes[3, 3, 3] = 0
+    hes[4, 4, 4] = 0
+    hes[5, 5, 5] = 0
+
+    assert np.sum(hes).all() == 0
+
+
+if __name__ == "__main__":
+    test70_sst_hessian()
 
 if __name__ == "__main__":
     test_50_compose()

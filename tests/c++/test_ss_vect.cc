@@ -6,6 +6,7 @@
 #include <gtpsa/ss_vect.h>
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 // mainly test that header compiles
 BOOST_AUTO_TEST_CASE(test10_sv_tpsa)
@@ -25,8 +26,8 @@ BOOST_AUTO_TEST_CASE(test11_sv_dbl)
 }
 
 
-#define print_indices(i, j) \
-    do{std::cout << "i " << i  << " j " << j << std::endl; }while(0)
+#define print_indices(msg, i, j, val) \
+    do{std::cout << msg << " i " << i  << " j " << j << " : "<< val << std::endl; }while(0)
 
 #define test_identity(v)                                   \
     do{							   \
@@ -34,10 +35,10 @@ BOOST_AUTO_TEST_CASE(test11_sv_dbl)
 	    for(size_t j = 0; j <v.size(); ++j){	   \
 	    auto tmp = v[i].get(j);                        \
 		if(i == j - 1){				   \
-		    if(tmp < 0.9) { print_indices(i, j); } \
+		    if(tmp < 0.9) { print_indices("on diag", i, j, tmp); } \
 		    BOOST_CHECK_CLOSE(tmp, 1.0, 1e-12);    \
 		} else {				   \
-		    if(tmp > 0.1) { print_indices(i, j); } \
+		    if(tmp > 0.1) { print_indices("off diag", i, j, tmp); } \
 		    BOOST_CHECK_SMALL(tmp,      1e-12);	   \
 		}					   \
 	    }						   \
@@ -417,7 +418,7 @@ BOOST_AUTO_TEST_CASE(test60_compose_identity)
     test_identity(vec);
 }
 
-
+#if 0
 BOOST_AUTO_TEST_CASE(test62_compose_omega_matrix)
 {
 
@@ -433,4 +434,153 @@ BOOST_AUTO_TEST_CASE(test62_compose_omega_matrix)
 
     std::cout << "omega (ct delta swappwd)" << std::endl;
 
+}
+#endif
+
+
+BOOST_AUTO_TEST_CASE(test70_estimate_order)
+{
+    BOOST_CHECK(gtpsa::estimate_start_order(0, 6) == 0);
+    BOOST_CHECK(gtpsa::estimate_start_order(1, 6) == 1);
+    BOOST_CHECK(gtpsa::estimate_start_order(2, 6) == 7);
+}
+
+BOOST_AUTO_TEST_CASE(test71_hessian)
+{
+    auto desc = std::make_shared<gtpsa::desc>(6, 3);
+
+    gtpsa::ss_vect<gtpsa::tpsa> vec1(desc, 3);
+
+    const double a = 1, b = 2, c = 3, d = 5, e = 7, f = 11;
+    const std::vector<double> tmp = {a, b, c, d, e, f};
+
+    gtpsa::ss_vect<double> vec_cst(tmp);
+    std::cout << "vec_cst " << vec_cst << std::endl;
+
+    vec1.set_identity();
+    {
+        // expects constant term to be zero...
+        test_identity(vec1);
+    }
+    vec1 += vec_cst;
+    {
+        //std::cout << "hessian\n" << vec1.hessian() << std::endl;
+
+        BOOST_CHECK_CLOSE(vec1[0].cst(), a, 1e-12);
+        BOOST_CHECK_CLOSE(vec1[1].cst(), b, 1e-12);
+        BOOST_CHECK_CLOSE(vec1[2].cst(), c, 1e-12);
+        BOOST_CHECK_CLOSE(vec1[3].cst(), d, 1e-12);
+        BOOST_CHECK_CLOSE(vec1[4].cst(), e, 1e-12);
+        BOOST_CHECK_CLOSE(vec1[5].cst(), f, 1e-12);
+
+
+        arma::cube hes = vec1.hessian();
+        arma::cube test = arma::abs(hes);
+
+        arma::cube test_val = arma::sum(arma::sum(arma::sum(test, 0), 1), 2);
+        std::cout <<"test\n"<< test_val << std::endl;
+        const double tval = test_val(0,0,0);
+        BOOST_CHECK_SMALL(tval, 1e-12);
+
+    }
+
+    auto vec2 = vec1.clone();
+    auto vec3 = vec1.clone();
+    auto vec = vec1.clone();
+
+    std::cout << "jac vec1\n" << vec1.jacobian() << std::endl;
+    const double scale = 1e0/2e0;
+    vec[0] = scale *   1 * vec1[0] * vec2[0];// * vec3[0];
+    vec[1] = scale *   2 * vec1[1] * vec2[1];// * vec3[1];
+    vec[2] = scale *   3 * vec1[2] * vec2[2];// * vec3[2];
+    vec[3] = scale *   5 * vec1[3] * vec2[3];// * vec3[3];
+    vec[4] = scale *   7 * vec1[4] * vec2[4];// * vec3[4];
+    vec[5] = scale *  11 * vec1[5] * vec2[5];// * vec3[5];
+
+    {
+        arma::mat jac = vec.jacobian();
+        arma::vec vs = {a*a, b*b, c*c, d*d, e*e, f*f};
+
+        // check diagonal
+        BOOST_CHECK_CLOSE(vs[0], jac(0, 0), 1e-12);
+        jac(0, 0) = 0;
+        BOOST_CHECK_CLOSE(vs[1], jac(1, 1), 1e-12);
+        jac(1, 1) = 0;
+        BOOST_CHECK_CLOSE(vs[2], jac(2, 2), 1e-12);
+        jac(2, 2) = 0;
+        BOOST_CHECK_CLOSE(vs[3], jac(3, 3), 1e-12);
+        jac(3, 3) = 0;
+        BOOST_CHECK_CLOSE(vs[4], jac(4, 4), 1e-12);
+        jac(4, 4) = 0;
+        BOOST_CHECK_CLOSE(vs[5], jac(5, 5), 1e-12);
+        jac(5, 5) = 0;
+
+        const arma::mat tmp =arma::sum(arma::sum(arma::abs(jac), 0), 1);
+        const double chk = tmp(0,0);
+        BOOST_CHECK_SMALL(chk, 1e-12);
+
+        arma::cube hessian = vec.hessian();
+        std::cout << hessian << std::endl;
+
+        BOOST_CHECK_CLOSE(hessian(0, 0, 0), 1.0/2.0, 1e-12);
+        hessian(0,0,0) = 0;
+        BOOST_CHECK_CLOSE(hessian(1, 1, 1), 2.0/2.0, 1e-12);
+        hessian(1,1,1) = 0;
+        BOOST_CHECK_CLOSE(hessian(2, 2, 2), 3.0/2.0, 1e-12);
+        hessian(2,2,2) = 0;
+        BOOST_CHECK_CLOSE(hessian(3, 3, 3), 5.0/2.0, 1e-12);
+        hessian(3,3,3) = 0;
+        BOOST_CHECK_CLOSE(hessian(4, 4, 4), 7.0/2.0, 1e-12);
+        hessian(4,4,4) = 0;
+        BOOST_CHECK_CLOSE(hessian(5, 5, 5), 11.0/2.0, 1e-12);
+        hessian(5,5,5) = 0;
+
+        const arma::cube tmp2 = arma::sum(arma::sum(arma::sum(arma::abs(hessian), 0), 1), 2);
+        const double chk2 = tmp2(0,0,0);
+        BOOST_CHECK_SMALL(chk2, 1e-12);
+
+    }
+
+    return;
+
+    for(int i=0; i<6; ++i){
+        char n = 'a' + i;
+        std::string str = "   ";
+        str[0] = n;
+        vec[i].setName(str);
+        vec[i].print();
+    }
+    {
+        auto nv = vec[0].getDescription()->getNv();
+        std::vector<double> read_all (
+                // constant
+                1
+                // first derivative
+                +  nv
+                // second derivative
+                + nv * nv
+                // third derivative
+                //+ nv * nv * nv
+        );
+        std::vector<double> hessian (
+
+                + nv * nv
+                // third derivative
+                //+ nv * nv * nv
+        );
+
+        for(int i=0; i<6; ++i){
+            for(auto& e : hessian) e=-1.0;
+            vec[i].getv(7, &hessian);
+            std::cout << "all [" << i << "]";
+            int cnt =0;
+            for(auto& e : hessian){
+                if( cnt % 6 == 0 && cnt != 0){
+                    std::cout <<": ";
+                }
+                std::cout << std::setw(5) << e * 2 << ", "; cnt++;
+            }
+            std::cout << std::endl;
+        }
+    }
 }
