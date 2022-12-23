@@ -5,10 +5,16 @@
 
 #include <stdbool.h>
 
+#ifdef GTPSA_DEFINE_BOOL
 extern "C" {
-/* a non standard hack */
-// typedef bool _Bool;
+  /* a non standard hack */
+  // typedef bool _Bool;
+  typedef bool _Bool;
+ 
+}
+#endif
 
+extern "C" {
 #include <mad_mono.h>
 }
 
