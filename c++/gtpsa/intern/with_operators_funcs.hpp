@@ -1,6 +1,9 @@
 /* -*- c++ -*- */
 #ifndef _GTPSA_TPSA_WITH_OPERATORS_FUNCS_H_
 #define _GTPSA_TPSA_WITH_OPERATORS_FUNCS_H_ 1
+#include <algorithm>
+#include <vector>
+
 
 namespace gtpsa {
     // ------------------------------------------------------------------------------
@@ -58,9 +61,9 @@ namespace gtpsa {
 
     template<typename T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
     inline TpsaWithOp<T> taylor(const TpsaWithOp<T>& a, std::vector<typename T::base_type> coeff) {
-	auto ret = a.newFromThis(); //TpsaWithOp<T>(a, gtpsa::init::same);
-	mad::taylor(a, coeff, &ret);
-	return ret;
+	    auto ret = a.newFromThis(); //TpsaWithOp<T>(a, gtpsa::init::same);
+	    mad::taylor(a, coeff, &ret);
+	    return ret;
     }
 
     template<typename T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>

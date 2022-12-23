@@ -132,6 +132,7 @@ struct AddMethods
 	    .def(py::self  * double())
 	    .def(py::self  / double())
 
+        .def("rcompose", &WrappedClass::rcompose)
 	    //.def(double()  + py::self)
 	    //.def(double()  - py::self)
 	    //.def(double()  * py::self)
@@ -164,7 +165,7 @@ void py_gtpsa_init_ss_vect(py::module &m)
 	typedef gtpsa::ss_vect<gtpsa::tpsa> ss_vect_tpsa_t;
 
 
-        py::class_<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> ss_vect_double (m, "ss_vect_double");
+    py::class_<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> ss_vect_double (m, "ss_vect_double");
 	AddMethods<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> double_cls;
 	double_cls.add_methods<double>(ss_vect_double);
 
@@ -175,7 +176,7 @@ void py_gtpsa_init_ss_vect(py::module &m)
 	dcplx_cls.add_methods<dcplx>(ss_vect_dcplx);
 	*/
 
-        py::class_<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>>  ss_vect_tpsa   (m, "ss_vect_tpsa");
+    py::class_<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>>  ss_vect_tpsa   (m, "ss_vect_tpsa");
 	AddMethods<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>> tpsa_cls;
 	tpsa_cls.add_methods<gtpsa::tpsa>(ss_vect_tpsa);
 	tpsa_cls.add_methods_tpsa<gtpsa::tpsa>(ss_vect_tpsa);
@@ -185,10 +186,15 @@ void py_gtpsa_init_ss_vect(py::module &m)
 	   .def(py::self +  gtpsa::ss_vect<double>(0e0))
 	   .def(py::self -  gtpsa::ss_vect<double>(0e0))
 	   ;
-	/*
+
+    // adding functions
+    m.def("compose", &gtpsa::compose);
+
+    /*
         py::class_<gtpsa::ss_vect<gtpsa::ctpsa>> ss_vect_ctpsa  (m, "ss_vect_ctpsa");
-	AddMethods<gtpsa::ss_vect<gtpsa::ctpsa>> ctpsa_cls;
-	ctpsa_cls.add_methods<gtpsa::ctpsa>(ss_vect_ctpsa);
-	ctpsa_cls.add_methods_tpsa<gtpsa::ctpsa>(ss_vect_ctpsa);
-	*/
+    AddMethods<gtpsa::ss_vect<gtpsa::ctpsa>> ctpsa_cls;
+    ctpsa_cls.add_methods<gtpsa::ctpsa>(ss_vect_ctpsa);
+    ctpsa_cls.add_methods_tpsa<gtpsa::ctpsa>(ss_vect_ctpsa);
+    */
+
 }

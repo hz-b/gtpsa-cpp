@@ -17,10 +17,10 @@
 #include <iomanip>
 #include <ostream>
 
-#include <gtpsa/mad_tpsa_wrapper.hpp>
-#include <gtpsa/templated_funcs.hpp>
-#include <gtpsa/bridge.hpp>
-#include <gtpsa/with_operators.hpp>
+#include <gtpsa/mad/tpsa_wrapper.hpp>
+#include <gtpsa/intern/templated_funcs.hpp>
+#include <gtpsa/bridge/bridge.hpp>
+#include <gtpsa/intern/with_operators.hpp>
 
 
 namespace gtpsa {
@@ -38,14 +38,15 @@ namespace gtpsa {
      */
 
     // Type information for the bridge template
-    class TpsaTypeInfo : public GTpsaTypeInfo<tpsa_t, num_t, mad::TpsaWrapper>  {};
+    typedef GTpsaTypeInfo<tpsa_t, num_t, mad::TpsaWrapper, mad::_TpsaWrapper, mad::_TpsaContainerWrapper>  TpsaTypeInfo;
 
     /*
      * @brief tpsa object
      *
-     * Bridges over to the orginal object
+     * Bridges over to the original object
      */
-    typedef struct TpsaBridge<TpsaTypeInfo> tpsa_bridge;
+    typedef TpsaBridge<TpsaTypeInfo> tpsa_bridge;
+
 
     /* c++ style functionality of the operator functions. */
     inline void radd (const tpsa_bridge& a, const tpsa_bridge& b, tpsa_bridge* r)  { r->apply2_with_return_object(a, b, mad::add ); }
@@ -77,22 +78,23 @@ namespace gtpsa {
     inline tpsa_bridge inv     (const tpsa_bridge& a, const num_t b)  { return apply2_base<tpsa_bridge, num_t>(a, b, rinv); }
     inline tpsa_bridge invsqrt (const tpsa_bridge& a, const num_t b)  { return apply2_base<tpsa_bridge, num_t>(a, b, rinvsqrt); }
 
-
+#if 0
     struct TpsaTypeBridgeInfo {
 	using base_type = num_t;
 	using bridge = tpsa_bridge;
     };
-
+#endif
     /*
      * @brief truncated power series
      *
      * @todo add missing functionality
      */
+    typedef TpsaWithOp<TpsaTypeInfo> tpsa_with_op ;
 
-    class tpsa : public TpsaWithOp<TpsaTypeBridgeInfo> {
+    class tpsa : public tpsa_with_op {
 
     public:
-	using base = TpsaWithOp<TpsaTypeBridgeInfo>;
+	using base = tpsa_with_op;
 
 	inline tpsa(std::shared_ptr<mad::desc> desc, const ord_t mo)
 	    : base(desc, mo)

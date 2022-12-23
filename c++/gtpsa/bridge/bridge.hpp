@@ -1,7 +1,17 @@
+
 /* -*- c++ -*- */
 #ifndef _GTPSA_TPSA_BRIDGE_H_
 #define _GTPSA_TPSA_BRIDGE_H_ 1
 namespace gtpsa {
+
+    /*
+     * forward declaration for declaring as friend class
+     *
+     *  some functions e.g. compose use not a single tpsa object but a compound their of. This class takes care
+     *  of combining the information to one
+     */
+    template<class T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
+    class TpsaBridgeContainer;
 
     /**
      * @brief bridge to the mad (g)tpsa implementation
@@ -9,8 +19,9 @@ namespace gtpsa {
     template<class T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
     class TpsaBridge
     {
-
+        friend class TpsaBridgeContainer<T>;
     protected:
+    //public:
 	/*
 	 * the implementation to bridge, access needed in subclasses
 	 *
@@ -180,12 +191,12 @@ namespace gtpsa {
 
 	inline void pow (const TpsaBridge<T>& a, const TpsaBridge<T>& b) { this->m_impl.pow(a.m_impl, b.m_impl);  }
 	inline void pow (const TpsaBridge<T>& a, const int            i) { this->m_impl.pow(a.m_impl, i       );  }
-	inline void pow (const TpsaBridge<T>& a, const num_t          v) { this->m_impl.pow(a.m_impl, v       );  }
+	inline void pow (const TpsaBridge<T>& a, const typename T::base_type v) { this->m_impl.pow(a.m_impl, v       );  }
 
 	/* |                                                                |
 	   O----------------------------------------------------------------O */
 
-    };
+        };
 
 } // namespace gtpsa
 

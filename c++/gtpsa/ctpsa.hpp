@@ -20,22 +20,22 @@
 #include <complex>
 
 #include <gtpsa/desc.hpp>
-#include <gtpsa/mad_tpsa_wrapper.hpp>
-#include <gtpsa/mad_ctpsa_wrapper.hpp>
+#include <gtpsa/mad/tpsa_wrapper.hpp>
+#include <gtpsa/mad/ctpsa_wrapper.hpp>
 #include <gtpsa/tpsa.hpp>
 
-#include <gtpsa/complex_utils.hpp>
-#include <gtpsa/bridge.hpp>
-#include <gtpsa/with_operators.hpp>
-#include <gtpsa/templated_funcs.hpp>
+#include <gtpsa/bridge/bridge.hpp>
+#include <gtpsa/intern/complex_utils.hpp>
+#include <gtpsa/intern/templated_funcs.hpp>
+#include <gtpsa/intern/with_operators.hpp>
 
 
 namespace gtpsa {
 
-    class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper>  {};
+class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper, mad::_CTpsaWrapper, mad::_CTpsaContainerWrapper>  {};
 
     /* Bridge to the mad gtpsa c++ wrapper */
-    typedef struct TpsaBridge<CTpsaTypeInfo> ctpsa_bridge;
+    typedef TpsaBridge<CTpsaTypeInfo> ctpsa_bridge;
 
     /*
      * c++ style functionality of the operator functions.
@@ -53,8 +53,8 @@ namespace gtpsa {
     inline void rinvsqrt (const ctpsa_bridge& a, const cnum_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::invsqrt ); }
 
     inline void rpow (const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge *r) { r->pow(a, b);  }
-    inline void rpow (const ctpsa_bridge& a, const int           i, ctpsa_bridge *r) { /* r->pow(a, i);*/ }
-    inline void rpow (const ctpsa_bridge& a, const cnum_t        v, ctpsa_bridge *r) { /* r->pow(a, v);*/ }
+    inline void rpow (const ctpsa_bridge& a, const int           i, ctpsa_bridge *r) { r->pow(a, i);  }
+    inline void rpow (const ctpsa_bridge& a, const cnum_t        v, ctpsa_bridge *r) { r->pow(a, v);  }
 
     /* return newly allocated object */
     inline ctpsa_bridge add ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { return apply2<ctpsa_bridge>(a, b, radd ); }
@@ -73,21 +73,16 @@ namespace gtpsa {
 
 
     /* required for the template adding operators */
-    struct CTpsaTypeBridgeInfo {
-	using base_type = cnum_t;
-	using bridge = ctpsa_bridge;
-
-    };
-
+    typedef TpsaWithOp<CTpsaTypeInfo> ctpsa_with_op ;
     /*
      * @brief Complex truncated power series
      *
      * @todo add missing functionality
      */
-    class ctpsa : public TpsaWithOp<CTpsaTypeBridgeInfo> {
+    class ctpsa : public ctpsa_with_op {
 
     public:
-	using base = TpsaWithOp<CTpsaTypeBridgeInfo>;
+	using base = ctpsa_with_op;
 
 	/*
 	 * @brief ctor using description and mo

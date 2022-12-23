@@ -112,8 +112,8 @@ void py_gtpsa_init_tpsa(py::module &m)
 {
 
 
-    typedef gtpsa::TpsaWithOp<gtpsa::TpsaTypeBridgeInfo>   TpsaOp;
-    typedef gtpsa::TpsaWithOp<gtpsa::CTpsaTypeBridgeInfo> CTpsaOp;
+    typedef gtpsa::TpsaWithOp<gtpsa::TpsaTypeInfo>   TpsaOp;
+    typedef gtpsa::TpsaWithOp<gtpsa::CTpsaTypeInfo> CTpsaOp;
 
     py::class_<TpsaOp, std::shared_ptr<TpsaOp>> tpsa_with_op  (m, "_TPSAWithOp");
     AddMethods<TpsaOp> tpsa_m_op;

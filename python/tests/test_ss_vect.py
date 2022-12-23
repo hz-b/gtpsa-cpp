@@ -220,6 +220,25 @@ def test_30_tpsa_radd_double():
     assert(ss1[1] == 2)
     assert(ss1[3] == 5)
 
+def test_50_compose():
+
+    desc = gtpsa.desc(6, 1)
+
+    ss1 = gtpsa.ss_vect_tpsa(desc, 1)
+    ss1.set_zero()
+
+    ss2 = gtpsa.ss_vect_tpsa(desc, 1)
+    ss2.set_zero()
+
+    I = np.identity(6)
+    ss1.set_jacobian(I)
+    ss2.set_jacobian(I)
+
+    ss3 = gtpsa.compose(ss1, ss2)
+    print(ss3)
+
+if __name__ == "__main__":
+    test_50_compose()
 
 if __name__ == "__main__":
     test_09_ss_vect_from_double_vect()

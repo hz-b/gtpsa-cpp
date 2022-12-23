@@ -1,16 +1,20 @@
 /* -*- c++ -*- */
 #ifndef _GTPSA_TPSA_WITH_OPERATORS_H_
 #define _GTPSA_TPSA_WITH_OPERATORS_H_ 1
-
+#include <gtpsa/bridge/bridge.hpp>
 namespace gtpsa {
 
     /**
      * @brief extend bridge definition with the associated opp
      */
-    template<typename T, typename = typename T::base_type, typename = typename T::bridge>
-    class TpsaWithOp : public T::bridge
+    //template<typename T, typename = typename T::base_type, typename = typename T::bridge>
+    //class TpsaWithOp : public T::bridge
+    template<class T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
+    class TpsaWithOp : public TpsaBridge<T>
     {
-	using bridge = typename T::bridge;
+    public:
+	using bridge = TpsaBridge<T>;
+    using base_type = typename T::base_type;
 
     public:
 	inline TpsaWithOp(std::shared_ptr<mad::desc> desc, const ord_t mo)
@@ -38,6 +42,8 @@ namespace gtpsa {
 #endif
 
 	inline TpsaWithOp newFromThis(void) const { return bridge::newFromThis(); }
+
+    inline auto toBridgePtr(void) const { return static_cast<bridge &>(*this); }
 	/**
 	 * These operators need to make copys of the actual instance
 	 * In the current implementation I assume the compiler can not fully optimise it away
@@ -128,6 +134,11 @@ namespace gtpsa {
 	    this->show(strm, 0);
 	    return strm.str();
 	}
+    /*
+    void convolve() {
+        mad::compose(ma, mb, mc);
+    }
+     */
     private:
 
     }; /* class TpsaWithOp */

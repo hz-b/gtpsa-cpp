@@ -1,3 +1,3 @@
 #include <gtpsa/ctpsa.hpp>
 
-template void gtpsa::TpsaWithOp<gtpsa::CTpsaTypeBridgeInfo>::show(std::ostream& strm, int level) const;
+template void gtpsa::ctpsa_with_op::show(std::ostream& strm, int level) const;
