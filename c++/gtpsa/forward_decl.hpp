@@ -23,6 +23,8 @@ extern "C" {
 
 #include <gtpsa/mad/forward_decl.hpp>
 
+#include <gtpsa/mad/forward_decl.hpp>
+
 namespace gtpsa {
 
 

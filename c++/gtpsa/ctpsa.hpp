@@ -194,8 +194,6 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
         inline void real(tpsa * re) const {
             this->m_impl.real(&re->m_impl);
         }
-<<<<<<< HEAD
-=======
         inline void imag(tpsa * re) const {
             this->m_impl.imag(&re->m_impl);
         }
@@ -219,7 +217,6 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	inline ctpsa& operator -= (const ctpsa& o ) { base::operator -= (o) ; return *this; }
 	inline ctpsa& operator *= (const ctpsa& o ) { base::operator *= (o) ; return *this; }
 	inline ctpsa& operator /= (const ctpsa& o ) { base::operator /= (o) ; return *this; }
->>>>>>> 994ad6b (Preparations so that tpsa and double or ctpsa and complex can be used)
 
         inline void imag(tpsa * re) const {
             this->m_impl.imag(&re->m_impl);
