@@ -95,14 +95,24 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper, m
 	    : base(t.getDescription(),   mo)
 	    {}
 
-
 	inline ctpsa(const tpsa&              t, const ord_t mo)
 	    : base(t.getDescription(),   mo)
 	    {}
 
-	inline ctpsa(const base&& o)
+    inline ctpsa(const tpsa& re, const tpsa& im)
+        : base(re.getDescription(), std::max({re.order(), im.order()}))
+        {
+            this->m_impl.cplx(re.m_impl, im.m_impl);
+        }
+
+    inline ctpsa(const base&& o)
 	    : base(std::move(o))
 	    {}
+
+   // Why required here?
+   inline ctpsa(const ctpsa_bridge&& o)
+        : base(o)
+        {}
 
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
@@ -115,15 +125,21 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper, m
 	    : base(o)
 	    {}
 
-	inline ctpsa(const ctpsa&              o) = default;
+
+    inline ctpsa(const ctpsa&              o) = default;
 
 #else /* GTSPA_ONLY_OPTIMISED_OPS */
 
 	inline ctpsa(const ctpsa&              o) = delete;
 
 #endif
-
-
+    /**
+     * @brief method get return cnum_t, which is incompatible with std::complex<double>
+     */
+    inline auto get_complex(void) {
+        std::complex<double> tmp(this->get());
+        return tmp;
+    }
 	/**
 	 * @brief a*x[0]+b
 	 */
@@ -174,7 +190,29 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper, m
 	    base::setsm(m, std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
 	}
 
-	inline ctpsa& operator += (const ctpsa& o ) { base::operator += (o) ; return *this; }
+        inline void real(tpsa * re) const {
+            this->m_impl.real(&re->m_impl);
+        }
+        inline void imag(tpsa * re) const {
+            this->m_impl.imag(&re->m_impl);
+        }
+
+#ifndef GTSPA_ONLY_OPTIMISED_OPS
+        inline tpsa real() const {
+            tpsa re = tpsa(this->getDescription(), mad::same);
+            this->m_impl.real(&re.m_impl);
+            return re;
+        }
+        inline tpsa imag() const {
+            tpsa im = tpsa(this->getDescription(), mad::same);
+            this->m_impl.imag(&im.m_impl);
+            return im;
+        }
+#endif
+        inline auto cst(void) const {return std::complex<double>(base::cst());}
+
+
+    inline ctpsa& operator += (const ctpsa& o ) { base::operator += (o) ; return *this; }
 	inline ctpsa& operator -= (const ctpsa& o ) { base::operator -= (o) ; return *this; }
 	inline ctpsa& operator *= (const ctpsa& o ) { base::operator *= (o) ; return *this; }
 	inline ctpsa& operator /= (const ctpsa& o ) { base::operator /= (o) ; return *this; }

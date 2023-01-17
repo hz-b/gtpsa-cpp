@@ -1,4 +1,5 @@
 set(gtpsa_c++_mad_HEADERS
+  gtpsa/mad/forward_decl.hpp
   gtpsa/mad/wrapper.tpp
   gtpsa/mad/tpsa_wrapper.hpp
   gtpsa/mad/ctpsa_wrapper.hpp
@@ -27,6 +28,11 @@ set(gtpsa_c++_HEADERS
   gtpsa/tpsa.hpp
   gtpsa/ctpsa.hpp
 
+  gtpsa/variant_forward_decl.hpp
+  gtpsa/gtpsa_base_variant.hpp
+  gtpsa/tpsa_double_variant.hpp
+  gtpsa/ctpsa_complex_variant.hpp
+
   gtpsa/ss_vect.h
 
   gtpsa/utils_tps.hpp
@@ -54,7 +60,7 @@ set(gtpsa_c++_FILES
   gtpsa/tpsa.cc
   gtpsa/ctpsa.cc
   gtpsa/ss_vect.cc
-  )
+)
 
 add_library(gtpsa-c++ SHARED
   ${gtpsa_c++_FILES}
@@ -107,4 +113,3 @@ install(FILES
 		"${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++ConfigVersion.cmake"
 		DESTINATION ${GTPSA_C++_CMAKE_LIB_DIR}
 		)
-

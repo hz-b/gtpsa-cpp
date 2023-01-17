@@ -35,6 +35,7 @@ extern "C" {
 #endif
 #define GTPSA_PTR_T tpsa_t
 
+#include <gtpsa/mad/forward_decl.hpp>
 #include <gtpsa/mad/wrapper.tpp>
 #include <gtpsa/mad/container_wrapper.tpp>
 #include <gtpsa/utils.hpp>
@@ -65,6 +66,8 @@ namespace gtpsa::mad {
 	    {}
 
 #endif  //GTSPA_ONLY_OPTIMISED_OPS
+    friend class CTpsaWrapper;
+
 	friend inline auto norm  (const TpsaWrapper& a);
 	friend inline auto equ   (const TpsaWrapper& a, const TpsaWrapper& b, num_t tol);
     };

@@ -18,6 +18,8 @@ extern "C" {
 #include <mad_mono.h>
 }
 
+#include <gtpsa/mad/forward_decl.hpp>
+
 namespace gtpsa {
 
 
@@ -30,21 +32,6 @@ namespace gtpsa {
     using bridge_base_type = BridgeBase; // required ? just need to extract pointer in the bridge container later on
     using bridge_container_type = BridgeContainer;
     };
-
-
-    namespace mad {
-	class _TpsaWrapper;
-	class _CTpsaWrapper;
-	class CTpsaWrapper;
-	/*
-	 *@brief how to initalise new object if an other is presented
-	 */
-	enum init {
-	    default_ = ord_t(-1),
-	    same     = ord_t(-2)
-	};
-	class desc;
-    }
 
     class tpsa;
     class ctpsa;

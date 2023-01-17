@@ -33,8 +33,8 @@ BOOST_AUTO_TEST_CASE(test00_cast_complex_to_cnum_t)
 
     cnum_t ac2 = std_complex_double_to_cnum_t(ac);
     auto t = ac2 + cc;
-    // BOOST_CHECK_CLOSE(creal(t), a+c, 1e-12 );
-    // BOOST_CHECK_SMALL(cimag(t),      1e-12 );
+    BOOST_CHECK_CLOSE(creal(t), a+c, 1e-12 );
+    BOOST_CHECK_SMALL(cimag(t),      1e-12 );
 }
 
 
@@ -49,3 +49,21 @@ BOOST_AUTO_TEST_CASE(test100_set)
 
 }
 #endif
+BOOST_AUTO_TEST_CASE(test110_combine_re_im)
+{
+
+    const double a = 0, re_v = 2, im_v = 3;
+
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
+    auto re = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto im = gtpsa::tpsa(a_desc, mad_tpsa_default);
+
+    re.set(a, re_v);
+    im.set(a, im_v);
+
+    auto cplx = gtpsa::ctpsa(re, im);
+
+    auto check = cplx.get_complex();
+    BOOST_CHECK_CLOSE(check.real(), re_v, 1e-12);
+    BOOST_CHECK_CLOSE(check.imag(), im_v, 1e-12);
+}

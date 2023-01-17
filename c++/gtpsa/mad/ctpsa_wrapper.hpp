@@ -35,8 +35,10 @@ extern "C" {
 #endif
 #define GTPSA_PTR_T ctpsa_t
 
+#include <gtpsa/mad/forward_decl.hpp>
 #include <gtpsa/mad/wrapper.tpp>
 #include <gtpsa/mad/container_wrapper.tpp>
+#include <gtpsa/mad/tpsa_wrapper.hpp>
 
 #ifndef GTPSA_KEEP_MACROS
 #undef GTPSA_CLASS
@@ -67,6 +69,15 @@ namespace gtpsa::mad {
 	inline CTpsaWrapper(const CTpsaWrapper& t, const ord_t mo)
 	    :  _CTpsaWrapper(t,  mo)
 	    {}
+    /*
+     * not used ...
+     */
+    /*
+    inline CTpsaWrapper(const TpsaWrapper& re, const TpsaWrapper& im)
+                :  _CTpsaWrapper(re.getDescription(), maxord(std::vector<const _TpsaWrapper*>({&re, &im})))
+        {
+        }
+    */
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
 	inline CTpsaWrapper(const CTpsaWrapper& t)
@@ -104,6 +115,15 @@ namespace gtpsa::mad {
 	    mad_ctpsa_print(this->getPtr(), name_, eps_, nohdr_, stream_);
 	}
 
+    inline void real(TpsaWrapper* re) const {
+         mad_ctpsa_real(this->getPtr(), re->getPtr());
+    }
+    inline void imag(TpsaWrapper* im) const {
+        mad_ctpsa_imag(this->getPtr(), im->getPtr());
+    }
+    inline void cplx(const TpsaWrapper &re, const TpsaWrapper &im) {
+        mad_ctpsa_cplx(re.getPtr(), im.getPtr(), this->getPtr());
+    }
 
     };
 

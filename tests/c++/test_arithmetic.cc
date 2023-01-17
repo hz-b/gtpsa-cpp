@@ -563,3 +563,13 @@ BOOST_AUTO_TEST_CASE(test50_mul_first_order_dbl)
 
 }
 
+BOOST_AUTO_TEST_CASE(test60_compare){
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
+    auto t1 = gtpsa::tpsa(a_desc, gtpsa::mad::default_);
+
+    // mainly compile checks
+    BOOST_CHECK(t1 == t1);
+    BOOST_CHECK(t1 == 0);
+    BOOST_CHECK(0 == t1);
+
+}

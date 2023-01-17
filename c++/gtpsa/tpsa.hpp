@@ -135,7 +135,9 @@ namespace gtpsa {
 	inline bool  operator >= (const num_t a ) const { return this->cst() >= a; }
 	inline bool  operator <= (const num_t a ) const { return this->cst() <= a; }
 	inline bool  operator >  (const num_t a ) const { return this->cst() >  a; }
-	inline bool  operator <  (const num_t a ) const { return this->cst() <  a; }
+    inline bool  operator <  (const num_t a ) const { return this->cst() <  a; }
+    inline bool  operator == (const num_t a ) const { return this->cst() ==  a; }
+    inline bool  operator == (const tpsa& a ) const { return this->cst() ==  a.cst(); }
 
 	inline tpsa  operator  - ( void         ) const { return tpsa( base::operator-(*this) ); }
 
@@ -168,6 +170,8 @@ namespace gtpsa {
 
 	friend inline auto ordn (const std::vector<const tpsa&> objs);
 
+    // required to implement real, imag etc..
+    friend class ctpsa;
     }; // class tpsa
 
 
@@ -176,6 +180,7 @@ namespace gtpsa {
     inline tpsa operator *  (const num_t a, const tpsa& b) { return a * static_cast<const tpsa::base&>(b); }
     inline tpsa operator /  (const num_t a, const tpsa& b) { return a / static_cast<const tpsa::base&>(b); }
 
+    inline bool operator == (const num_t a, const tpsa& b) { return (b == a);}
     inline tpsa pow (const tpsa& a,  const tpsa& b){ return tpsa( pow(static_cast<const tpsa::base&>(a), static_cast<const tpsa::base&>(b) ) ); }
     inline tpsa pow (const tpsa& a,  const int   i){ return tpsa( pow(static_cast<const tpsa::base&>(a), i) ); }
     inline tpsa pow (const tpsa& a,  const num_t v){ return tpsa( pow(static_cast<const tpsa::base&>(a), v  )); }
