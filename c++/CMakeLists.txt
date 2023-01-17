@@ -28,6 +28,11 @@ set(gtpsa_c++_HEADERS
   gtpsa/tpsa.hpp
   gtpsa/ctpsa.hpp
 
+  gtpsa/variant_forward_decl.hpp
+  gtpsa/gtpsa_base_variant.hpp
+  gtpsa/tpsa_double_variant.hpp
+  gtpsa/ctpsa_complex_variant.hpp
+
   gtpsa/ss_vect.h
 
   gtpsa/utils_tps.hpp

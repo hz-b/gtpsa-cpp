@@ -95,7 +95,6 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	    : base(t.getDescription(),   mo)
 	    {}
 
-
 	inline ctpsa(const tpsa&              t, const ord_t mo)
 	    : base(t.getDescription(),   mo)
 	    {}
@@ -111,6 +110,11 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	    : base(std::move(o))
 	    {}
 
+   // Why required here?
+   inline ctpsa(const ctpsa_bridge&& o)
+        : base(o)
+        {}
+
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
 
@@ -122,15 +126,21 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	    : base(o)
 	    {}
 
-	inline ctpsa(const ctpsa&              o) = default;
+
+    inline ctpsa(const ctpsa&              o) = default;
 
 #else /* GTSPA_ONLY_OPTIMISED_OPS */
 
 	inline ctpsa(const ctpsa&              o) = delete;
 
 #endif
-
-
+    /**
+     * @brief method get return cnum_t, which is incompatible with std::complex<double>
+     */
+    inline auto get_complex(void) {
+        std::complex<double> tmp(this->get());
+        return tmp;
+    }
 	/**
 	 * @brief a*x[0]+b
 	 */
@@ -248,10 +258,6 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	/**
 	 * @brief method get return cpx_t, which is incompatible with std::complex<double>
      */
-        inline auto get_complex(void) {
-            std::complex<double> tmp(this->get());
-            return tmp;
-        }
 
         inline auto cst(void) const {return std::complex<double>(base::cst());}
 

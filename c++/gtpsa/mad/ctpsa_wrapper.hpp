@@ -69,6 +69,15 @@ namespace gtpsa::mad {
 	inline CTpsaWrapper(const CTpsaWrapper& t, const ord_t mo)
 	    :  _CTpsaWrapper(t,  mo)
 	    {}
+    /*
+     * not used ...
+     */
+    /*
+    inline CTpsaWrapper(const TpsaWrapper& re, const TpsaWrapper& im)
+                :  _CTpsaWrapper(re.getDescription(), maxord(std::vector<const _TpsaWrapper*>({&re, &im})))
+        {
+        }
+    */
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
 	inline CTpsaWrapper(const CTpsaWrapper& t)
@@ -127,7 +136,6 @@ namespace gtpsa::mad {
         inline void rrect(const CTpsaWrapper &o) {
             mad_ctpsa_rect(o.getPtr(),  this->getPtr());
         }
-
 
     };
 

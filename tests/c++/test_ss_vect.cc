@@ -5,6 +5,7 @@
 #include <boost/test/tools/output_test_stream.hpp>
 
 #include <gtpsa/tpsa.hpp>
+#include <gtpsa/tpsa_double_variant.hpp>
 #include <gtpsa/ss_vect.h>
 #include <iostream>
 #include <sstream>
@@ -621,6 +622,21 @@ BOOST_AUTO_TEST_CASE(test71_max_order)
     auto val = vec1.getMaximumOrder();
 
     BOOST_CHECK(val == ord);
+}
+
+BOOST_AUTO_TEST_CASE(tes75_size_different_from_6)
+{
+    int nv = 8;
+
+    auto a_desc = std::make_shared<gtpsa::desc>(nv, 3);
+    gtpsa::ss_vect<gtpsa::tpsa> ss_vect(a_desc, 2, nv);
+
+    ss_vect.set_identity();
+    ss_vect.jacobian();
+    ss_vect.hessian();
+
+    auto sv2 = ss_vect.clone();
+
 }
 
 // just compile test
