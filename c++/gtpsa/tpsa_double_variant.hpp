@@ -127,7 +127,6 @@ namespace gtpsa {
             }, this->m_arg, o.m_arg);
             return flag;
         }
-#endif
         inline void rsin(const TpsaOrDouble& o) { rapply_helper( o.m_arg, &this->m_arg, std::sin, gtpsa::sin_); }
         inline void rcos(const TpsaOrDouble& o) { rapply_helper( o.m_arg, &this->m_arg, std::cos, gtpsa::cos_); }
 	// required for operator +=

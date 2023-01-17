@@ -77,8 +77,6 @@ namespace gtpsa {
 
 
 namespace gtpsa {
-
-
     /**
      * @brief a variant allowing tpsa or double
      */
@@ -146,6 +144,7 @@ namespace gtpsa {
             return res;
         }
         //only implemented
+
         inline void real(gtpsa::tpsa* t) const {
             std::get<tpsa_type>(this->m_arg).real(t);
         }
@@ -182,5 +181,7 @@ namespace gtpsa {
     inline ctpsa operator/ (const ctpsa a, const CTpsaOrComplex& b){ return a / static_cast<GTpsaOrBase<TpsaVariantComplexTypes>>(b); }
     */
     inline CTpsaOrComplex exp(const CTpsaOrComplex& a) { auto n = a.clone(); n.rexp(a); return n;}
+
+
 } // namespace gtpsa
 #endif /* _GTPSA_CTPSA_COMPLEX_VARIANT_HPP_ */

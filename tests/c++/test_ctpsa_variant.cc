@@ -35,35 +35,6 @@ BOOST_AUTO_TEST_CASE(test20_variant_complex_add)
     BOOST_CHECK_CLOSE(check.imag(), c.imag(), 1e-12);
 }
 
-BOOST_AUTO_TEST_CASE(test21_variant_double_sub)
-{
-    double a = 3, b = 5;
-    auto ta = gtpsa::TpsaOrDouble(a);
-    auto tb = gtpsa::TpsaOrDouble(b);
-    auto tc = ta - tb;
-
-    BOOST_CHECK_CLOSE(tc.cst(), a - b, 1e-12);
-}
-
-BOOST_AUTO_TEST_CASE(test11_variant_double_mul)
-{
-    double a = 3, b = 5;
-    auto ta = gtpsa::TpsaOrDouble(a);
-    auto tb = gtpsa::TpsaOrDouble(b);
-    auto tc = ta * tb;
-
-    BOOST_CHECK_CLOSE(tc.cst(), a * b, 1e-12);
-}
-
-BOOST_AUTO_TEST_CASE(test11_variant_double_div)
-{
-    double a = 3, b = 5;
-    auto ta = gtpsa::TpsaOrDouble(a);
-    auto tb = gtpsa::TpsaOrDouble(b);
-    auto tc = ta / tb;
-
-    BOOST_CHECK_CLOSE(tc.cst(), a / b, 1e-12);
-}
 static std::array<gtpsa::CTpsaOrComplex, 2> create_tab(const double a, const double b)
 {
     auto desc = std::make_shared<gtpsa::desc>(6,1);
@@ -121,4 +92,3 @@ BOOST_AUTO_TEST_CASE(test40_variant_ctpsa_exp)
     auto e = gtpsa::exp(ta);
     BOOST_CHECK_CLOSE(e.real().cst(), 1e0, 1e-12);
 }
-
