@@ -63,7 +63,6 @@ BOOST_AUTO_TEST_CASE(test100_set)
 
 }
 #endif
-
 BOOST_AUTO_TEST_CASE(test110_combine_re_im)
 {
 

@@ -382,11 +382,10 @@ namespace gtpsa {
 
     private:
         inline void checkSize(const std::vector<T> &vec) const {
-            if (vec.size() != 6) {
+            if (vec.size() != this->size()) {
                 std::ostringstream strm;
-                strm << "Currently ss_vect implemented for length 6 got length  " << vec.size()
-                     << "state space vector size " << this->state_space.size();
-                abort();
+                strm << "Currently ss_vect implemented for length " << this->size()
+                     <<  " got length  " << vec.size();
                 throw std::runtime_error(strm.str());
             }
         }
