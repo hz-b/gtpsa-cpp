@@ -156,12 +156,7 @@ namespace gtpsa {
 	    auto tmp =  std::get<base_type>(this->m_arg);
 	    res.set(0, tmp);
 	    return res;
-        };
-
-        inline tpsa_type tpsaType(void) const noexcept {
-
-            return std::get<tpsa_type>(this->m_arg);
-        };
+        }
 
         inline  base_type cst(void) const noexcept {
             base_type res;
@@ -172,7 +167,6 @@ namespace gtpsa {
             }, this->m_arg);
             return res;
         }
-
         void show (std::ostream& strm) const noexcept {
             std::visit(overloaded{
                     [&strm] (const tpsa_type& arg){ strm << arg; },

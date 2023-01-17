@@ -69,6 +69,7 @@ namespace gtpsa {
                 [&c, &fd](const double& ta) { c->emplace<double>( fd(ta)); },
 		[&c, &ft](const auto&   ta) { tpsa& tmp = std::get<tpsa>(*c); ft(ta, &tmp); c->emplace<tpsa>(tmp); },
 	    }, a);
+
     }
 
     //inline void
@@ -85,6 +86,7 @@ namespace gtpsa {
         friend class CTpsaOrComplex;
     public:
 	virtual ~TpsaOrDouble() {}
+
 
         TpsaOrDouble(const double d)
                 : base(d)

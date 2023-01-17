@@ -55,6 +55,7 @@ namespace gtpsa {
         }, a, b);
     }
 
+<<<<<<< HEAD
     inline void neg_helper(const intern::ctpsa_or_cplx_t& a, intern::ctpsa_or_cplx_t* c)
     {
         std::visit( overloaded {
@@ -69,6 +70,8 @@ namespace gtpsa {
                 [&r, &ft](const ctpsa         &a) {r->emplace<ctpsa>        ( ft(a) );}
         }, a);
     }
+=======
+>>>>>>> 994ad6b (Preparations so that tpsa and double or ctpsa and complex can be used)
 } // gtpsa namespace
 
 #include <gtpsa/gtpsa_base_variant.hpp>
@@ -117,7 +120,6 @@ namespace gtpsa {
 			}, re.m_arg, im.m_arg);
                 this->m_arg = res;
         }
-
         /*
         inline CTpsaOrComplex(const CTpsaOrComplex& o)
                 : base(o)

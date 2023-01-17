@@ -47,8 +47,8 @@ BOOST_AUTO_TEST_CASE(test00_cast_complex_to_cpx_t)
 
     cpx_t ac2 = std_complex_double_to_cpx_t(ac);
     auto t = ac2 + cc;
-    // BOOST_CHECK_CLOSE(creal(t), a+c, 1e-12 );
-    // BOOST_CHECK_SMALL(cimag(t),      1e-12 );
+    BOOST_CHECK_CLOSE(creal(t), a+c, 1e-12 );
+    BOOST_CHECK_SMALL(cimag(t),      1e-12 );
 }
 
 
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(test110_combine_re_im)
 
     auto cplx = gtpsa::ctpsa(re, im);
 
-    auto check = cplx.get();
+    auto check = cplx.get_complex();
     BOOST_CHECK_CLOSE(check.real(), re_v, 1e-12);
     BOOST_CHECK_CLOSE(check.imag(), im_v, 1e-12);
 }
