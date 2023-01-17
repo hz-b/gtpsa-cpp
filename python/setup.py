@@ -1,6 +1,9 @@
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup
 import os.path
+import logging
+
+logger = logging.getLogger("gtpsa-build")
 
 from pybind11.setup_helpers import ParallelCompile
 
@@ -16,9 +19,17 @@ t_dir = os.path.dirname(__file__)
 gtpsa_inc_dir = os.path.join(t_dir, os.pardir, "c++")
 mad_inc_dir = os.path.join(t_dir, os.pardir, "mad-ng", "src")
 
-prefix = os.path.abspath(os.path.join(os.environ["HOME"], ".local"))
-prefix = os.path.abspath(os.path.join(os.environ["HOME"], "git", "ts-lib-dev",
-                                      "local"))
+prefix = None
+try:
+    prefix = os.environ["gtpsa_DIR"]
+except KeyError as ke:
+    logger.info(f"no environment variable gtpsa_DIR: {ke}")
+
+if not prefix:
+    prefix = os.path.abspath(os.path.join(os.environ["HOME"], ".local"))
+    prefix = os.path.abspath(os.path.join(os.environ["HOME"], "git", "ts-lib-dev",
+                                          "local"))
+
 inc_dir = os.path.join(prefix, "include")
 lib_dir = os.path.join(prefix, "lib")
 
