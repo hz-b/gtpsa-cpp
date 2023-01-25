@@ -54,6 +54,8 @@ set(gtpsa_c++_FILES
   gtpsa/tpsa.cc
   gtpsa/ctpsa.cc
   gtpsa/ss_vect.cc
+
+  gtpsa/moments.cc
   )
 
 add_library(gtpsa-c++ SHARED
@@ -107,4 +109,3 @@ install(FILES
 		"${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++ConfigVersion.cmake"
 		DESTINATION ${GTPSA_C++_CMAKE_LIB_DIR}
 		)
-
