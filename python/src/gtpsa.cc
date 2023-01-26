@@ -20,7 +20,6 @@ static const char tpsa_init_desc_doc[] = "Create a new (c)tpsa object using the 
  will be used if none is speficied\n\
 Use clone to create a copy of the content too. \n";
 
-
 template<class Cls>
 struct AddMethods
 {
@@ -36,13 +35,21 @@ struct AddMethods
 	    .def("mono",            &Cls::mono)
 	    .def("get",             [](const Cls& inst){
 					return inst.get();
-				    })
+	    })
 	    .def("get",             [](const Cls& inst, const std::vector<ord_t>& m){
-					return inst.get(m);
-				    })
+		auto index = inst.index(m);
+		if(index <= 0){
+		    throw std::runtime_error("index out of range");
+		}
+		return inst.get(m);
+	    })
 	    .def("set",             [](Cls& inst,      const std::vector<ord_t>& m, T a, T b){
-					inst.set(m, a, b);
-				    })
+		auto index = inst.index(m);
+		if(index <= 0){
+		    throw std::runtime_error("index out of range");
+		}
+		inst.set(m, a, b);
+	    })
 	    .def("set",             [](Cls& inst,                                   T a, T b){
 					inst.set(a, b);
 				    })
@@ -56,9 +63,14 @@ struct AddMethods
 	    .def("getsm",          &Cls::getsm)
 	    .def("set_variable",    &Cls::setVariable, "set the variable?",
 		 py::arg("v"), py::arg("iv") = 0, py::arg("scl") = 0)
+         .def("print", [](Cls& inst, std::string name, double eps, bool nohdr){
+                FILE* f = stdout;
+                return inst.print(name.c_str(), eps, nohdr, f);
+             },
+              "print the cofficients to stdout using c's stdout",
+              py::arg("name") = "", py::arg("eps") = 0 , py::arg("nohdr") = false)
 	    .def_property("name",  &Cls::name, &Cls::setName)
 	    .def_property("uid",   [](Cls& inst){ return inst.uid(0);}, &Cls::uid)
-
 	    .def_property_readonly("order", &Cls::order)
 	    .def(py::init<std::shared_ptr<gtpsa::mad::desc>, const ord_t>(), tpsa_init_desc_doc,
 		 py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::default_)
@@ -159,6 +171,12 @@ void py_gtpsa_init_tpsa(py::module &m)
     ctpsa
 	.def("set0",  &gtpsa::ctpsa::_set0)
 	.def("setm",  &gtpsa::ctpsa::_setm)
+#if 0
+    .def("real", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.real();}, "return real part (newly allocated object)")
+    .def("imag", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.imag();}, "return imaginary part (newly allocated object)")
+    .def("real", [](const gtpsa::ctpsa& t, gtpsa::tpsa *re) { t.real(re);}, "place real part in passed object re")
+    .def("imag", [](const gtpsa::ctpsa& t, gtpsa::tpsa *im) { t.real(im);}, "place imaginary part in passed object im")
+#endif
 	.def(py::self += std::complex<double>())
 	.def(py::self -= std::complex<double>())
 	.def(py::self *= std::complex<double>())
@@ -180,7 +198,7 @@ void py_gtpsa_init_tpsa(py::module &m)
 	.def(py::init<const gtpsa::tpsa&, const ord_t>(), tpsa_init_same_doc,
 	     py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::same))
 	;
-	;
+
 
 
 #define GTPSA_FUNC_ARG1(func) \

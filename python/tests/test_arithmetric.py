@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 import gtpsa
+import sys
 
 def test_1_get_set():
     desc = gtpsa.desc(nv=6, mo=4)
@@ -9,6 +10,27 @@ def test_1_get_set():
     t1.set(0, 2)
 
     assert t1.get() == 2
+
+
+def test_2_print():
+    desc = gtpsa.desc(nv=6, mo=4)
+
+    t1 = gtpsa.tpsa(desc, 3)
+
+    t1.setv(1, [11, 13, 17, 19, 23, 29])
+
+    t1.print('nn', 0, False)
+
+def test_3_getOrder():
+    desc = gtpsa.desc(nv=6, mo=4)
+
+    t1 = gtpsa.tpsa(desc, 3)
+
+    t1.setv(1, [11, 13, 17, 19, 23, 29])
+    t1.setv(1 + 6, [31, 37, 39, 41, 43, 47, 51])
+    t1.print('nn', 0, False)
+
+    //t2 = t1.getOrder()
 
 
 def test_11_radd_double():
