@@ -5,39 +5,13 @@
 #include <gtpsa/tpsa.hpp>
 #include <gtpsa/ss_vect.h>
 #include <armadillo>
+#include <gtpsa/tpsa.hpp>
+#include <gtpsa/ss_vect.h>
+
+const double eps_tps = 1e-20;
 
 
-//------------------------------------------------------------------------------
-
-tps get_tps_k(const tps &h, const int k)
-{
-  // Take in Forest's F77 LieLib.
-  // Get monomials of order k.
-  long int no;
-  tps      h_k;
-
-  no = getno_();
-  danot_(k-1);
-  h_k = -h;
-  danot_(k);
-  h_k += h;
-  danot_(no);
-  return h_k;
-}
-
-
-ss_vect<tps> get_M_k(const ss_vect<tps> &x, const int k)
-{
-  // Taked in Forest's F77 LieLib.
-  int          i;
-  ss_vect<tps> map_k;
-
-  for (i = 0; i < nv_tps; i++)
-    map_k[i] = get_tps_k(x[i], k);
-  return map_k;
-}
-
-
+#if 0
 tps tps_fun
 (const tps &a, std::function<double (const long int [])> fun)
 {
@@ -58,8 +32,9 @@ tps tps_fun
   b.imprt(n, rbuf, ibuf1, ibuf2);
   return b;
 }
+#endif
 
-
+#if 0
 double f_int_mon(const long int jj[])
 {
   // Integrate monomials:
@@ -74,91 +49,148 @@ double f_int_mon(const long int jj[])
   scl = 1e0/scl;
   return scl;
 }
+#endif
 
 
-tps M_to_h(const ss_vect<tps> &map)
+
+/**
+ *
+ * Integrate monomials:
+ *   M -> exp(:h:)
+ * would be order 1 good enough
+ * E. Forest, M. Berz, J. Irwin "Normal Form Methods for Complicated
+ * Periodic Systems: A Complete Solution Using Differential Algebra and Lie
+ * Operators" Part. Accel. 24, 91-107 (1989):
+ *
+ * @param t_map
+ * @return
+ */
+gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 {
-  // Intd in Forest's F77 LieLib.
-  // E. Forest, M. Berz, J. Irwin "Normal Form Methods for Complicated
-  // Periodic Systems: A Complete Solution Using Differential Algebra and Lie
-  // Operators" Part. Accel. 24, 91-107 (1989):
-  //   Eqs. (34)-(37).
-  // Integrate monomials:
-  //   M -> exp(:h:)
-  int          k;
-  tps          f_x, f_px, h;
-  ss_vect<tps> Id;
+  auto max_ord =  t_map.getMaximumOrder();
+  auto desc = t_map[0].getDescription();
+  gtpsa::ss_vect<gtpsa::tpsa> Id(desc, max_ord);
 
-  Id.identity();
-  h = 0e0;
-  for (k = 0; k < nd_tps; k++) {
+  Id.set_identity();
+
+  auto h = gtpsa::tpsa(desc, max_ord);
+  h.clear();
+  // h.reset();
+
+#warning "fix number of dimensions"
+   auto f = gtpsa::tpsa(desc, max_ord);
+   auto f_p = gtpsa::tpsa(desc, max_ord);
+
+   auto n_dim = t_map.size() / 2;
+   for (size_t k = 0; k < n_dim; ++k) {
     // Integrate monomials.
-    f_x = tps_fun(map[2*k+1], f_int_mon)*Id[2*k];
-    f_px = tps_fun(map[2*k], f_int_mon)*Id[2*k+1];
-    h += f_x - f_px;
+      f.clear();
+      f.rinteg(t_map[2*k + 1], 2 *k) ;
+      // just increase the coefficient order for all
+
+      f_p.clear();
+      f_p.rinteg(t_map[2*k   ], 2 * k+1) ;
+      h += f - f_p;
   }
   return h;
 }
 
-
-ss_vect<tps> h_to_v(const tps &h)
+#if 1
+gtpsa::ss_vect<gtpsa::tpsa> h_to_v(const gtpsa::tpsa &h)
 {
   // Difd in Forest's F77 LieLib:
   // Compute vector flow operator from Lie operator :h:
   //   v = Omega * [del_x H, del_px H]^T
   int          k;
-  ss_vect<tps> v;
+  gtpsa::ss_vect<gtpsa::tpsa> v(h);
 
-  for (k = 0; k < nd_tps; k++) {
-    v[2*k+1] = Der(h, 2*k+1);
-    v[2*k] = -Der(h, 2*k+2);
+  auto n_dim = v.size() / 2;
+  for (k = 0; k < n_dim; k++) {
+    v[2*k + 1].rderiv(h, 2*k+1);
+    v[2*k    ].rderiv(h, 2*k+2);
+    v[2*k    ] *= -1;
   }
   return v;
 }
+#endif
 
-
-tps v_to_tps(const ss_vect<tps> &v, const tps &x)
+/**
+ *   y = v * nabla * x
+ *
+ * @param v
+ * @param x
+ * @return
+ *
+ * *  Daflo in Forest's F77 LieLib.
+ */
+gtpsa::tpsa v_to_tps(const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa &x)
 {
-  // Daflo in Forest's F77 LieLib.
-  //   y = v * nabla * x
-  int k;
-  tps y;
 
-  y = 0e0;
-  for (k = 0; k < 2*nd_tps; k++)
-    y += v[k]*Der(x, k+1);
+  // need to take order of x into account
+    // int max_order = std::max(v.getMaximumOrder(), x.getMaximumOrder());
+    int max_order = v.getMaximumOrder();
+    auto y = gtpsa::tpsa(x.getDescription(), max_order);
+    auto this_deriv = gtpsa::tpsa(x.getDescription(), max_order);
+    for (int k = 0; k < 2 * v.size(); k++) {
+        this_deriv.clear();
+        this_deriv.rderiv(x, k + 1);
+        y += v[k] * this_deriv;
+    }
   return y;
 }
 
 
-tps exp_v_to_tps(const ss_vect<tps> &v, const tps &x, const double eps,
-	      const int n_max)
-{
-  // Expflo in Forest's F77 LieLib:
-  //   y = exp(v*nabla) * x
-  int    k;
-  double eps1;
-  tps    y_k, y;
+/**
+ *
+ *    y = exp(v*nabla) * x
+ *
+ * @param v
+ * @param x
+ * @param eps
+ * @param n_max
+ * @return
+ *
+ * todo:
+ *    return a flag
+ *
+ * Expflo in Forest's F77 LieLib:
+ *
+ */
+#if 1
 
-  y_k = y = x;
+gtpsa::tpsa exp_v_to_tps(const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa &x, const double eps,
+                         const int n_max)
+                         {
+  double eps1;
+  int k = 0;
+  //gtpsa::tpsa    y_k, y;
+
+  auto y_k = x.clone();
+  auto y = x.clone();
   for (k = 1; k <= n_max; k++) {
-    y_k = v_to_tps(v, y_k/k);
+    y_k = v_to_tps(v, y_k / k);
     y += y_k;
-    eps1 = abs(y_k);
-    if (eps1 < eps)
-      break;
+#warning "is that only inspecting the constant part"
+    eps1 = std::abs(y_k.cst());
+    if (eps1 < eps) {
+        break;
+    }
   }
-  if (eps1 < eps)
+  // why not return above?
+  // code fell of the ramp ...
+  if (eps1 < eps) {
     return y;
-  else {
-    printf("\n*** exp_v_to_tps: did not converge eps = %9.3e (eps = %9.3e)"
-	   " n_max = %1d\n", eps1, eps, n_max);
-    return NAN;
   }
+
+  std::stringstream strm;
+  strm << "exp_v_to_tps: did not converge eps1 (term " << k << " )= " << eps1 << " tolerance (eps) " << eps << " n max "
+       << n_max;
+  throw std::runtime_error(strm.str());
 }
 
 
-tps exp_v_to_tps(const ss_vect<tps> &v, const tps &x, const int k1,
+
+gtpsa::tpsa exp_v_to_tps(const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa &x, const int k1,
 	      const int k2, const double scl, const bool reverse)
 {
   // Facflo in Forest's F77 LieLib.
@@ -167,112 +199,148 @@ tps exp_v_to_tps(const ss_vect<tps> &v, const tps &x, const int k1,
   // reverse:
   //   y = exp(D_k2) * exp(D_k2-1) ... * exp(D_k1) * x
   int          k;
-  tps          y;
-  ss_vect<tps> v_k;
 
   const int n_max = 100; 
 
-  y = x;
+  auto y = x.clone();
+  auto t_order = v.allocateLikeMe();
+
   if (!reverse) {
-    for (k = k1; k <= k2; k++) {
-      v_k = scl*get_M_k(v, k);
-      y = exp_v_to_tps(v_k, y, eps_tps, n_max);
-    }
-  } else {
-    for (k = k2; k >= k1; k--) {
-      v_k = scl*get_M_k(v, k);
-      y = exp_v_to_tps(v_k, y, eps_tps, n_max);
+      for (k = k1; k <= k2; k++) {
+          t_order.set_zero();
+          t_order.rgetOrder(v, k);
+          t_order *= scl;
+          y = exp_v_to_tps(t_order, y, eps_tps, n_max);
+      }
+    } else {
+      for (k = k2; k >= k1; k--) {
+          t_order.set_zero();
+          t_order.rgetOrder(v, k);
+          t_order *= scl;
+          y = exp_v_to_tps(t_order, y, eps_tps, n_max);
     }
   }
   return y;
 }
+#endif
 
-
-ss_vect<tps>M_to_M_fact(const ss_vect<tps> &map)
+#if 1
+gtpsa::ss_vect<gtpsa::tpsa>M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 {
   // Flofac in Forest's F77 LieLib.
   // Factor map:
   //   M = M_2 ... * M_n
-  int          j, k;
-  ss_vect<tps> map_lin, map_res, map_fact;
 
-  map_lin = get_M_k(map, 1);
-  map_res = map*Inv(map_lin);
-  map_fact.zero();
-  for (k = 2; k <= no_tps; k++) {
-    map_fact += get_M_k(map_res, k);
-    for (j = 0; j < 2*nd_tps; j++)
-      map_res[j] = exp_v_to_tps(map_fact, map_res[j], k, k, -1e0, false);
-  }
+    // factor off the linear part
+    auto  map_lin_inv = t_map.allocateLikeMe();
+    arma::mat jac = t_map.jacobian(), jac_inv = arma::inv(jac);
+    map_lin_inv.setJacobian(jac_inv);
+    auto map_res = gtpsa::compose(t_map, map_lin_inv);
+
+    auto map_fact = t_map.allocateLikeMe();
+    auto map_single_order = t_map.allocateLikeMe();
+    map_fact.set_zero();
+    for(int k = 2; k < t_map.getMaximumOrder(); ++k){
+        map_single_order.rgetOrder(map_res, k);
+        map_fact += map_single_order;
+# warning "using number of dimensions, should that not be a config parameter",
+        for(size_t j = 0; j < 2 * t_map.size(); ++j){
+            map_res[j] = exp_v_to_tps(map_fact, map_res[j], k, k, -1e0, false);
+        }
+    }
   return map_fact;
 }
+#endif
 
-
-tps exp_h_to_tps(const tps &h, const tps &x, const double eps,
+#if 1
+gtpsa::tpsa exp_h_to_tps(const gtpsa::tpsa &h, const gtpsa::tpsa &x, const double eps,
 		   const int n_max)
 {
   // Exp1d in Forest's F77 LieLib.
   //   y = exp(:h:) x
   return exp_v_to_tps(h_to_v(h), x, eps, n_max);
 }
+#endif
 
-
-ss_vect<tps> exp_h_to_M(const tps &h, const ss_vect<tps> &x, const double eps,
+#if 1
+gtpsa::ss_vect<gtpsa::tpsa> exp_h_to_M(const gtpsa::tpsa &h, const gtpsa::ss_vect<gtpsa::tpsa> &x, const double eps,
 		       const int n_max)
 {
   // Expnd2 in Forest's F77 LieLib.
   //   Y = exp(:h:) X
-  int          k;
-  ss_vect<tps> y;
-
-  y = x;
-  for (k = 0; k < 2*nd_tps; k++)
+  auto y = x.clone();
+  // warning: fix number of dimensions
+  auto n_dim = x.size() / 2;
+  for (int k = 0; k < 2 * n_dim; k++)
     y[k] = exp_h_to_tps(h, y[k], eps, n_max);
   return y;
 }
+#endif
 
-
-tps M_to_h_DF(const ss_vect<tps> &map)
-{
-  // Liefact in Forest's F77 LieLib.
+/**
+ * @brief Taylor map to  Dragt-Finn factorised Lie generator
+ *
+ * // Liefact in Forest's F77 LieLib.
   // A. Dragt, J. Finn "Lie Series and Invariant Functions for Analytic
   // Symplectic maps" J. Math. Phys. 17, 2215-2227 (1976).
   // Dragt-Finn factorization:
   //   M ->  M_lin * exp(:h_3:) * exp(:h_4:) ...  * exp(:h_n:)
-  return M_to_h(M_to_M_fact(map));
+ */
+gtpsa::tpsa M_to_h_DF(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
+{
+  return M_to_h(M_to_M_fact(t_map));
 }
 
-
-ss_vect<tps> h_DF_M
-(const tps &Lie_DF_gen, const ss_vect<tps> &x, const int k1, const int k2,
+#if 1
+/**
+ *
+ * @brief Dragt-Finn factorised Lie generator to Taylor map
+ *
+ * Compute map from Dragt-Finn factorisation
+ *
+ * forward (not reverse):
+ *  M = exp(:h_3:) * exp(:h_4:) ...  * exp(:h_n:) * X
+ * reverse:
+ *   M = exp(:h_n:) * exp(:h_no-1:) ... * exp(:h_3:) * X
+ *
+ * @param Lie_DF_gen
+ * @param x
+ * @param k1 lowest order?
+ * @param k2 highest order?
+ * @param reverse
+ * @return
+ *
+ * Fexpo in Forest's F77 LieLib.
+ */
+gtpsa::ss_vect<gtpsa::tpsa> h_DF_M
+(const gtpsa::tpsa &Lie_DF_gen, const gtpsa::ss_vect<gtpsa::tpsa> &x, const int k1, const int k2,
  const bool reverse)
 {
-  // Fexpo in Forest's F77 LieLib.
-  // Compute map from Dragt-Finn factorisation:
-  // not reverse:
-  //   M = exp(:h_3:) * exp(:h_4:) ...  * exp(:h_n:) * X
-  // reverse:
-  //   M = exp(:h_n:) * exp(:h_no-1:) ... * exp(:h_3:) * X
   int          k;
-  tps          h_k;
-  ss_vect<tps> map;
+  auto desc = x[0].getDescription();
+  auto mo = x.getMaximumOrder();
+  gtpsa::ss_vect<gtpsa::tpsa> a_map(desc, mo);
+  gtpsa::tpsa h_k(desc, mo);
 
   const int n_max = 100;
 
-  map.identity();
-  for (k = k2; k >= k1; k--) {
-    h_k = get_tps_k(Lie_DF_gen, k);
-    if (!reverse)
-      map = map*exp_h_to_M(h_k, x, eps_tps, n_max);
-    else
-      map = exp_h_to_M(h_k, x, eps_tps, n_max)*map;
+  a_map.set_identity();
+  for (int k = k2; k >= k1; k--) {
+      h_k.clear();
+      h_k.rgetOrder(Lie_DF_gen, k);
+      if (!reverse) {
+          a_map = gtpsa::compose(a_map, exp_h_to_M(h_k, x, eps_tps, n_max));
+      } else {
+          a_map = gtpsa::compose(exp_h_to_M(h_k, x, eps_tps, n_max), a_map);
+      }
   }
-  return map;
+  return a_map;
 }
+#endif
 
 //------------------------------------------------------------------------------
 
-
+#if 0
 /**
  *
  * @param h
@@ -346,3 +414,4 @@ Lie_factorisation(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
     }
     return h;
 }
+#endif
