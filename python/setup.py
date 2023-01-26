@@ -33,7 +33,7 @@ prefix = None
 try:
     prefix = os.environ["gtpsa_PREFIX"]
 except KeyError as ke:
-    logger.info(f"no environment variable gtpsa_PREFIX: {ke}")
+    logger.warning(f"no environment variable gtpsa_PREFIX: {ke}")
 
 include_dirs = []
 library_dirs = []
