@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(test_10_rcompose)
 
     std::vector<gtpsa::mad::_TpsaWrapper*> ma_v(ma_t_v), mb_v(mb_t_v);
 
-    gtpsa::mad::_TpsaContainerWrapper ma_c(ma_v), mb_c(mb_v);
+    const gtpsa::mad::_TpsaContainerWrapper ma_c(ma_v), mb_c(mb_v);
     gtpsa::mad::_TpsaContainerWrapper mc_c(mc_v);
 
     mc_c.rcompose(ma_c, mb_c);
