@@ -70,6 +70,26 @@ BOOST_AUTO_TEST_CASE(test02_get_set)
 
 }
 
+BOOST_AUTO_TEST_CASE(test4_getorder)
+{
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 4);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+
+    t1.setv(1, {11, 13, 17, 19, 23, 29});
+    t1.setv(1 + 6, {31, 37, 39, 41, 43, 47, 51});
+    t1.print("nn", 0, false, 0);
+
+    auto t2 = t1.newFromThis();
+    t2.rgetOrder(t1, 1);
+    t2.print("ord1", 0, false, 0);
+
+    auto t3 = t1.newFromThis();
+    t3.rgetOrder(t1, 2);
+    t3.print("ord1", 0, false, 0);
+
+
+
+}
 #if 0
 BOOST_AUTO_TEST_CASE(test10_neg)
 {
@@ -563,3 +583,31 @@ BOOST_AUTO_TEST_CASE(test50_mul_first_order_dbl)
 
 }
 
+BOOST_AUTO_TEST_CASE(test60_deriv)
+{
+    auto d = std::make_shared<gtpsa::desc>(6, 3);
+    auto t1 = gtpsa::tpsa(d, 2);
+    auto t2 = t1.newFromThis();
+
+    t1.rderiv(t1, 1);
+    t1.print();
+
+    BOOST_CHECK(0 ==0);
+}
+
+BOOST_AUTO_TEST_CASE(test70_integ)
+{
+    auto d = std::make_shared<gtpsa::desc>(6, 3);
+    auto t1 = gtpsa::tpsa(d, 2);
+    auto t2 = t1.newFromThis();
+
+    t1.set(0, 20);
+    t1.setv(0, {-1, 1, 2, 3, 4, 5, 6});
+    t1.setv(1 + 6, {7, 11, 13, 17, 19, 23, 29, 31, 37, 41});
+    t1.print("start");
+
+    t1.rinteg(t1, 3);
+    t1.print("integrated");
+
+    BOOST_CHECK(1 ==0);
+}
