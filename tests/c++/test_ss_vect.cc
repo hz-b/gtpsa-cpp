@@ -584,3 +584,14 @@ BOOST_AUTO_TEST_CASE(test71_hessian)
         }
     }
 }
+
+BOOST_AUTO_TEST_CASE(test71_max_order)
+{
+    const int ord = 3;
+    auto desc = std::make_shared<gtpsa::desc>(6, 3);
+
+    gtpsa::ss_vect<gtpsa::tpsa> vec1(desc, ord);
+    auto val = vec1.getMaximumOrder();
+
+    BOOST_CHECK(val == ord);
+}
