@@ -126,7 +126,12 @@ namespace gtpsa {
 	inline tpsa(const tpsa&              o) = delete;
 
 #endif
-	tpsa clone(void) const { auto tmp = tpsa(*this, mad::init::same); tmp._copyInPlace(*this); return tmp; }
+	tpsa clone(void)       const { auto tmp = tpsa(*this, mad::init::same); tmp._copyInPlace(*this); return tmp; }
+	/**
+	 *
+	 * @todo: rename to allocateLikeMe?
+	 */
+	tpsa newFromThis(void) const { return tpsa(base::newFromThis()); }
 
 	inline tpsa& operator =  (const num_t o )       { base::operator=(o); return *this; }
 	inline tpsa& operator =  (const tpsa& o )       { base::operator=(o); return *this; }

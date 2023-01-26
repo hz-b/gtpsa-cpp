@@ -151,6 +151,10 @@ namespace gtpsa {
 	inline void getv(idx_t i,       std::vector<typename T::base_type> *v) const { this->m_impl.getv(i, v); }
 	inline void setv(idx_t i, const std::vector<typename T::base_type> &v)       { this->m_impl.setv(i, v); }
 
+    inline void rgetOrder(const TpsaBridge& src, size_t order) { this->m_impl.rgetOrder(src.m_impl, order); };
+    inline void rderiv(const TpsaBridge& src, int iv) { this->m_impl.rderiv(src.m_impl, iv); };
+    inline void rinteg(const TpsaBridge& src, int iv) { this->m_impl.rinteg(src.m_impl, iv); };
+
 	inline void setVariable(typename T::base_type v, idx_t iv= 0, typename T::base_type scale = 0) {	    this->m_impl.setvar(v, iv, scale);	}
 
 	/**

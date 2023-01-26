@@ -1,5 +1,6 @@
 #include <gtpsa/ctpsa.hpp>
 #include <gtpsa/ss_vect.h>
+#include <gtpsa/intern/gtpsa_container.hpp>
 #include <sstream>
 
 template<>
@@ -191,12 +192,42 @@ void gtpsa::ss_vect<gtpsa::tpsa>::setHessian(arma::cube& jac)
     throw std::runtime_error("setHessian not yet implemented for gtpsa::ss_vect<gtpsa::tpsa>");
 }
 
-template<>
-void  gtpsa::ss_vect<gtpsa::tpsa>::rcompose(gtpsa::ss_vect<gtpsa::tpsa>& a, gtpsa::ss_vect<gtpsa::tpsa>& b)
-{
-    typedef gtpsa::Container<gtpsa::tpsa, gtpsa::TpsaTypeInfo> tpsa_container;
 
-    tpsa_container ma_c(a.state_space), mb_c(b.state_space);
-    tpsa_container mc_c(this->state_space);
-    mc_c.rcompose(ma_c, mb_c);
+template<>
+void  gtpsa::ss_vect<gtpsa::tpsa>::rcompose(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
+{
+    using bridge_container_type = gtpsa::TpsaBridgeContainer<gtpsa::TpsaTypeInfo>;
+    FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
+
+    const bridge_container_type ma_b(filter.as_const(a.state_space)), mb_b(filter.as_const(b.state_space));
+    bridge_container_type mc_b(filter.as_non_const(this->state_space));
+
+    mc_b.rcompose(ma_b, mb_b);
+
 }
+
+template<>
+int gtpsa::ss_vect<gtpsa::tpsa>::getMaximumOrder(void) const
+{
+    FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
+
+    TpsaBridgeContainer<gtpsa::TpsaTypeInfo> bc(filter.as_const(this->state_space));
+    return bc.getMaximumOrder();
+}
+
+template<>
+void  gtpsa::ss_vect<gtpsa::tpsa>::rgetOrder(const gtpsa::ss_vect<gtpsa::tpsa>& a, const int order)
+{
+    for(size_t i=0; i<this->state_space.size(); ++i){
+        (*this)[i].rgetOrder(a[i], order);
+    }
+}
+
+template<>
+void  gtpsa::ss_vect<gtpsa::tpsa>::rderiv(const gtpsa::ss_vect<gtpsa::tpsa>& a, const int order)
+{
+    for(size_t i=0; i<this->state_space.size(); ++i){
+        (*this)[i].rderiv(a[i], order);
+    }
+}
+

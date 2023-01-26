@@ -3,7 +3,7 @@
 
 #include <gtpsa/desc.hpp>
 #include <gtpsa/tpsa.hpp>
-#include <gtpsa/intern/gtpsa_container.hpp>
+//#include <gtpsa/intern/gtpsa_container.hpp>
 #include <algorithm>
 #include <ostream>
 #include <sstream>
@@ -324,9 +324,27 @@ namespace gtpsa {
             this->setConstantPartWithoutCheck(vec);
         }
 
-        inline void rcompose(ss_vect<T>& a, ss_vect<T>& b){
+        inline void rcompose(const ss_vect<T>& a, const ss_vect<T>& b){
             throw std::runtime_error("currently only implemented for tpsa");
         }
+
+        void rgetOrder(const ss_vect<T>& o, const int order){
+            throw std::runtime_error("currently only implemented for tpsa");
+        }
+
+        void rderiv(const ss_vect<T>& o, const int order){
+            throw std::runtime_error("currently only implemented for tpsa");
+        }
+
+        /**
+         * @btodo:
+         *    default to zero?
+         * */
+        inline int getMaximumOrder(void) const  {
+            throw std::runtime_error("maximum order currently only implemented for tpsa");
+
+        }
+
     private:
         inline void checkSize(const std::vector<T> &vec) const {
             if (vec.size() != 6) {
@@ -547,11 +565,20 @@ namespace gtpsa {
 
     }
 
+    template<>
+    int ss_vect<tpsa>::getMaximumOrder(void) const;
+
     /* not inlined as quite some functionality behind the scenes */
     template<>
-    void  ss_vect<tpsa>::rcompose(ss_vect<tpsa>& a, ss_vect<tpsa>& b);
+    void  ss_vect<tpsa>::rcompose(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
 
-    inline ss_vect<tpsa> compose(ss_vect<tpsa>& a, ss_vect<tpsa>& b)
+    template<>
+    void  ss_vect<tpsa>::rgetOrder(const ss_vect<tpsa>& a, const int order);
+
+    template<>
+    void  ss_vect<tpsa>::rderiv(const ss_vect<tpsa>& a, const int order);
+
+    inline ss_vect<tpsa> compose(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b)
     {
         auto c = a.allocateLikeMe();
         c.rcompose(a, b);

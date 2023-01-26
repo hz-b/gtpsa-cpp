@@ -55,7 +55,7 @@ set(gtpsa_c++_FILES
   gtpsa/ctpsa.cc
   gtpsa/ss_vect.cc
 
-  gtpsa/moments.cc
+  gtpsa/lielib.cc
   )
 
 add_library(gtpsa-c++ SHARED

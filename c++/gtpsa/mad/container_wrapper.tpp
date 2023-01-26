@@ -35,6 +35,11 @@ namespace gtpsa::mad {
             return this->m_vec.size();
         }
 
+        inline int getMaximumOrder (void) const {
+            auto tmp = this->getConstBufferPtrs();
+            return GTPSA_METH(ordn)(tmp.size(), tmp.data());
+        }
+
         inline void rcompose(const GTPSA_CLASS(ContainerWrapper) &ma, const GTPSA_CLASS(ContainerWrapper) &mb) {
             /*
              * following mad gtpsa documentation.

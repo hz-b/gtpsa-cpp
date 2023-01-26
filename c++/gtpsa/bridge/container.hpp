@@ -30,11 +30,16 @@ namespace gtpsa {
         std::vector<TpsaBridge<T> *> m_vec;
 
     public:
-        inline TpsaBridgeContainer(std::vector<TpsaBridge<T> *> a_vec)
+        inline TpsaBridgeContainer(const std::vector<TpsaBridge<T> *> a_vec)
                 : m_vec(a_vec) {}
 
         inline size_t size(void) const {
             return this->m_vec.size();
+        }
+
+        inline int getMaximumOrder(void) const {
+            typename T::bridge_container_type cb(this->getBridgePtrs());
+            return cb.getMaximumOrder();
         }
 
         inline void rcompose(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
@@ -57,6 +62,12 @@ namespace gtpsa {
             std::vector<typename T::bridge_base_type *> vec(this->size());
             std::transform(this->m_vec.begin(), this->m_vec.end(), vec.begin(),
                            [](TpsaBridge<T> *ptr) { return (&(ptr->m_impl)); });
+            return vec;
+        }
+        inline std::vector<const typename T::bridge_base_type *> getBridgePtrsConst(void) const {
+            std::vector<typename T::bridge_base_type *> vec(this->size());
+            std::transform(this->m_vec.begin(), this->m_vec.end(), vec.begin(),
+                           [](const TpsaBridge<T> *ptr) { return (&(ptr->m_impl)); });
             return vec;
         }
 

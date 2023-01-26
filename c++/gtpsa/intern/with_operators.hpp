@@ -39,11 +39,16 @@ namespace gtpsa {
 
 	inline TpsaWithOp(const TpsaWithOp&              o) = delete;
 
+        // inline TpsaWithOP getOrder(int order) {return bridge::getOrder(); }
 #endif
 
 	inline TpsaWithOp newFromThis(void) const { return bridge::newFromThis(); }
 
-    inline auto toBridgePtr(void) const { return static_cast<bridge &>(*this); }
+        inline void rgetOrder(const TpsaWithOp& o, int order) { return bridge::rgetOrder(o, order); }
+
+        inline auto toBridgePtr(void) const { return static_cast<bridge &>(*this); }
+
+
 	/**
 	 * These operators need to make copys of the actual instance
 	 * In the current implementation I assume the compiler can not fully optimise it away

@@ -150,6 +150,9 @@ namespace gtpsa::mad {
 
         inline GTPSA_CLASS(Wrapper) newFromThis(void) const { return GTPSA_CLASS(Wrapper)(*this, init::same); }
 
+        void rgetOrder(const GTPSA_CLASS(Wrapper)& src, int order)  { return GTPSA_METH(getord)(src.getPtr(), this->getPtr(), order);}
+        void rderiv(const GTPSA_CLASS(Wrapper)& src, int iv)  { return GTPSA_METH(deriv)(src.getPtr(), this->getPtr(), iv);}
+        void rinteg(const GTPSA_CLASS(Wrapper)& src, int iv)  { return GTPSA_METH(integ)(src.getPtr(), this->getPtr(), iv);}
         /**
          * @short set uid if != 0
          *
