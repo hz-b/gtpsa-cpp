@@ -169,14 +169,19 @@ void py_gtpsa_init_tpsa(py::module &m)
     AddMethods<gtpsa::ctpsa> ctpsa_m;
     ctpsa_m.add_methods<gtpsa::ctpsa, cnum_t>(ctpsa);
     ctpsa
-	.def("set0",  &gtpsa::ctpsa::_set0)
+	.def("set0",  [](gtpsa::ctpsa& t, const std::complex<double> a, const std::complex<double> b) {
+        t.set(a, b);
+    })
 	.def("setm",  &gtpsa::ctpsa::_setm)
-#if 0
     .def("real", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.real();}, "return real part (newly allocated object)")
     .def("imag", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.imag();}, "return imaginary part (newly allocated object)")
     .def("real", [](const gtpsa::ctpsa& t, gtpsa::tpsa *re) { t.real(re);}, "place real part in passed object re")
     .def("imag", [](const gtpsa::ctpsa& t, gtpsa::tpsa *im) { t.real(im);}, "place imaginary part in passed object im")
-#endif
+    .def("polar", &gtpsa::ctpsa::polar, "polar variables ")
+    .def("unit",  &gtpsa::ctpsa::unit, "z / abs(z)")
+    .def("abs", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.abs();}, "abs(z)")
+    .def("arg", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.abs();}, "arg(z)")
+
 	.def(py::self += std::complex<double>())
 	.def(py::self -= std::complex<double>())
 	.def(py::self *= std::complex<double>())

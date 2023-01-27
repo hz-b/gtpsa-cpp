@@ -173,6 +173,7 @@ namespace gtpsa {
 
 	friend inline auto ordn (const std::vector<const tpsa&> objs);
 
+    friend class ctpsa;
     }; // class tpsa
 
 

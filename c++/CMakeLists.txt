@@ -1,4 +1,5 @@
 set(gtpsa_c++_mad_HEADERS
+  gtpsa/mad/forward_decl.hpp
   gtpsa/mad/wrapper.tpp
   gtpsa/mad/tpsa_wrapper.hpp
   gtpsa/mad/ctpsa_wrapper.hpp

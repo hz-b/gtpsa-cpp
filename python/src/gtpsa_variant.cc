@@ -16,7 +16,7 @@ namespace PYBIND11_NAMESPACE {
     } // namespace PYBIND11_NAMESPACE::detail
 } // namespace PYBIND11_NAMESPACE
 
-    void py_gtpsa_init_variant(pybind11::module &m)
+void py_gtpsa_init_variant(pybind11::module &m)
 {
 
 }
