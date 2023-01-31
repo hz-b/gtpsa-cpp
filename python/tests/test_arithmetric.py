@@ -30,7 +30,7 @@ def test_3_getOrder():
     t1.setv(1 + 6, [31, 37, 39, 41, 43, 47, 51])
     t1.print('nn', 0, False)
 
-    //t2 = t1.getOrder()
+    #t2 = t1.getOrder()
 
 
 def test_11_radd_double():
@@ -98,6 +98,34 @@ def test_23_sub():
 
     assert t2.get() == pytest.approx(a  - b)
 
+def test_30_cplx():
+
+    desc = gtpsa.desc(6, 2)
+    ct = gtpsa.ctpsa(desc, 2)
+
+    ct.set0(0j, 2 + 3j)
+    real_part = ct.real()
+    imag_part = ct.imag()
+
+    assert real_part.get() == pytest.approx(2)
+    assert imag_part.get() == pytest.approx(3)
+
+def test_31_polar():
+    angle = 60/180 * np.pi
+    a = np.cos(angle)
+    b = np.sin(angle)
+
+    desc = gtpsa.desc(6, 1)
+    ct = gtpsa.ctpsa(desc, 0)
+    ct.set0(0j, a + b * 1j)
+    real_part = ct.real()
+    imag_part = ct.imag()
+
+    assert real_part.get() == pytest.approx(1/2)
+    assert imag_part.get() == pytest.approx(np.sqrt(3)/2)
+
 
 if __name__ == "__main__":
     test_20_radd()
+    test_30_cplx()
+    test_31_polar()
