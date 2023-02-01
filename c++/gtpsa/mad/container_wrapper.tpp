@@ -1,9 +1,7 @@
-//
-// Created by mfp on 28.11.22.
-//
-// guard defines omitted intentionally
-// #ifndef  GTPSA_MAD_GTPSA_CONTAINER_WRAPPER_H
-// #define GTPSA_MAD_GTPSA_CONTAINER_WRAPPER_H
+/* -*- C++ -*- */
+/*
+ * guard defines omitted intentionally
+ */
 
 #include <vector>
 
@@ -40,6 +38,33 @@ namespace gtpsa::mad {
             return GTPSA_METH(ordn)(tmp.size(), tmp.data());
         }
 
+	/**
+	 * @brief evaluate lie bracket
+	 *
+	 *
+	 */
+        inline void rliebra(const GTPSA_CLASS(ContainerWrapper) &ma, const GTPSA_CLASS(ContainerWrapper) &mb) {
+	    this->rapply2(ma, mb, GTPSA_METH(liebra));
+	}
+
+	/**
+	 * @brief evaluate lie exponent
+	 *
+	 *
+	 */
+        inline void rexppb(const GTPSA_CLASS(ContainerWrapper) &ma, const GTPSA_CLASS(ContainerWrapper) &mb) {
+	    this->rapply2(ma, mb, GTPSA_METH(exppb));
+	}
+
+	/**
+	 * @brief evaluate lie exponent whose argument is a log ?
+	 *
+	 *
+	 */
+        inline void rlogpb(const GTPSA_CLASS(ContainerWrapper) &ma, const GTPSA_CLASS(ContainerWrapper) &mb) {
+	    this->rapply2(ma, mb, GTPSA_METH(logpb));
+	}
+
         inline void rcompose(const GTPSA_CLASS(ContainerWrapper) &ma, const GTPSA_CLASS(ContainerWrapper) &mb) {
             /*
              * following mad gtpsa documentation.
@@ -61,6 +86,16 @@ namespace gtpsa::mad {
         }
 
     protected:
+	inline void rapply2(const GTPSA_CLASS(ContainerWrapper) &ma, const GTPSA_CLASS(ContainerWrapper) &mb,
+			    void(*f)(ssz_t na, const GTPSA_PTR_T*a[], const GTPSA_PTR_T *b[], GTPSA_PTR_T *c[])) {
+            auto tmpa = ma.getConstBufferPtrs();
+            auto tmpb = mb.getConstBufferPtrs();
+            auto tmpc = this->getBufferPtrs();
+
+            f(tmpa.size(), tmpa.data(), tmpb.data(), tmpc.data());
+
+	}
+
         inline std::vector<GTPSA_PTR_T *> getBufferPtrs(void) const {
             std::vector<GTPSA_PTR_T *> vec(this->m_vec.size());
             std::transform(this->m_vec.begin(), this->m_vec.end(), vec.begin(),
@@ -80,5 +115,4 @@ namespace gtpsa::mad {
 
 } // namespace gtpsa::mad
 
-// guard defines omitted intentionally
-// #endif //GTPSA_MAD_GTPSA_CONTAINER_WRAPPER_H
+/*  guard defines omitted intentionally */

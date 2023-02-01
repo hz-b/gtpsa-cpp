@@ -34,13 +34,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-   add_definitions(
-     -O3 -ftree-vectorize -fPIC -flto -march=native
-     -fno-math-errno -fno-builtin-cproj -ffast-math
-     -fno-cx-limited-range
-     -fassociative-math -freciprocal-math -ffinite-math-only
-     -fexpensive-optimizations
-     )
+#   add_definitions(
+#     -O3 -ftree-vectorize -fPIC -flto -march=native
+#     -fno-math-errno -fno-builtin-cproj -ffast-math
+#     -fno-cx-limited-range
+#     -fassociative-math -freciprocal-math -ffinite-math-only
+#     -fexpensive-optimizations
+#     )
+# add_definitions(
  endif()
 
 include(CMakePackageConfigHelpers)

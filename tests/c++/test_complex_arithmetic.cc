@@ -99,9 +99,32 @@ BOOST_AUTO_TEST_CASE(test112_cplx_to_polar)
     BOOST_CHECK_CLOSE(val.real(), r, 1e-12);
     BOOST_CHECK_CLOSE(val.imag(), angle, 1e-12);
 }
+// check that it works, does not crash
+BOOST_AUTO_TEST_CASE(test113_cplx_to_polar_to_real_imag)
+{
+    const double angle = 60e0/180e0 * M_PI;
+    const double r = 1.0, a = r * std::cos(angle), b = r * std::sin(angle);
+    std::complex<double> c = {a,b};
+
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
+    auto t_cplx = gtpsa::ctpsa(a_desc, 0);
+    t_cplx.setName("cplx");
+
+    t_cplx.set(0, c);
+    auto z = t_cplx.cst();
+
+    BOOST_CHECK_CLOSE(z.real(), 1/2.0, 1e-12);
+    BOOST_CHECK_CLOSE(z.imag(), std::sqrt(3)/2.0, 1e-12);
+
+
+    auto t_polar = t_cplx.polar();
+    auto val = std::complex(t_polar.cst());
+    BOOST_CHECK_CLOSE(val.real(), r, 1e-12);
+    BOOST_CHECK_CLOSE(val.imag(), angle, 1e-12);
+}
 
 // check that it works, does not crash
-BOOST_AUTO_TEST_CASE(test113_cplx_to_unit)
+BOOST_AUTO_TEST_CASE(test114_cplx_to_unit)
 {
     const double angle = 45e0/180e0 * M_PI;
     const double scale = 2.0;

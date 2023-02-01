@@ -200,7 +200,7 @@ gtpsa::tpsa exp_v_to_tps(const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa
   //   y = exp(D_k2) * exp(D_k2-1) ... * exp(D_k1) * x
   int          k;
 
-  const int n_max = 100; 
+  const int n_max = 100;
 
   auto y = x.clone();
   auto t_order = v.allocateLikeMe();
@@ -316,7 +316,6 @@ gtpsa::ss_vect<gtpsa::tpsa> h_DF_M
 (const gtpsa::tpsa &Lie_DF_gen, const gtpsa::ss_vect<gtpsa::tpsa> &x, const int k1, const int k2,
  const bool reverse)
 {
-  int          k;
   auto desc = x[0].getDescription();
   auto mo = x.getMaximumOrder();
   gtpsa::ss_vect<gtpsa::tpsa> a_map(desc, mo);
@@ -374,6 +373,7 @@ gtpsa::ss_vect<gtpsa::tpsa> compute_Taylor_map
     }
     return map1;
 }
+#endif
 
 /**
  * @brief Lie factorisation of a numerically computed Taylor map
@@ -390,8 +390,8 @@ gtpsa::tpsa
 Lie_factorisation(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 {
     //
-    std::shared_ptr<gtpsa::desc> a_desc = t_map[0].getDescription();
-    static const int max_order = t_map.getMaximumOrder();
+    auto a_desc = t_map[0].getDescription();
+    const int  mo = t_map.getMaximumOrder();
 
     gtpsa::ss_vect<gtpsa::tpsa> Id = t_map.allocateLikeMe();
     Id.set_identity();
@@ -402,16 +402,20 @@ Lie_factorisation(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
     map_lin_inv.setJacobian(jac);
 
     auto map1 = gtpsa::compose(t_map, map_lin_inv);
-    gtpsa::tpsa h(desc, mo);
 
-    for (k = 3; k <= a_desc->getOrder(); k++) {
+    gtpsa::tpsa h(a_desc, mo);
+    h.clear();
+    auto tmp = t_map.allocateLikeMe();
+
+#warning order or degree of freedom
+    for (int k = 3; k <= mo; k++) {
+	tmp.set_zero();
         // get only the second order
-#warning "Check that getord does whot one expects!"
-        auto map_km1 = map1.getOrder(k - 1);
-        h_k = compute_Lie_exp(map_km1, -1e0);
-        h += h_k;
-        auto map1 = map1 * compute_Dragt_Finn_Map(-h_k, Id, k, k, true);
+	tmp.rgetOrder(map1, k - 1);
+#warning "do I need to use -1e0? !"
+	h += tmp
+        h +=  //compute_Lie_exp(tmp,);
+        map1 *= compute_Dragt_Finn_Map(-h_k, Id, k, k, true);
     }
     return h;
 }
-#endif

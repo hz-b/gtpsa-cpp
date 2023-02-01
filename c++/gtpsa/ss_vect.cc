@@ -193,10 +193,11 @@ void gtpsa::ss_vect<gtpsa::tpsa>::setHessian(arma::cube& jac)
 }
 
 
+using bridge_container_type = gtpsa::TpsaBridgeContainer<gtpsa::TpsaTypeInfo>;
+
 template<>
 void  gtpsa::ss_vect<gtpsa::tpsa>::rcompose(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
 {
-    using bridge_container_type = gtpsa::TpsaBridgeContainer<gtpsa::TpsaTypeInfo>;
     FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
 
     const bridge_container_type ma_b(filter.as_const(a.state_space)), mb_b(filter.as_const(b.state_space));
@@ -205,6 +206,37 @@ void  gtpsa::ss_vect<gtpsa::tpsa>::rcompose(const gtpsa::ss_vect<gtpsa::tpsa>& a
     mc_b.rcompose(ma_b, mb_b);
 
 }
+
+template<>
+void  gtpsa::ss_vect<gtpsa::tpsa>::rliebra(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
+{
+    FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
+    const bridge_container_type ma_b(filter.as_const(a.state_space)), mb_b(filter.as_const(b.state_space));
+    bridge_container_type mc_b(filter.as_non_const(this->state_space));
+
+    mc_b.rliebra(ma_b, mb_b);
+}
+
+template<>
+void  gtpsa::ss_vect<gtpsa::tpsa>::rexppb(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
+{
+    FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
+    const bridge_container_type ma_b(filter.as_const(a.state_space)), mb_b(filter.as_const(b.state_space));
+    bridge_container_type mc_b(filter.as_non_const(this->state_space));
+
+    mc_b.rexppb(ma_b, mb_b);
+}
+
+template<>
+void  gtpsa::ss_vect<gtpsa::tpsa>::rlogpb(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
+{
+    FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
+    const bridge_container_type ma_b(filter.as_const(a.state_space)), mb_b(filter.as_const(b.state_space));
+    bridge_container_type mc_b(filter.as_non_const(this->state_space));
+
+    mc_b.rlogpb(ma_b, mb_b);
+}
+
 
 template<>
 int gtpsa::ss_vect<gtpsa::tpsa>::getMaximumOrder(void) const
@@ -230,4 +262,3 @@ void  gtpsa::ss_vect<gtpsa::tpsa>::rderiv(const gtpsa::ss_vect<gtpsa::tpsa>& a, 
         (*this)[i].rderiv(a[i], order);
     }
 }
-

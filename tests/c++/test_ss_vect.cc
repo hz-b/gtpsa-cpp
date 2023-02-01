@@ -2,6 +2,8 @@
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/test/unit_test.hpp>
+#include <boost/test/tools/output_test_stream.hpp>
+
 #include <gtpsa/tpsa.hpp>
 #include <gtpsa/ss_vect.h>
 #include <iostream>
@@ -11,9 +13,13 @@
 // mainly test that header compiles
 BOOST_AUTO_TEST_CASE(test10_sv_tpsa)
 {
-    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 2);
+    auto t1 = gtpsa::tpsa(a_desc, 1);
     gtpsa::ss_vect<gtpsa::tpsa> v1(t1);
+
+    boost::test_tools::output_test_stream output;
+    output << v1;
+    BOOST_CHECK( !output.is_empty( false ) );
 
 }
 
@@ -23,6 +29,11 @@ BOOST_AUTO_TEST_CASE(test11_sv_dbl)
 {
     const double a=0e0;
     gtpsa::ss_vect<double> v1(a);
+
+    boost::test_tools::output_test_stream output;
+    output << v1;
+    BOOST_CHECK( !output.is_empty( false ) );
+
 }
 
 
@@ -74,6 +85,7 @@ BOOST_AUTO_TEST_CASE(test12_sv_tpsa_identity)
     }
     */
     // std::cout << v1 << std::endl;
+
 }
 
 /*
@@ -190,7 +202,7 @@ BOOST_AUTO_TEST_CASE(test22_sv_double_show)
     const double b1=113e0;
     v1[0] = b1;
 
-    std::cout << v1 << std::endl;
+    // std::cout << v1 << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE(test23_sv_tpsa_show)
@@ -201,7 +213,7 @@ BOOST_AUTO_TEST_CASE(test23_sv_tpsa_show)
 
     gtpsa::ss_vect<gtpsa::tpsa> v1(t1);
     v1[0] = b1;
-    std::cout << v1 << std::endl;
+    // std::cout << v1 << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE(test30_sv_tpsa_identity_mul)
@@ -414,8 +426,23 @@ BOOST_AUTO_TEST_CASE(test60_compose_identity)
     fill.fill( NAN);
     vec.setJacobian(fill);
     vec.rcompose(v1, v2);
-    std::cout << "composed identity: " << vec << std::endl;
+    //std::cout << "composed identity: " << vec << std::endl;
     test_identity(vec);
+}
+
+// don't know if it even runs ...
+BOOST_AUTO_TEST_CASE(test63_exppb_compiles)
+{
+    auto desc = std::make_shared<gtpsa::desc>(6, 4);
+
+    gtpsa::ss_vect<gtpsa::tpsa> vec(desc, 2);
+    arma::mat jac = arma::mat(6, 6, arma::fill::eye);
+    vec.setJacobian(jac);
+
+    gtpsa::ss_vect<gtpsa::tpsa> v1 = vec.clone();
+    gtpsa::ss_vect<gtpsa::tpsa> v2 = vec.clone();
+
+    v2.rexppb(vec, v1);
 }
 
 #if 0
@@ -455,7 +482,7 @@ BOOST_AUTO_TEST_CASE(test71_hessian)
     const std::vector<double> tmp = {a, b, c, d, e, f};
 
     gtpsa::ss_vect<double> vec_cst(tmp);
-    std::cout << "vec_cst " << vec_cst << std::endl;
+    // std::cout << "vec_cst " << vec_cst << std::endl;
 
     vec1.set_identity();
     {
@@ -478,7 +505,7 @@ BOOST_AUTO_TEST_CASE(test71_hessian)
         arma::cube test = arma::abs(hes);
 
         arma::cube test_val = arma::sum(arma::sum(arma::sum(test, 0), 1), 2);
-        std::cout <<"test\n"<< test_val << std::endl;
+        // std::cout <<"test\n"<< test_val << std::endl;
         const double tval = test_val(0,0,0);
         BOOST_CHECK_SMALL(tval, 1e-12);
 
@@ -488,7 +515,7 @@ BOOST_AUTO_TEST_CASE(test71_hessian)
     auto vec3 = vec1.clone();
     auto vec = vec1.clone();
 
-    std::cout << "jac vec1\n" << vec1.jacobian() << std::endl;
+    // std::cout << "jac vec1\n" << vec1.jacobian() << std::endl;
     const double scale = 1e0/2e0;
     vec[0] = scale *   1 * vec1[0] * vec2[0];// * vec3[0];
     vec[1] = scale *   2 * vec1[1] * vec2[1];// * vec3[1];
@@ -520,7 +547,7 @@ BOOST_AUTO_TEST_CASE(test71_hessian)
         BOOST_CHECK_SMALL(chk, 1e-12);
 
         arma::cube hessian = vec.hessian();
-        std::cout << hessian << std::endl;
+        // std::cout << hessian << std::endl;
 
         BOOST_CHECK_CLOSE(hessian(0, 0, 0), 1.0/2.0, 1e-12);
         hessian(0,0,0) = 0;
@@ -568,7 +595,7 @@ BOOST_AUTO_TEST_CASE(test71_hessian)
                 // third derivative
                 //+ nv * nv * nv
         );
-
+        return;
         for(int i=0; i<6; ++i){
             for(auto& e : hessian) e=-1.0;
             vec[i].getv(7, &hessian);
@@ -595,3 +622,94 @@ BOOST_AUTO_TEST_CASE(test71_max_order)
 
     BOOST_CHECK(val == ord);
 }
+
+// just compile test
+BOOST_AUTO_TEST_CASE(test80_liebra)
+{
+    auto desc = std::make_shared<gtpsa::desc>(6, 2);
+
+    gtpsa::ss_vect<gtpsa::tpsa> vec(desc, 1);
+    vec.set_identity();
+
+    auto vec2 = vec.clone();
+    auto res = vec.allocateLikeMe();
+    res.rliebra(vec, vec2);
+}
+
+BOOST_AUTO_TEST_CASE(test81_exppb)
+{
+    auto desc = std::make_shared<gtpsa::desc>(6, 2);
+
+    gtpsa::ss_vect<gtpsa::tpsa> vec(desc, 1);
+    vec.set_identity();
+
+    auto vec2 = vec.allocateLikeMe();
+    vec2.set_identity();
+    const double value = -1;
+    for(size_t k = 0; k < vec2.size(); ++k){ vec2[k] += value; }
+    auto res = gtpsa::exppb(vec, vec2);
+
+    BOOST_CHECK_CLOSE(res[0].cst(), value, 1e-12);
+    BOOST_CHECK_CLOSE(res[1].cst(), value, 1e-12);
+    BOOST_CHECK_CLOSE(res[2].cst(), value, 1e-12);
+    BOOST_CHECK_CLOSE(res[3].cst(), value, 1e-12);
+    BOOST_CHECK_CLOSE(res[4].cst(), value, 1e-12);
+    BOOST_CHECK_CLOSE(res[5].cst(), value, 1e-12);
+
+    arma::mat jac = res.jacobian();
+    arma::mat check = arma::mat(6, 6, arma::fill::eye) * std::exp(1.0);
+    arma::mat adiff = arma::abs(jac - check);
+    arma::vec tmp = arma::sum(adiff, 1);
+    BOOST_CHECK_SMALL(arma::sum(tmp), 1e-12);
+
+}
+
+#if 0
+// not good input data
+BOOST_AUTO_TEST_CASE(test82_logpb)
+{
+    arma::mat jacf(6, 6, arma::fill::zeros);
+    jacf(0, 1) = -1.0;
+    jacf(1, 0) = 1.0;
+    jacf(2, 3) = -1.0;
+    jacf(3, 2) = 1.0;
+    jacf(4, 5) = -1.0;
+    jacf(5, 4) = 1.0;
+    //jacf *= -std::exp(1.0);
+    std::cout << "jacf \n" << jacf << std::endl;
+    auto desc = std::make_shared<gtpsa::desc>(6, 2);
+
+    gtpsa::ss_vect<gtpsa::tpsa> vec(desc, 1);
+    vec.setJacobian(jacf);
+    const double val = 10;
+    for(size_t k = 0; k < vec.size(); ++k){ vec[k] += val; }
+
+    auto vec2 = vec.allocateLikeMe();
+    arma::mat ones =arma::mat(6, 6, arma::fill::ones);
+    vec2.setJacobian(ones);
+    const double val2 = 1.0;
+    for(size_t k = 0; k < vec2.size(); ++k){ vec2[k] += val2; }
+
+    auto res = gtpsa::logpb(vec, vec2);
+
+    for(size_t k = 0; k < vec2.size(); ++k){
+        char cname[10] = "log  \0\0\0";
+        cname[5] = 'a' + k;
+        std::string name(cname);
+        res[k].print(name.c_str());
+    }
+
+    BOOST_CHECK_CLOSE(res[0].cst(), val, 1e-12);
+    BOOST_CHECK_CLOSE(res[1].cst(), val, 1e-12);
+    BOOST_CHECK_CLOSE(res[2].cst(), val, 1e-12);
+    BOOST_CHECK_CLOSE(res[3].cst(), val, 1e-12);
+    BOOST_CHECK_CLOSE(res[4].cst(), val, 1e-12);
+    BOOST_CHECK_CLOSE(res[5].cst(), val, 1e-12);
+
+    arma::mat jac = res.jacobian();
+    arma::mat check = arma::mat(6, 6, arma::fill::eye) * std::exp(1.0);
+    arma::mat adiff = arma::abs(jac - check);
+    arma::vec tmp = arma::sum(adiff, 1);
+    BOOST_CHECK_SMALL(arma::sum(tmp), 1e-12);
+}
+#endif

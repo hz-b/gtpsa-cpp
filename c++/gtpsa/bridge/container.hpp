@@ -42,19 +42,33 @@ namespace gtpsa {
             return cb.getMaximumOrder();
         }
 
-        inline void rcompose(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
-            if (ma.size() != this->size()) {
-                std::stringstream strm;
-                strm << "ma size" << ma.size() << " !=  mc size " << this->size();
-                throw std::runtime_error(strm.str());
-            }
+        inline void rliebra(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
+            using ContainerBridge = typename T::bridge_container_type;
+            const ContainerBridge ma_c(ma.getBridgePtrs()), mb_c(mb.getBridgePtrs());
+            ContainerBridge mc_c(this->getBridgePtrs());
+            mc_c.rliebra(ma_c, mb_c);
+	}
 
+	inline void rexppb(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
+            using ContainerBridge = typename T::bridge_container_type;
+            const ContainerBridge ma_c(ma.getBridgePtrs()), mb_c(mb.getBridgePtrs());
+            ContainerBridge mc_c(this->getBridgePtrs());
+            mc_c.rexppb(ma_c, mb_c);
+	}
+
+	inline void rlogpb(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
+            using ContainerBridge = typename T::bridge_container_type;
+            const ContainerBridge ma_c(ma.getBridgePtrs()), mb_c(mb.getBridgePtrs());
+            ContainerBridge mc_c(this->getBridgePtrs());
+            mc_c.rlogpb(ma_c, mb_c);
+	}
+
+        inline void rcompose(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
             using ContainerBridge = typename T::bridge_container_type;
             const ContainerBridge ma_c(ma.getBridgePtrs()), mb_c(mb.getBridgePtrs());
             ContainerBridge mc_c(this->getBridgePtrs());
 
             mc_c.rcompose(ma_c, mb_c);
-
         }
 
     protected:

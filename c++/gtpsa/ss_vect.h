@@ -325,8 +325,20 @@ namespace gtpsa {
         }
 
         inline void rcompose(const ss_vect<T>& a, const ss_vect<T>& b){
-            throw std::runtime_error("currently only implemented for tpsa");
+            throw std::runtime_error("rcompose currently only implemented for tpsa");
         }
+
+	void rliebra(const ss_vect<T>& a, const ss_vect<T>& b){
+            throw std::runtime_error("rliebra currently only implemented for tpsa");
+	}
+
+	void rexppb(const ss_vect<T>& a, const ss_vect<T>& b){
+            throw std::runtime_error("rexpbp currently only implemented for tpsa");
+	}
+
+	void rlogpb(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b){
+            throw std::runtime_error("rlogpb currently only implemented for tpsa");
+	}
 
         void rgetOrder(const ss_vect<T>& o, const int order){
             throw std::runtime_error("currently only implemented for tpsa");
@@ -565,12 +577,23 @@ namespace gtpsa {
 
     }
 
+    /*
+     * need to duplicate for ctpsa ...
+     *
+     * need to rearange ss_vect
+     */
     template<>
     int ss_vect<tpsa>::getMaximumOrder(void) const;
 
     /* not inlined as quite some functionality behind the scenes */
     template<>
     void  ss_vect<tpsa>::rcompose(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
+    template<>
+    void  ss_vect<tpsa>::rliebra(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
+    template<>
+    void  ss_vect<tpsa>::rexppb(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
+    template<>
+    void  ss_vect<tpsa>::rlogpb(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
 
     template<>
     void  ss_vect<tpsa>::rgetOrder(const ss_vect<tpsa>& a, const int order);
@@ -583,6 +606,27 @@ namespace gtpsa {
         auto c = a.allocateLikeMe();
         c.rcompose(a, b);
         return c;
+    }
+
+    inline ss_vect<tpsa> liebra(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b)
+    {
+        auto r = a.allocateLikeMe();
+        r.rliebra(a, b);
+        return r;
+    }
+
+    inline ss_vect<tpsa> exppb(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b)
+    {
+        auto r = a.allocateLikeMe();
+        r.rexppb(a, b);
+        return r;
+    }
+
+    inline ss_vect<tpsa> logpb(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b)
+    {
+        auto r = a.allocateLikeMe();
+        r.rlogpb(a, b);
+        return r;
     }
 
 } /* namespace gtpsa */
