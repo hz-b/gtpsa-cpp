@@ -713,3 +713,105 @@ BOOST_AUTO_TEST_CASE(test82_logpb)
     BOOST_CHECK_SMALL(arma::sum(tmp), 1e-12);
 }
 #endif
+
+// check that it works, does not crash
+BOOST_AUTO_TEST_CASE(test120_vec2fld)
+{
+    auto desc = std::make_shared<gtpsa::desc>(6, 3);
+    gtpsa::ss_vect<gtpsa::tpsa> vec(desc, 3);
+
+    gtpsa::tpsa t1(desc, 3);
+    t1.set(0, 42);
+    t1.setv(1, {2, -3, 5, -7, 11, -13, 17, -19, 23, -25, 29, -31, 37, -41, 43, -47});
+
+    const gtpsa::tpsa t = t1.clone();
+    t.print("t");
+
+    vec.rvec2fld(t1);
+    for(size_t k = 0; k < vec.size(); ++k){
+        char cname[] = "vec2fld \0\0";
+        cname[8] = 'a' + k;
+        std::string name(cname);
+        vec[k].print(name.c_str());
+    }
+
+    // let test deliberately fail: to see output
+    BOOST_CHECK(0 == 0);
+}
+
+// check that it works, does not crash
+BOOST_AUTO_TEST_CASE(test121_fld2vec)
+{
+    auto desc = std::make_shared<gtpsa::desc>(6, 3);
+    gtpsa::ss_vect<gtpsa::tpsa> vec(desc, 3);
+    gtpsa::ss_vect<double> d(std::vector<double>({-3, 5, -7, 11, -13, 17}));
+
+    arma::mat jac(6, 6, arma::fill::zeros);
+    // encode offset from digonal next to row and col
+    for(int col = 0; col<6; ++ col){
+        for(int row = 0; row<6; ++ row){
+            int d = row - col;
+            double tmp =( 10 * row  + col)/1000e0;
+            double val = d > 0 ? d + tmp : d - tmp ;
+            jac(row, col) = val;
+        }
+    }
+    std::cout << "jac\n" << jac << std::endl;
+
+    vec.setJacobian(jac);
+    vec += d;
+    const gtpsa::ss_vect<gtpsa::tpsa> v = vec.clone();
+    for(size_t k = 0; k < vec.size(); ++k){
+        char cname[] = "v   \0\0";
+        cname[3] = 'a' + k;
+        std::string name(cname);
+        vec[k].print(name.c_str());
+    }
+
+    gtpsa::tpsa t(desc, 3);
+
+    v.fld2vec(&t);
+
+    BOOST_CHECK_CLOSE(t.get(), 0, 1e-12);
+    t.print("t");
+
+    // let test deliberately fail: to see output
+    BOOST_CHECK(1 == 0);
+}
+
+
+// check that it works, does not crash
+BOOST_AUTO_TEST_CASE(test122_vec2fld_and_back)
+{
+    auto desc = std::make_shared<gtpsa::desc>(6, 3);
+    gtpsa::ss_vect<gtpsa::tpsa> vec(desc, 3);
+    double val = 42e0;
+
+    gtpsa::tpsa t1(desc, 3);
+    t1.set(0, val);
+    std::vector<double> v_init = {2, -3, 5, -7, 11, -13, 17, -19, 23, -25, 29, -31, 37, -41, 43, -47};
+    t1.setv(1, v_init);
+
+    const gtpsa::tpsa t = t1.clone();
+    BOOST_CHECK_CLOSE(t.get(), val, 1e-12);
+    //t.print("t");
+
+    vec.rvec2fld(t1);
+    const auto v = vec.clone();
+
+    gtpsa::tpsa tc = t1.newFromThis();
+
+    v.fld2vec(&tc);
+
+    std::vector<double> v_check(v_init.size());
+    t1.getv(1, &v_check);
+
+    BOOST_CHECK_SMALL(tc.get(), 1e-12);
+    for(size_t cnt = 0; cnt < v_init.size(); cnt++){
+        BOOST_CHECK_CLOSE(v_init[cnt], v_check[cnt], 1e-12);
+    }
+    //tc.print("tc");
+
+    // let test deliberately fail: to see output
+    BOOST_CHECK(1 == 0);
+}

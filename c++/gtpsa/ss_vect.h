@@ -328,8 +328,20 @@ namespace gtpsa {
             throw std::runtime_error("rcompose currently only implemented for tpsa");
         }
 
-	void rliebra(const ss_vect<T>& a, const ss_vect<T>& b){
-            throw std::runtime_error("rliebra currently only implemented for tpsa");
+        void rvec2fld(const T& a) {
+            throw std::runtime_error("rvec2fld currently only implemented for tpsa");
+        }
+
+        void fld2vec(T* a) const {
+            throw std::runtime_error("fld2vec currently only implemented for tpsa");
+        }
+
+        void fgrad(T* a, T*b) const {
+            throw std::runtime_error("fgrad currently only implemented for tpsa");
+        }
+
+        void rliebra(const ss_vect<T>& a, const ss_vect<T>& b){
+        throw std::runtime_error("rliebra currently only implemented for tpsa");
 	}
 
 	void rexppb(const ss_vect<T>& a, const ss_vect<T>& b){
@@ -588,6 +600,14 @@ namespace gtpsa {
     /* not inlined as quite some functionality behind the scenes */
     template<>
     void  ss_vect<tpsa>::rcompose(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
+
+    template<>
+    void ss_vect<tpsa>::rvec2fld(const tpsa& a);
+
+    template<>
+    void ss_vect<tpsa>::fld2vec(tpsa * r) const;
+    template<>
+    void ss_vect<tpsa>::fgrad(tpsa * b, tpsa * r) const;
     template<>
     void  ss_vect<tpsa>::rliebra(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
     template<>

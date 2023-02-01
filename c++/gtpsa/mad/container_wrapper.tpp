@@ -39,6 +39,23 @@ namespace gtpsa::mad {
         }
 
 	/**
+	 *
+	 */
+	inline void rvec2fld(const GTPSA_CLASS(Wrapper)& a) {
+            auto tmpc = this->getBufferPtrs();
+            GTPSA_METH(vec2fld)(tmpc.size(), a.getPtr(), tmpc.data());
+	}
+
+	inline void fld2vec(GTPSA_CLASS(Wrapper)* r) const {
+            auto tmpa = this->getConstBufferPtrs();
+            GTPSA_METH(fld2vec)(tmpa.size(), tmpa.data(), r->getPtr());
+	}
+
+	inline void fgrad(GTPSA_CLASS(Wrapper)* b, GTPSA_CLASS(Wrapper)* r) const {
+            auto tmpa = this->getConstBufferPtrs();
+            GTPSA_METH(fgrad)(tmpa.size(), tmpa.data(), b->getPtr(), r->getPtr());
+	}
+	/**
 	 * @brief evaluate lie bracket
 	 *
 	 *

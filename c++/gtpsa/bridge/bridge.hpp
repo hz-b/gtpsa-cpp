@@ -161,7 +161,7 @@ namespace gtpsa {
 	 *
 	 * @todo interface needs to be reviewed
 	 */
-	inline void print(str_t name = nullptr, num_t eps = 0, int nohdr = 0, FILE *stream = nullptr){
+	inline void print(str_t name = nullptr, num_t eps = 0, int nohdr = 0, FILE *stream = nullptr) const {
 	    this->m_impl.print(name, eps, nohdr, stream);
 	}
 

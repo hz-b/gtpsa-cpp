@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(test100_set)
 {
     const std::complex<double> a=0e0, b=42e0;
 
-    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
     auto t1 = gtpsa::ctpsa(a_desc, mad_tpsa_default);
     t1.set(a, b);
 
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(test110_combine_re_im)
 
     const double a = 0, re_v = 2, im_v = 3;
 
-    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
     auto re = gtpsa::tpsa(a_desc, mad_tpsa_default);
     auto im = gtpsa::tpsa(a_desc, mad_tpsa_default);
 
@@ -88,8 +88,8 @@ BOOST_AUTO_TEST_CASE(test112_cplx_to_polar)
     const double r = 1.0/std::sqrt(2e0), a = r * std::cos(angle), b = r * std::sin(angle);
     std::complex<double> c = {a,b};
 
-    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
-    auto t_cplx = gtpsa::ctpsa(a_desc, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 2);
+    auto t_cplx = gtpsa::ctpsa(a_desc, 1);
     t_cplx.setName("cplx");
 
     t_cplx.set(0, c);
@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE(test113_cplx_to_polar_to_real_imag)
     const double r = 1.0, a = r * std::cos(angle), b = r * std::sin(angle);
     std::complex<double> c = {a,b};
 
-    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
-    auto t_cplx = gtpsa::ctpsa(a_desc, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
+    auto t_cplx = gtpsa::ctpsa(a_desc, 1);
     t_cplx.setName("cplx");
 
     t_cplx.set(0, c);
@@ -131,8 +131,8 @@ BOOST_AUTO_TEST_CASE(test114_cplx_to_unit)
     const double r = scale  * std::sqrt(2e0), a = r * std::cos(angle), b = r * std::sin(angle);
     std::complex<double> c = {a,b};
 
-    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
-    auto t_cplx = gtpsa::ctpsa(a_desc, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
+    auto t_cplx = gtpsa::ctpsa(a_desc, 1);
     t_cplx.setName("cplx");
 
     t_cplx.set(0, c);

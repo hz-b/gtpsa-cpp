@@ -237,6 +237,26 @@ void  gtpsa::ss_vect<gtpsa::tpsa>::rlogpb(const gtpsa::ss_vect<gtpsa::tpsa>& a, 
     mc_b.rlogpb(ma_b, mb_b);
 }
 
+static gtpsa::FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
+
+template<>
+void gtpsa::ss_vect<gtpsa::tpsa>::rvec2fld(const gtpsa::tpsa& a) {
+    bridge_container_type mc_b(filter.as_non_const(this->state_space));
+    mc_b.rvec2fld(a);
+}
+
+template<>
+void gtpsa::ss_vect<gtpsa::tpsa>::fld2vec(gtpsa::tpsa * r) const {
+    const bridge_container_type mc_b(filter.as_const(this->state_space));
+    mc_b.fld2vec(r);
+}
+
+template<>
+void gtpsa::ss_vect<gtpsa::tpsa>::fgrad(gtpsa::tpsa * b, gtpsa::tpsa * r) const {
+    const bridge_container_type mc_b(filter.as_const(this->state_space));
+    mc_b.fgrad(b, r);
+}
+
 
 template<>
 int gtpsa::ss_vect<gtpsa::tpsa>::getMaximumOrder(void) const

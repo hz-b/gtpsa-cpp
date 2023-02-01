@@ -42,6 +42,21 @@ namespace gtpsa {
             return cb.getMaximumOrder();
         }
 
+	inline void rvec2fld(const typename T::tpsa_type& a) {
+        typename T::bridge_container_type mc_c(this->getBridgePtrs());
+        mc_c.rvec2fld(a.m_impl);
+	}
+
+	inline void fld2vec(typename T::tpsa_type * r) const {
+        typename T::bridge_container_type mc_c(this->getBridgePtrs());
+        mc_c.fld2vec(&r->m_impl);
+	}
+
+	inline void fgrad(typename T::tpsa_type * b, typename T::tpsa_type * r) const {
+        typename T::bridge_container_type mc_c(this->getBridgePtrs());
+        mc_c.fgrad(&b->m_impl, &r->m_impl);
+	}
+
         inline void rliebra(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
             using ContainerBridge = typename T::bridge_container_type;
             const ContainerBridge ma_c(ma.getBridgePtrs()), mb_c(mb.getBridgePtrs());

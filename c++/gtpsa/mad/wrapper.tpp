@@ -278,7 +278,7 @@ namespace gtpsa::mad {
         }
 
 
-        inline void print(str_t name = nullptr, num_t eps = 0, int nohdr = 0, FILE *stream = nullptr) {
+        inline void print(str_t name = nullptr, num_t eps = 0, int nohdr = 0, FILE *stream = nullptr) const {
             GTPSA_METH(print)(this->getPtr(), name, eps, nohdr, stream);
         }
 
