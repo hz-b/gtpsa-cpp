@@ -15,7 +15,7 @@
  *
  * Could be templated if required
  */
-static inline cnum_t std_complex_double_to_cnum_t(const std::complex<double> a_cplx)
+static inline cpx_t std_complex_double_to_cpx_t(const std::complex<double> a_cplx)
 {
     double _Complex res;
     /*

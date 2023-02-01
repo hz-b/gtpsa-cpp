@@ -29,7 +29,7 @@ extern "C" {
 #ifdef GTPSA_BASE_T
 #undef GTPSA_BASE_T
 #endif
-#define GTPSA_BASE_T cnum_t
+#define GTPSA_BASE_T cpx_t
 #ifdef GTPSA_PTR_T
 #undef GTPSA_PTR_T
 #endif
@@ -99,8 +99,8 @@ namespace gtpsa::mad {
 	 */
 	inline auto setsm_r(const std::vector<int> m, num_t a_re, num_t a_im, num_t b_re, num_t b_im) { return mad_ctpsa_setsm_r  (this->getPtr(), m.size(), m.data(), a_re, a_im,  b_re, b_im ); }
 
-	inline void getv(idx_t i,       std::vector<cnum_t> *v) const { mad_ctpsa_getv(this->getPtr(), i, v->size(), v->data() ); }
-	inline void setv(idx_t i, const std::vector<cnum_t> &v)       { mad_ctpsa_setv(this->getPtr(), i, v.size() , v.data()  ); }
+	inline void getv(idx_t i,       std::vector<cpx_t> *v) const { mad_ctpsa_getv(this->getPtr(), i, v->size(), v->data() ); }
+	inline void setv(idx_t i, const std::vector<cpx_t> &v)       { mad_ctpsa_setv(this->getPtr(), i, v.size() , v.data()  ); }
 
 	inline void print(str_t name_, num_t eps_, int nohdr_, FILE *stream_){
 	    mad_ctpsa_print(this->getPtr(), name_, eps_, nohdr_, stream_);
@@ -144,16 +144,16 @@ namespace gtpsa::mad {
     inline void mul (const CTpsaWrapper& a, const CTpsaWrapper& b,  CTpsaWrapper* r ){ mul_(static_cast<const _CTpsaWrapper &>(a), static_cast<const _CTpsaWrapper &>(b), static_cast<_CTpsaWrapper*>(r)); }
     inline void div (const CTpsaWrapper& a, const CTpsaWrapper& b,  CTpsaWrapper* r ){ div_(static_cast<const _CTpsaWrapper &>(a), static_cast<const _CTpsaWrapper &>(b), static_cast<_CTpsaWrapper*>(r)); }
 
-    inline void acc  (const CTpsaWrapper& a, const cnum_t & b,  CTpsaWrapper* r ){
+    inline void acc  (const CTpsaWrapper& a, const cpx_t & b,  CTpsaWrapper* r ){
 	acc_(static_cast<const _CTpsaWrapper &>(a), b, static_cast<_CTpsaWrapper*>(r) );
     }
-    inline void scl  (const CTpsaWrapper& a, const cnum_t & b,  CTpsaWrapper* r ){
+    inline void scl  (const CTpsaWrapper& a, const cpx_t & b,  CTpsaWrapper* r ){
 	scl_(static_cast<const _CTpsaWrapper &>(a), b, static_cast<_CTpsaWrapper*>(r) );
     }
-    inline void inv  (const CTpsaWrapper& a, const cnum_t & b,  CTpsaWrapper* r ){
+    inline void inv  (const CTpsaWrapper& a, const cpx_t & b,  CTpsaWrapper* r ){
 	inv_(static_cast<const _CTpsaWrapper &>(a), b, static_cast<_CTpsaWrapper*>(r) );
     }
-    inline void invsqrt (const CTpsaWrapper& a, const cnum_t & b,  CTpsaWrapper* r ){
+    inline void invsqrt (const CTpsaWrapper& a, const cpx_t & b,  CTpsaWrapper* r ){
 	invsqrt_(static_cast<const _CTpsaWrapper &>(a), b, static_cast<_CTpsaWrapper*>(r) );
     }
 
@@ -164,7 +164,7 @@ namespace gtpsa::mad {
 	    static_cast<_CTpsaWrapper*>(r)
 	    );
     }
-    inline void pow   (const CTpsaWrapper& a, const cnum_t & b,  CTpsaWrapper* r ){
+    inline void pow   (const CTpsaWrapper& a, const cpx_t & b,  CTpsaWrapper* r ){
 	pow_(static_cast<const _CTpsaWrapper &>(a), b, static_cast<_CTpsaWrapper*>(r) );
     }
     inline void pow   (const CTpsaWrapper& a, const  int  & i,  CTpsaWrapper* r ){

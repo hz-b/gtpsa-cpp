@@ -20,11 +20,12 @@ extern "C" {
 namespace gtpsa {
 
 
-    template<typename T, typename B, typename Bridge, typename BridgeBase, typename BridgeContainer>
+    template<typename T, typename B, typename D, typename Bridge, typename BridgeBase, typename BridgeContainer>
     struct GTpsaTypeInfo
     {
 	using ptr_type =  T;
 	using base_type =  B;
+    using tpsa_type = D;
 	using bridge_type = Bridge;
     using bridge_base_type = BridgeBase; // required ? just need to extract pointer in the bridge container later on
     using bridge_container_type = BridgeContainer;

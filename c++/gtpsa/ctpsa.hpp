@@ -32,7 +32,7 @@
 
 namespace gtpsa {
 
-class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper, mad::_CTpsaWrapper, mad::_CTpsaContainerWrapper>  {};
+class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrapper, mad::_CTpsaWrapper, mad::_CTpsaContainerWrapper>  {};
 
     /* Bridge to the mad gtpsa c++ wrapper */
     typedef TpsaBridge<CTpsaTypeInfo> ctpsa_bridge;
@@ -47,14 +47,14 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper, m
     inline void rmul (const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge* r)  { r->apply2_with_return_object(a, b, mad::mul ); }
     inline void rdiv (const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge* r)  { r->apply2_with_return_object(a, b, mad::div ); }
 
-    inline void racc     (const ctpsa_bridge& a, const cnum_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::acc ); }
-    inline void rscl     (const ctpsa_bridge& a, const cnum_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::scl ); }
-    inline void rinv     (const ctpsa_bridge& a, const cnum_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::inv ); }
-    inline void rinvsqrt (const ctpsa_bridge& a, const cnum_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::invsqrt ); }
+    inline void racc     (const ctpsa_bridge& a, const cpx_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::acc ); }
+    inline void rscl     (const ctpsa_bridge& a, const cpx_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::scl ); }
+    inline void rinv     (const ctpsa_bridge& a, const cpx_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::inv ); }
+    inline void rinvsqrt (const ctpsa_bridge& a, const cpx_t v, ctpsa_bridge* r) { r->apply2_base_with_return_object(a, v, mad::invsqrt ); }
 
     inline void rpow (const ctpsa_bridge& a, const ctpsa_bridge& b, ctpsa_bridge *r) { r->pow(a, b);  }
     inline void rpow (const ctpsa_bridge& a, const int           i, ctpsa_bridge *r) { r->pow(a, i);  }
-    inline void rpow (const ctpsa_bridge& a, const cnum_t        v, ctpsa_bridge *r) { r->pow(a, v);  }
+    inline void rpow (const ctpsa_bridge& a, const cpx_t        v, ctpsa_bridge *r) { r->pow(a, v);  }
 
     /* return newly allocated object */
     inline ctpsa_bridge add ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { return apply2<ctpsa_bridge>(a, b, radd ); }
@@ -64,12 +64,12 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper, m
 
     inline ctpsa_bridge pow ( const ctpsa_bridge& a, const ctpsa_bridge& b ) { ctpsa_bridge r = a.newFromThis(); rpow(a, b, &r); return r; }
     inline ctpsa_bridge pow ( const ctpsa_bridge& a, const int           i ) { ctpsa_bridge r = a.newFromThis(); rpow(a, i, &r); return r; }
-    inline ctpsa_bridge pow ( const ctpsa_bridge& a, const cnum_t        v ) { ctpsa_bridge r = a.newFromThis(); rpow(a, v, &r); return r; }
+    inline ctpsa_bridge pow ( const ctpsa_bridge& a, const cpx_t        v ) { ctpsa_bridge r = a.newFromThis(); rpow(a, v, &r); return r; }
 
-    //inline tpsa_bridge acc     (const ctpsa_bridge& a, const cnum_t b)  { return apply2_base<ctpsa_bridge, cnum_t>(a, b, racc); }
-    //inline tpsa_bridge scl     (const ctpsa_bridge& a, const cnum_t b)  { return apply2_base<ctpsa_bridge, cnum_t>(a, b, rscl); }
-    //inline tpsa_bridge inv     (const ctpsa_bridge& a, const cnum_t b)  { return apply2_base<ctpsa_bridge, cnum_t>(a, b, rinv); }
-    //inline tpsa_bridge invsqrt (const ctpsa_bridge& a, const cnum_t b)  { return apply2_base<ctpsa_bridge, cnum_t>(a, b, rinvsqrt); }
+    //inline tpsa_bridge acc     (const ctpsa_bridge& a, const cpx_t b)  { return apply2_base<ctpsa_bridge, cpx_t>(a, b, racc); }
+    //inline tpsa_bridge scl     (const ctpsa_bridge& a, const cpx_t b)  { return apply2_base<ctpsa_bridge, cpx_t>(a, b, rscl); }
+    //inline tpsa_bridge inv     (const ctpsa_bridge& a, const cpx_t b)  { return apply2_base<ctpsa_bridge, cpx_t>(a, b, rinv); }
+    //inline tpsa_bridge invsqrt (const ctpsa_bridge& a, const cpx_t b)  { return apply2_base<ctpsa_bridge, cpx_t>(a, b, rinvsqrt); }
 
 
     /* required for the template adding operators */
@@ -157,28 +157,28 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper, m
 
 	/* compatible to complex part */
 	inline void set(                             const std::complex<double> a, const std::complex<double> b) {
-	    base::set(std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
+	    base::set(std_complex_double_to_cpx_t(a), std_complex_double_to_cpx_t(b));
 	}
-	inline void set(                             const cnum_t a, const cnum_t b) {
+	inline void set(                             const cpx_t a, const cpx_t b) {
 	    base::set(a, b);
 	}
 	inline void set(const idx_t i,               const std::complex<double> a, const std::complex<double> b) {
-	    base::set(i, std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
+	    base::set(i, std_complex_double_to_cpx_t(a), std_complex_double_to_cpx_t(b));
 	}
 
 	inline void set(const std::string& s,        const std::complex<double> a, const std::complex<double> b) {
-	    base::set(s, std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
+	    base::set(s, std_complex_double_to_cpx_t(a), std_complex_double_to_cpx_t(b));
 	}
 
 	inline void set(const std::vector<ord_t>& m, const std::complex<double> a, const std::complex<double> b) {
-	    base::set(m, std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
+	    base::set(m, std_complex_double_to_cpx_t(a), std_complex_double_to_cpx_t(b));
 	}
-	inline void set(const std::vector<ord_t>& m, const cnum_t a, const cnum_t b) {
+	inline void set(const std::vector<ord_t>& m, const cpx_t a, const cpx_t b) {
 	    base::set(m, a, b);
 	}
 
 	inline void setsm(const std::vector<int>& m, const std::complex<double> a, const std::complex<double> b) {
-	    base::setsm(m, std_complex_double_to_cnum_t(a), std_complex_double_to_cnum_t(b));
+	    base::setsm(m, std_complex_double_to_cpx_t(a), std_complex_double_to_cpx_t(b));
 	}
 
         inline void real(tpsa * re) const {
@@ -246,7 +246,7 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper, m
 
 #endif
 	/**
-	 * @brief method get return cnum_t, which is incompatible with std::complex<double>
+	 * @brief method get return cpx_t, which is incompatible with std::complex<double>
      */
         inline auto get_complex(void) {
             std::complex<double> tmp(this->get());
@@ -261,51 +261,51 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cnum_t, mad::CTpsaWrapper, m
         inline ctpsa& operator *= (const ctpsa& o ) { base::operator *= (o) ; return *this; }
         inline ctpsa& operator /= (const ctpsa& o ) { base::operator /= (o) ; return *this; }
 
-        inline ctpsa& operator += (const cnum_t o ) { base::operator += (o) ; return *this; }
-        inline ctpsa& operator -= (const cnum_t o ) { base::operator -= (o) ; return *this; }
-        inline ctpsa& operator *= (const cnum_t o ) { base::operator *= (o) ; return *this; }
-        inline ctpsa& operator /= (const cnum_t o ) { base::operator /= (o) ; return *this; }
+        inline ctpsa& operator += (const cpx_t o ) { base::operator += (o) ; return *this; }
+        inline ctpsa& operator -= (const cpx_t o ) { base::operator -= (o) ; return *this; }
+        inline ctpsa& operator *= (const cpx_t o ) { base::operator *= (o) ; return *this; }
+        inline ctpsa& operator /= (const cpx_t o ) { base::operator /= (o) ; return *this; }
 
         inline ctpsa  operator  - ( void         ) const { return ctpsa( base::operator-(*this) ); }
 
         /*
-         * add operators that accept std::complex<double> ... needs to be converted to cnum_t
+         * add operators that accept std::complex<double> ... needs to be converted to cpx_t
          */
-        inline ctpsa& operator += ( const std::complex<double>& o )       { return operator += (std_complex_double_to_cnum_t(o)) ; }
-        inline ctpsa& operator -= ( const std::complex<double>& o )       { return operator -= (std_complex_double_to_cnum_t(o)) ; }
-        inline ctpsa& operator *= ( const std::complex<double>& o )       { return operator *= (std_complex_double_to_cnum_t(o)) ; }
-        inline ctpsa& operator /= ( const std::complex<double>& o )       { return operator /= (std_complex_double_to_cnum_t(o)) ; }
+        inline ctpsa& operator += ( const std::complex<double>& o )       { return operator += (std_complex_double_to_cpx_t(o)) ; }
+        inline ctpsa& operator -= ( const std::complex<double>& o )       { return operator -= (std_complex_double_to_cpx_t(o)) ; }
+        inline ctpsa& operator *= ( const std::complex<double>& o )       { return operator *= (std_complex_double_to_cpx_t(o)) ; }
+        inline ctpsa& operator /= ( const std::complex<double>& o )       { return operator /= (std_complex_double_to_cpx_t(o)) ; }
 
         inline ctpsa  operator +  ( const ctpsa&  o ) const { return ctpsa( std::move( base::operator+ (o) ) ) ; }
         inline ctpsa  operator -  ( const ctpsa&  o ) const { return ctpsa( std::move( base::operator- (o) ) ) ; }
         inline ctpsa  operator *  ( const ctpsa&  o ) const { return ctpsa( std::move( base::operator* (o) ) ) ; }
         inline ctpsa  operator /  ( const ctpsa&  o ) const { return ctpsa( std::move( base::operator/ (o) ) ) ; }
 
-        inline ctpsa  operator +  ( const cnum_t o ) const { return ctpsa( base::operator+ (o) ) ; }
-        inline ctpsa  operator -  ( const cnum_t o ) const { return ctpsa( base::operator- (o) ) ; }
-        inline ctpsa  operator *  ( const cnum_t o ) const { return ctpsa( base::operator* (o) ) ; }
-        inline ctpsa  operator /  ( const cnum_t o ) const { return ctpsa( base::operator/ (o) ) ; }
+        inline ctpsa  operator +  ( const cpx_t o ) const { return ctpsa( base::operator+ (o) ) ; }
+        inline ctpsa  operator -  ( const cpx_t o ) const { return ctpsa( base::operator- (o) ) ; }
+        inline ctpsa  operator *  ( const cpx_t o ) const { return ctpsa( base::operator* (o) ) ; }
+        inline ctpsa  operator /  ( const cpx_t o ) const { return ctpsa( base::operator/ (o) ) ; }
 
-        inline ctpsa  operator +  ( const std::complex<double>& o ) const { return ctpsa( this->operator+ (std_complex_double_to_cnum_t(o)) ) ; }
-        inline ctpsa  operator -  ( const std::complex<double>& o ) const { return ctpsa( this->operator- (std_complex_double_to_cnum_t(o)) ) ; }
-        inline ctpsa  operator *  ( const std::complex<double>& o ) const { return ctpsa( this->operator* (std_complex_double_to_cnum_t(o)) ) ; }
-        inline ctpsa  operator /  ( const std::complex<double>& o ) const { return ctpsa( this->operator/ (std_complex_double_to_cnum_t(o)) ) ; }
+        inline ctpsa  operator +  ( const std::complex<double>& o ) const { return ctpsa( this->operator+ (std_complex_double_to_cpx_t(o)) ) ; }
+        inline ctpsa  operator -  ( const std::complex<double>& o ) const { return ctpsa( this->operator- (std_complex_double_to_cpx_t(o)) ) ; }
+        inline ctpsa  operator *  ( const std::complex<double>& o ) const { return ctpsa( this->operator* (std_complex_double_to_cpx_t(o)) ) ; }
+        inline ctpsa  operator /  ( const std::complex<double>& o ) const { return ctpsa( this->operator/ (std_complex_double_to_cpx_t(o)) ) ; }
 
     }; // class ctpsa
 
-    inline ctpsa operator +  (const cnum_t a, const ctpsa& b)  { return a + ctpsa::base(b); }
-    inline ctpsa operator -  (const cnum_t a, const ctpsa& b)  { return a - ctpsa::base(b); }
-    inline ctpsa operator *  (const cnum_t a, const ctpsa& b)  { return a * ctpsa::base(b); }
-    inline ctpsa operator /  (const cnum_t a, const ctpsa& b)  { return a / ctpsa::base(b); }
+    inline ctpsa operator +  (const cpx_t a, const ctpsa& b)  { return a + ctpsa::base(b); }
+    inline ctpsa operator -  (const cpx_t a, const ctpsa& b)  { return a - ctpsa::base(b); }
+    inline ctpsa operator *  (const cpx_t a, const ctpsa& b)  { return a * ctpsa::base(b); }
+    inline ctpsa operator /  (const cpx_t a, const ctpsa& b)  { return a / ctpsa::base(b); }
 
-    inline ctpsa operator +  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cnum_t(a) + ctpsa::base(b); }
-    inline ctpsa operator -  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cnum_t(a) - ctpsa::base(b); }
-    inline ctpsa operator *  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cnum_t(a) * ctpsa::base(b); }
-    inline ctpsa operator /  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cnum_t(a) / ctpsa::base(b); }
+    inline ctpsa operator +  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cpx_t(a) + ctpsa::base(b); }
+    inline ctpsa operator -  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cpx_t(a) - ctpsa::base(b); }
+    inline ctpsa operator *  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cpx_t(a) * ctpsa::base(b); }
+    inline ctpsa operator /  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cpx_t(a) / ctpsa::base(b); }
 
     inline ctpsa pow (const ctpsa& a,  const ctpsa& b){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), static_cast<const ctpsa::base&>(b) ) ); }
     inline ctpsa pow (const ctpsa& a,  const int    i){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), i) ); }
-    inline ctpsa pow (const ctpsa& a,  const cnum_t v){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), v  )); }
+    inline ctpsa pow (const ctpsa& a,  const cpx_t v){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), v  )); }
 
     inline std::ostream& operator<<(std::ostream& strm, const ctpsa& a)
     {

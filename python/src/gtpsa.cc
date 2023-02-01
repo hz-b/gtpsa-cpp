@@ -167,7 +167,7 @@ void py_gtpsa_init_tpsa(py::module &m)
     py::class_<CTpsaOp, std::shared_ptr<CTpsaOp>> ctpsa_with_op  (m, "_CTPSAWithOp");
     py::class_<gtpsa::ctpsa , std::shared_ptr<gtpsa::ctpsa>>  ctpsa (m, "ctpsa", ctpsa_with_op);
     AddMethods<gtpsa::ctpsa> ctpsa_m;
-    ctpsa_m.add_methods<gtpsa::ctpsa, cnum_t>(ctpsa);
+    ctpsa_m.add_methods<gtpsa::ctpsa, cpx_t>(ctpsa);
     ctpsa
 	.def("set0",  [](gtpsa::ctpsa& t, const std::complex<double> a, const std::complex<double> b) {
         t.set(a, b);
@@ -219,7 +219,7 @@ void py_gtpsa_init_tpsa(py::module &m)
 
     /*
     tpsa
-    .def("set",            py::overload_cast<cnum_t, cnum_t>( &gtpsa::tpsa::set))
+    .def("set",            py::overload_cast<cpx_t, cpx_t>( &gtpsa::tpsa::set))
     ;
     */
 

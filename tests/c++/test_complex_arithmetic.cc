@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(test00_cast_cnum_t_to_complex)
 {
     const double a = 42, c = 2;
     const std::complex<double> ac=a;
-    const cnum_t cc= c;
+    const cpx_t cc= c;
 
     std::complex<double> c2 = c; // = std::complex<double>(cc);
     auto t = ac + c2;
@@ -25,13 +25,13 @@ BOOST_AUTO_TEST_CASE(test00_cast_cnum_t_to_complex)
 }
 
 
-BOOST_AUTO_TEST_CASE(test00_cast_complex_to_cnum_t)
+BOOST_AUTO_TEST_CASE(test00_cast_complex_to_cpx_t)
 {
     const double a = 42, c = 2;
     const std::complex<double> ac=a;
-    const cnum_t cc= c;
+    const cpx_t cc= c;
 
-    cnum_t ac2 = std_complex_double_to_cnum_t(ac);
+    cpx_t ac2 = std_complex_double_to_cpx_t(ac);
     auto t = ac2 + cc;
     BOOST_CHECK_CLOSE(creal(t), a+c, 1e-12 );
     BOOST_CHECK_SMALL(cimag(t),      1e-12 );

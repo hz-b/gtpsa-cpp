@@ -38,7 +38,7 @@ namespace gtpsa {
      */
 
     // Type information for the bridge template
-    typedef GTpsaTypeInfo<tpsa_t, num_t, mad::TpsaWrapper, mad::_TpsaWrapper, mad::_TpsaContainerWrapper>  TpsaTypeInfo;
+    typedef GTpsaTypeInfo<tpsa_t, num_t, tpsa, mad::TpsaWrapper, mad::_TpsaWrapper, mad::_TpsaContainerWrapper>  TpsaTypeInfo;
 
     /*
      * @brief tpsa object
