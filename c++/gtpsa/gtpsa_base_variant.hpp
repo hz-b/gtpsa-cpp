@@ -65,6 +65,15 @@ namespace gtpsa {
 
         inline GTpsaOrBase clone(void) const { GTpsaOrBase n = *this; return n; }
 
+	std::string pstr(void) const {
+	    std::stringstream strm;
+            std::visit(overloaded{
+                    [&strm] (const base_type& t){  strm << t;},
+                    [&strm] (const auto& t){ strm << t;}
+            }, this->m_arg);
+	    return strm.str();
+	}
+
         // provided to implement operators taking double as first argument
         inline GTpsaOrBase& operator+= (const base_type    b) { add_helper(this->m_arg, b, &this->m_arg); return *this; }
         inline GTpsaOrBase& operator-= (const base_type    b) { sub_helper(this->m_arg, b, &this->m_arg); return *this; }
