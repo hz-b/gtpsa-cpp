@@ -38,7 +38,12 @@ namespace gtpsa::mad {
             return GTPSA_METH(ordn)(tmp.size(), tmp.data());
         }
 
-	/**
+        inline auto computeNorm (void) const {
+            auto tmp = this->getConstBufferPtrs();
+            return GTPSA_METH(mnrm)(tmp.size(), tmp.data());
+        }
+
+        /**
 	 *
 	 */
 	inline void rvec2fld(const GTPSA_CLASS(Wrapper)& a) {
@@ -102,6 +107,43 @@ namespace gtpsa::mad {
             GTPSA_METH(compose)(tmpa.size(), tmpa.data(), tmpb.size(), tmpb.data(), tmpc.data());
         }
 
+        inline void rminv(const GTPSA_CLASS(ContainerWrapper) &ma) {
+            /*
+             * deduced from mad_tpsa.h
+             */
+            if (ma.size() != this->size()) {
+                std::stringstream strm;
+                strm << "ma size" << ma.size() << " !=  mc size " << this->size();
+                throw std::runtime_error(strm.str());
+            }
+
+            auto tmpa = ma.getConstBufferPtrs();
+            auto tmpc = this->getBufferPtrs();
+
+            GTPSA_METH(minv)(tmpa.size(), tmpa.data(),  tmpc.data());
+        }
+
+        inline void rpminv(const GTPSA_CLASS(ContainerWrapper) &ma, std::vector<idx_t>& select) {
+            /*
+             * deduced from mad_tpsa.h
+             */
+            if (ma.size() != this->size()) {
+                std::stringstream strm;
+                strm << "ma size" << ma.size() << " !=  this size " << this->size();
+                throw std::runtime_error(strm.str());
+            }
+
+            if (select.size() != this->size()) {
+                std::stringstream strm;
+                strm << "select size" << ma.size() << " !=  this size " << this->size();
+                throw std::runtime_error(strm.str());
+            }
+
+            auto tmpa = ma.getConstBufferPtrs();
+            auto tmpc = this->getBufferPtrs();
+
+            GTPSA_METH(pminv)(tmpa.size(), tmpa.data(),  tmpc.data(), select.data());
+        }
     protected:
 	inline void rapply2(const GTPSA_CLASS(ContainerWrapper) &ma, const GTPSA_CLASS(ContainerWrapper) &mb,
 			    void(*f)(ssz_t na, const GTPSA_PTR_T*a[], const GTPSA_PTR_T *b[], GTPSA_PTR_T *c[])) {

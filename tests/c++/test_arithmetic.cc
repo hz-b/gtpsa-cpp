@@ -77,7 +77,12 @@ BOOST_AUTO_TEST_CASE(test4_getorder)
 
     t1.setv(1, {11, 13, 17, 19, 23, 29});
     t1.setv(1 + 6, {31, 37, 39, 41, 43, 47, 51});
-    t1.print("nn", 0, false, 0);
+
+    {
+        // check that it works for constant objects
+        const auto t = t1.clone();
+        t.print("nn", 0, false, 0);
+    }
 
     auto t2 = t1.newFromThis();
     t2.rgetOrder(t1, 1);

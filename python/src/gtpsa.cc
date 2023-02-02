@@ -63,9 +63,9 @@ struct AddMethods
 	    .def("getsm",          &Cls::getsm)
 	    .def("set_variable",    &Cls::setVariable, "set the variable?",
 		 py::arg("v"), py::arg("iv") = 0, py::arg("scl") = 0)
-         .def("print", [](Cls& inst, std::string name, double eps, bool nohdr){
+         .def("print", [](const Cls& inst, std::string name, double eps, bool nohdr){
                 FILE* f = stdout;
-                return inst.print(name.c_str(), eps, nohdr, f);
+                inst.print(name.c_str(), eps, nohdr, f);
              },
               "print the cofficients to stdout using c's stdout",
               py::arg("name") = "", py::arg("eps") = 0 , py::arg("nohdr") = false)

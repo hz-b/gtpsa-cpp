@@ -194,18 +194,14 @@ void gtpsa::ss_vect<gtpsa::tpsa>::setHessian(arma::cube& jac)
 
 
 using bridge_container_type = gtpsa::TpsaBridgeContainer<gtpsa::TpsaTypeInfo>;
-
+static gtpsa::FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
 template<>
-void  gtpsa::ss_vect<gtpsa::tpsa>::rcompose(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
+int gtpsa::ss_vect<gtpsa::tpsa>::getMaximumOrder(void) const
 {
-    FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
-
-    const bridge_container_type ma_b(filter.as_const(a.state_space)), mb_b(filter.as_const(b.state_space));
-    bridge_container_type mc_b(filter.as_non_const(this->state_space));
-
-    mc_b.rcompose(ma_b, mb_b);
-
+    TpsaBridgeContainer<gtpsa::TpsaTypeInfo> bc(filter.as_const(this->state_space));
+    return bc.getMaximumOrder();
 }
+
 
 template<>
 void  gtpsa::ss_vect<gtpsa::tpsa>::rliebra(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
@@ -237,7 +233,7 @@ void  gtpsa::ss_vect<gtpsa::tpsa>::rlogpb(const gtpsa::ss_vect<gtpsa::tpsa>& a, 
     mc_b.rlogpb(ma_b, mb_b);
 }
 
-static gtpsa::FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
+
 
 template<>
 void gtpsa::ss_vect<gtpsa::tpsa>::rvec2fld(const gtpsa::tpsa& a) {
@@ -259,14 +255,46 @@ void gtpsa::ss_vect<gtpsa::tpsa>::fgrad(gtpsa::tpsa * b, gtpsa::tpsa * r) const 
 
 
 template<>
-int gtpsa::ss_vect<gtpsa::tpsa>::getMaximumOrder(void) const
+void  gtpsa::ss_vect<gtpsa::tpsa>::rcompose(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
 {
     FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
 
-    TpsaBridgeContainer<gtpsa::TpsaTypeInfo> bc(filter.as_const(this->state_space));
-    return bc.getMaximumOrder();
+    const bridge_container_type ma_b(filter.as_const(a.state_space)), mb_b(filter.as_const(b.state_space));
+    bridge_container_type mc_b(filter.as_non_const(this->state_space));
+
+    mc_b.rcompose(ma_b, mb_b);
 }
 
+template<>
+void  gtpsa::ss_vect<gtpsa::tpsa>::rminv(const gtpsa::ss_vect<gtpsa::tpsa>& a)
+{
+    FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
+
+    const bridge_container_type ma_b(filter.as_const(a.state_space));
+    bridge_container_type mc_b(filter.as_non_const(this->state_space));
+
+    mc_b.rminv(ma_b);
+}
+
+template<>
+void  gtpsa::ss_vect<gtpsa::tpsa>::rpminv(const gtpsa::ss_vect<gtpsa::tpsa>& a, std::vector<idx_t>& select)
+{
+    FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
+
+    const bridge_container_type ma_b(filter.as_const(a.state_space));
+    bridge_container_type mc_b(filter.as_non_const(this->state_space));
+
+    mc_b.rminv(ma_b);
+}
+
+
+
+template<>
+double gtpsa::ss_vect<gtpsa::tpsa>::computeNorm(void) const
+{
+    TpsaBridgeContainer<gtpsa::TpsaTypeInfo> bc(filter.as_const(this->state_space));
+    return bc.computeNorm();
+}
 template<>
 void  gtpsa::ss_vect<gtpsa::tpsa>::rgetOrder(const gtpsa::ss_vect<gtpsa::tpsa>& a, const int order)
 {

@@ -24,7 +24,21 @@ BOOST_AUTO_TEST_CASE(test00_cast_cnum_t_to_complex)
     BOOST_CHECK_SMALL(t.imag(),      1e-12 );
 }
 
+BOOST_AUTO_TEST_CASE(test10_print)
+{
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 4);
+    auto t1 = gtpsa::ctpsa(a_desc, mad_tpsa_default);
 
+    t1.setv(1, {11, 13, 17, 19, 23, 29});
+    t1.setv(1 + 6, {31, 37, 39, 41, 43, 47, 51});
+
+    {
+        // check that it works for constant objects
+        const auto t = t1.clone();
+        t.print("nn", 0, false, 0);
+    }
+
+}
 BOOST_AUTO_TEST_CASE(test00_cast_complex_to_cpx_t)
 {
     const double a = 42, c = 2;

@@ -736,7 +736,7 @@ BOOST_AUTO_TEST_CASE(test120_vec2fld)
     }
 
     // let test deliberately fail: to see output
-    BOOST_CHECK(0 == 0);
+    BOOST_CHECK(1 == 0);
 }
 
 // check that it works, does not crash
@@ -812,6 +812,85 @@ BOOST_AUTO_TEST_CASE(test122_vec2fld_and_back)
     }
     //tc.print("tc");
 
+// let test deliberately fail: to see output
+BOOST_CHECK(1 == 0);
+}
+
+// check that it works, does not crash
+BOOST_AUTO_TEST_CASE(test130_compute_norm)
+{
+    auto desc = std::make_shared<gtpsa::desc>(6, 3);
+    gtpsa::ss_vect<gtpsa::tpsa> vec(desc, 3);
+
+    vec.set_identity();
+    const auto v = vec.clone();
+
+    auto nrm = vec.computeNorm();
+    BOOST_CHECK_CLOSE(nrm, 6e0, 1e-12);
     // let test deliberately fail: to see output
+    BOOST_CHECK(0 == 0);
+}
+
+BOOST_AUTO_TEST_CASE(test140_inverse)
+{
+    auto desc = std::make_shared<gtpsa::desc>(6, 3);
+    gtpsa::ss_vect<gtpsa::tpsa> vec(desc, 3);
+    vec.set_identity();
+    const auto v = vec.clone();
+
+    auto res = v.allocateLikeMe();
+    res.rminv(v);
+
+#if 0
+    for(size_t k = 0; k < vec.size(); ++k){
+        char cname[] = "inv    \0\0";
+        cname[5] = 'a' + k;
+        std::string name(cname);
+        res[k].print(name.c_str());
+    }
     BOOST_CHECK(1 == 0);
+#endif
+    {
+        const auto resc = res.clone();
+        arma::mat jac = resc.jacobian();
+        arma::mat id(6, 6, arma::fill::eye);
+
+        arma::mat chk = arma::abs(jac - id);
+        arma::vec vec = arma::sum(chk, 1);
+        BOOST_CHECK_SMALL(arma::sum(vec), 1e-12);
+    }
+
+    arma::mat jac = {
+            {101,   2,   3,   4,   5,   6},
+            { -7, 102,   8,   9,  10,  11},
+            {-13, -12, 103,  14,  15,  16},
+            {-17, -18, -19, 104,  20,  21},
+            {-22, -23, -24, -25, 105,  26},
+            {-27, -28, -29, -30, -31, 106}
+            };
+    jac /= 100e0;
+    std::cout << jac << std::endl;
+
+    vec.set_zero();
+    vec.setJacobian(jac);
+
+
+    {
+        arma::mat jac_inv = arma::inv(jac);
+
+        auto res = gtpsa::minv(vec);
+        for(size_t k = 0; k < vec.size(); ++k){
+            char cname[] = "inv any   \0\0";
+            cname[8] = 'a' + k;
+            std::string name(cname);
+            res[k].print(name.c_str());
+        }
+
+        std::cout << "arma:  jac inv\n" << jac_inv << std::endl;
+
+        arma::mat chk = arma::abs(jac_inv - res.jacobian());
+        arma::vec vec = arma::sum(chk, 1);
+        BOOST_CHECK_SMALL(arma::sum(vec), 1e-12);
+    }
+
 }

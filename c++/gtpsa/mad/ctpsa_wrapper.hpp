@@ -102,10 +102,6 @@ namespace gtpsa::mad {
 	inline void getv(idx_t i,       std::vector<cpx_t> *v) const { mad_ctpsa_getv(this->getPtr(), i, v->size(), v->data() ); }
 	inline void setv(idx_t i, const std::vector<cpx_t> &v)       { mad_ctpsa_setv(this->getPtr(), i, v.size() , v.data()  ); }
 
-	inline void print(str_t name_, num_t eps_, int nohdr_, FILE *stream_){
-	    mad_ctpsa_print(this->getPtr(), name_, eps_, nohdr_, stream_);
-	}
-
 	inline void real(TpsaWrapper* re) const {
 	    mad_ctpsa_real(this->getPtr(), re->getPtr());
 	}

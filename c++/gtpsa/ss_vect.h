@@ -324,6 +324,14 @@ namespace gtpsa {
             this->setConstantPartWithoutCheck(vec);
         }
 
+	inline void rminv(const ss_vect<T>& a) {
+            throw std::runtime_error("rminv currently only implemented for tpsa");
+	}
+
+	inline void rpminv(const ss_vect<T>& a, std::vector<idx_t>& select) {
+            throw std::runtime_error("rminv currently only implemented for tpsa");
+	}
+
         inline void rcompose(const ss_vect<T>& a, const ss_vect<T>& b){
             throw std::runtime_error("rcompose currently only implemented for tpsa");
         }
@@ -366,7 +374,10 @@ namespace gtpsa {
          * */
         inline int getMaximumOrder(void) const  {
             throw std::runtime_error("maximum order currently only implemented for tpsa");
+        }
 
+        inline double computeNorm(void) const {
+            throw std::runtime_error("norm to be provided for xxx");
         }
 
     private:
@@ -387,14 +398,12 @@ namespace gtpsa {
             }
         }
 
-
         template<typename U>
         inline void inplace_op(const ss_vect<U> &o, void f(T &, const U &)) {
             for (size_t i = 0; i < this->state_space.size(); ++i) {
                 f(this->state_space[i], o[i]);
             }
         }
-
 
         inline void inplace_op(const double o, void f(T &, const double)) {
             for (size_t i = 0; i < this->state_space.size(); ++i) {
@@ -597,13 +606,41 @@ namespace gtpsa {
     template<>
     int ss_vect<tpsa>::getMaximumOrder(void) const;
 
+    /**
+     * @brief
+     *
+     * @return norm of tpsa function
+     *
+     * @todo: describe method
+     */
+    template<>
+    double ss_vect<tpsa>::computeNorm(void) const;
+
     /* not inlined as quite some functionality behind the scenes */
     template<>
     void  ss_vect<tpsa>::rcompose(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
 
     template<>
+    void ss_vect<tpsa>::rminv(const ss_vect<tpsa>& a);
+
+    template<>
+    void ss_vect<tpsa>::rpminv(const ss_vect<tpsa>& a, std::vector<idx_t>& select);
+
+
+    /**
+     * @brief truncated power series to vector flow
+     *
+     * @todo: add derivative to flow
+     * @param o: trunctated power series containing coefficients
+     */
+    template<>
     void ss_vect<tpsa>::rvec2fld(const tpsa& a);
 
+    /**
+     * @brief vector flow to truncated power series
+     *
+     * @param r: stores the computed truncated power serise in this object
+     */
     template<>
     void ss_vect<tpsa>::fld2vec(tpsa * r) const;
     template<>
@@ -646,6 +683,18 @@ namespace gtpsa {
     {
         auto r = a.allocateLikeMe();
         r.rlogpb(a, b);
+        return r;
+    }
+
+    inline ss_vect<tpsa> minv(const ss_vect<tpsa>& a) {
+        auto r = a.allocateLikeMe();
+        r.rminv(a);
+        return r;
+    }
+
+    inline ss_vect<tpsa> pminv(const ss_vect<tpsa>& a, std::vector<idx_t>& select) {
+        auto r = a.allocateLikeMe();
+        r.rpminv(a, select);
         return r;
     }
 

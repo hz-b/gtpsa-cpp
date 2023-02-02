@@ -27,6 +27,7 @@ namespace gtpsa {
      */
     template<class T, typename, typename, typename>
     class TpsaBridgeContainer {
+	using ContainerBridge = typename T::bridge_container_type;
         std::vector<TpsaBridge<T> *> m_vec;
 
     public:
@@ -63,33 +64,44 @@ namespace gtpsa {
 	}
 
         inline void rliebra(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
-            using ContainerBridge = typename T::bridge_container_type;
             const ContainerBridge ma_c(ma.getBridgePtrs()), mb_c(mb.getBridgePtrs());
             ContainerBridge mc_c(this->getBridgePtrs());
             mc_c.rliebra(ma_c, mb_c);
 	}
 
 	inline void rexppb(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
-            using ContainerBridge = typename T::bridge_container_type;
             const ContainerBridge ma_c(ma.getBridgePtrs()), mb_c(mb.getBridgePtrs());
             ContainerBridge mc_c(this->getBridgePtrs());
             mc_c.rexppb(ma_c, mb_c);
 	}
 
 	inline void rlogpb(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
-            using ContainerBridge = typename T::bridge_container_type;
             const ContainerBridge ma_c(ma.getBridgePtrs()), mb_c(mb.getBridgePtrs());
             ContainerBridge mc_c(this->getBridgePtrs());
             mc_c.rlogpb(ma_c, mb_c);
 	}
 
         inline void rcompose(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
-            using ContainerBridge = typename T::bridge_container_type;
             const ContainerBridge ma_c(ma.getBridgePtrs()), mb_c(mb.getBridgePtrs());
             ContainerBridge mc_c(this->getBridgePtrs());
 
             mc_c.rcompose(ma_c, mb_c);
         }
+
+        inline void rminv(const TpsaBridgeContainer<T> &ma) {
+            const ContainerBridge ma_c(ma.getBridgePtrs());
+            ContainerBridge mc_c(this->getBridgePtrs());
+
+            mc_c.rminv(ma_c);
+        }
+
+        inline void rpminv(const TpsaBridgeContainer<T> &ma, std::vector<idx_t>& select) {
+            const ContainerBridge ma_c(ma.getBridgePtrs());
+            ContainerBridge mc_c(this->getBridgePtrs());
+
+            mc_c.rpminv(ma_c, select);
+        }
+
 
     protected:
         inline std::vector<typename T::bridge_base_type *> getBridgePtrs(void) const {
