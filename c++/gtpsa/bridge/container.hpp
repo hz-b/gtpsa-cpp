@@ -42,6 +42,11 @@ namespace gtpsa {
             return cb.getMaximumOrder();
         }
 
+        inline int computeNorm(void) const {
+            typename T::bridge_container_type cb(this->getBridgePtrs());
+            return cb.computeNorm();
+        }
+
 	inline void rvec2fld(const typename T::tpsa_type& a) {
         typename T::bridge_container_type mc_c(this->getBridgePtrs());
         mc_c.rvec2fld(a.m_impl);
