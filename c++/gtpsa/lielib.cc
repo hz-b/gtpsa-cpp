@@ -65,13 +65,11 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
     auto  map_lin_inv = t_map.allocateLikeMe();
     arma::mat jac = t_map.jacobian(), jac_inv = arma::inv(jac);
     map_lin_inv.setJacobian(jac_inv);
-
     auto map_res = gtpsa::compose(t_map, map_lin_inv);
 
     auto map_fact = t_map.allocateLikeMe();
     auto map_single_order = t_map.allocateLikeMe();
     map_fact.set_zero();
-
     for(int k = 2; k < t_map.getMaximumOrder(); ++k){
         map_single_order.rgetOrder(map_res, k);
         map_fact += map_single_order;
