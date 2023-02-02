@@ -10,7 +10,7 @@ extern "C" {
   /* a non standard hack */
   // typedef bool _Bool;
   typedef bool _Bool;
- 
+
 }
 #endif
 

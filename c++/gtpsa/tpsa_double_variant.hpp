@@ -66,6 +66,7 @@ namespace gtpsa {
     class TpsaOrDouble : public GTpsaOrBase<TpsaVariantDoubleTypes> {
         using base = GTpsaOrBase<TpsaVariantDoubleTypes>;
         friend class CTpsaOrComplex;
+
     public:
         TpsaOrDouble(const double d)
                 : base(d)
@@ -81,6 +82,7 @@ namespace gtpsa {
         : base(b)
         {}
         TpsaOrDouble clone(void) const {return TpsaOrDouble(base::clone()) ;}
+
 #if 0
 // bool operators currently not working using a hack on user side
         inline bool operator== (const base_type o) const {
