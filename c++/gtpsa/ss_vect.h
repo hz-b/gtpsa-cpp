@@ -632,6 +632,8 @@ namespace gtpsa {
      *
      * @todo: add derivative to flow
      * @param o: trunctated power series containing coefficients
+     *
+     *
      */
     template<>
     void ss_vect<tpsa>::rvec2fld(const tpsa& a);
@@ -640,6 +642,8 @@ namespace gtpsa {
      * @brief vector flow to truncated power series
      *
      * @param r: stores the computed truncated power serise in this object
+     *
+     * Intd in Forest's F77 LieLib.
      */
     template<>
     void ss_vect<tpsa>::fld2vec(tpsa * r) const;

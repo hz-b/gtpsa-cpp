@@ -61,7 +61,7 @@ namespace gtpsa::mad {
             GTPSA_METH(fgrad)(tmpa.size(), tmpa.data(), b->getPtr(), r->getPtr());
 	}
 	/**
-	 * @brief evaluate lie bracket
+	 * @brief evaluate Lie bracket
 	 *
 	 *
 	 */
@@ -70,7 +70,7 @@ namespace gtpsa::mad {
 	}
 
 	/**
-	 * @brief evaluate lie exponent
+	 * @brief evaluate Lie exponent
 	 *
 	 *
 	 */
