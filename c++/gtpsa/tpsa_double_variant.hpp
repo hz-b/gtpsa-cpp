@@ -63,11 +63,26 @@ namespace gtpsa {
      */
     typedef TpsaVariantTypes<double, tpsa, intern::tpsa_or_double_t> TpsaVariantDoubleTypes;
 
+    class TpsaOrDouble;
+
+    class TpsaOrDoubleVisitor {
+    public:
+	virtual ~TpsaOrDoubleVisitor(void) {}
+	virtual void visit(const TpsaOrDouble& o) = 0;
+    };
+
+    class TODVImpl;
+
     class TpsaOrDouble : public GTpsaOrBase<TpsaVariantDoubleTypes> {
         using base = GTpsaOrBase<TpsaVariantDoubleTypes>;
         friend class CTpsaOrComplex;
+	friend class TpsaOrDoubleVisitor;
+	friend class TODVImpl;
 
+	int t_access;
     public:
+	virtual ~TpsaOrDouble() {}
+
         TpsaOrDouble(const double d)
                 : base(d)
         {}
@@ -83,6 +98,9 @@ namespace gtpsa {
         {}
         TpsaOrDouble clone(void) const {return TpsaOrDouble(base::clone()) ;}
 
+	virtual  void accept(TpsaOrDoubleVisitor& visitor) {
+	    visitor.visit(*this);
+	}
 #if 0
 // bool operators currently not working using a hack on user side
         inline bool operator== (const base_type o) const {
@@ -105,8 +123,21 @@ namespace gtpsa {
 #endif
     };
 
+
 #if 0
     inline bool operator== (const double a, const TpsaOrDouble& b){ return b.operator==(a); }
 #endif
+
+    class TODVImpl : public TpsaOrDoubleVisitor {
+	// provide access to this internal detail .. a hack...
+    public:
+	virtual ~TODVImpl() {}
+    protected:
+	auto getArg(const TpsaOrDouble& o) {
+	    return o.m_arg;
+	}
+    };
+
+
 } // namespace gtpsa
-#endif /*   _GTPSA_TPSA_DOUBLE_VARIANT_HPP_ */
+#endif /*   _GTPSATODVImpl_TPSA_DOUBLE_VARIANT_HPP_ */
