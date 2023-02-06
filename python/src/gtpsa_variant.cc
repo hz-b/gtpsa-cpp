@@ -84,10 +84,35 @@ static gtpsa::TpsaOrDouble to_tpsa_or_double(const gtpsa::intern::tpsa_or_double
 
 }
 
-struct PythonVisitor
+class PythonVisitor : public gtpsa::TODVImpl
 {
+    py::object m_obj;
+
+public:
+    virtual void visit(const gtpsa::TpsaOrDouble& o) override final {
+	py::object obj;
+
+	auto arg = this->getArg(o);
+	std::visit(overloaded {
+		[&obj](const double&        arg) { obj = py::cast(arg); },
+		[&obj](const gtpsa::tpsa&   arg) { obj = py::cast(arg); }
+	}, arg);
+	m_obj = obj;
+    }
+
+    auto getObject(void) const {
+	return this->m_obj;
+    }
 
 };
+
+static auto
+to_pyobject(gtpsa::TpsaOrDouble& inst)
+{
+    PythonVisitor visitor;
+    inst.accept(visitor);
+    return visitor.getObject();
+}
 
 void py_gtpsa_init_variant(pybind11::module &m)
 {
@@ -111,7 +136,7 @@ void py_gtpsa_init_variant(pybind11::module &m)
 		 }),
 	     /* no default here .. due to desc obj */
 	     "initialise tpsa or double with a double value", py::arg("tpsa object"))
-	.def("to_object", [](Cls& inst){ return inst})
+	.def("to_object", [](gtpsa::TpsaOrDouble& inst){ return to_pyobject(inst); })
 	;
 
 }
