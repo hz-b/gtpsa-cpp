@@ -249,11 +249,10 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	 * @brief method get return cpx_t, which is incompatible with std::complex<double>
      */
         inline auto get_complex(void) {
-            std::complex<double> tmp(this->get());
-            return tmp;
+	  return cpx_t_to_std_complex_double(this->get());
         }
 
-        inline auto cst(void) const {return std::complex<double>(base::cst());}
+        inline auto cst(void) const { return cpx_t_to_std_complex_double(base::cst());}
 
 
         inline ctpsa& operator += (const ctpsa& o ) { base::operator += (o) ; return *this; }
