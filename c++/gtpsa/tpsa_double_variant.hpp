@@ -140,4 +140,4 @@ namespace gtpsa {
 
 
 } // namespace gtpsa
-#endif /*   _GTPSATODVImpl_TPSA_DOUBLE_VARIANT_HPP_ */
+#endif /*   _GTPSA_TPSA_DOUBLE_VARIANT_HPP_ */
