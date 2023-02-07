@@ -169,10 +169,18 @@ void py_gtpsa_init_tpsa(py::module &m)
     AddMethods<gtpsa::ctpsa> ctpsa_m;
     ctpsa_m.add_methods<gtpsa::ctpsa, cpx_t>(ctpsa);
     ctpsa
-	.def("set0",  [](gtpsa::ctpsa& t, const std::complex<double> a, const std::complex<double> b) {
-        t.set(a, b);
+    .def("set0",  [](gtpsa::ctpsa& t, const std::complex<double> a, const std::complex<double> b) {
+      t.set(a, b);
     })
-	.def("setm",  &gtpsa::ctpsa::_setm)
+    .def("set0",  [](gtpsa::ctpsa& t, const double a, const std::complex<double> b) {
+      std::complex<double> tmpa = {a, 0};
+      t.set(tmpa, b);
+    })
+    .def("set",  [](gtpsa::ctpsa& t, const double a, const std::complex<double> b) {
+      std::complex<double> tmpa = {a, 0};
+      t.set(tmpa, b);
+    })
+    .def("setm",  &gtpsa::ctpsa::_setm)
     .def("real", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.real();}, "return real part (newly allocated object)")
     .def("imag", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.imag();}, "return imaginary part (newly allocated object)")
     .def("real", [](const gtpsa::ctpsa& t, gtpsa::tpsa *re) { t.real(re);}, "place real part in passed object re")
