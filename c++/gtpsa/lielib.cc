@@ -65,34 +65,22 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
     auto  map_lin_inv = t_map.allocateLikeMe();
     arma::mat jac = t_map.jacobian(), jac_inv = arma::inv(jac);
     map_lin_inv.setJacobian(jac_inv);
-
     auto map_res = gtpsa::compose(t_map, map_lin_inv);
 
+    /*
+     * iterate over the higher orders
+     * work on it order by order
+     */
     auto map_fact = t_map.allocateLikeMe();
     auto map_single_order = t_map.allocateLikeMe();
     map_fact.set_zero();
-
     for(int k = 2; k < t_map.getMaximumOrder(); ++k){
         map_single_order.rgetOrder(map_res, k);
         map_fact += map_single_order;
-# warning "using number of dimensions, should that not be a config parameter",
-
-	// Expflo in Forest's F77 LieLib:
-	//   y = exp(v*nabla) * x
-	//
-	//   reimplementation using Laurent's stuff
-	//   Y = gtpsa::exp( gtpsa::flo2vec(v) ) * X
-
-	const int n_dim = t_map.size() / 2;
-        for(size_t j = 0; j <  n_dim * 2; ++j) {
-            auto tmp = t_map.allocateLikeMe();
-
-            // tmp.rvec2fld(map_fact);
-            // map_fact.
-            //map_res[j] = exp_v_to_tps(map_fact, map_res[j], k, k, -1e0, false);
-        }
+	map_fact *= -1.0;
+	map_res = gtpsa::exppb(map_fact, map_res);
     }
-  return map_fact;
+    return map_fact;
 }
 
 
@@ -138,10 +126,13 @@ gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
   return h;
 }
 
-gtpsa::tpsa M_to_h_DF(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
-{
-    auto tmp = M_to_M_fact(t_map);
-    // fld2vec: Intd in Forest's F77 LieLib.
-    auto res =  M_to_h(tmp);
-    return res;
+//tpsa M_to_h_DF(const ss_vect<tpsa> &t_map);
+namespace gtpsa {
+    tpsa M_to_h_DF(const ss_vect<tpsa> &t_map)
+    {
+	auto tmp = M_to_M_fact(t_map);
+	// fld2vec: Intd in Forest's F77 LieLib.
+	auto res =  M_to_h(tmp);
+	return res;
+    }
 }
