@@ -125,3 +125,18 @@ BOOST_AUTO_TEST_CASE(test42_variant_tpsa_cmp)
     BOOST_CHECK(flag == False);
 }
 #endif
+
+
+/* required e.g. for transform ... TPSA object bud double used for ss_vect */
+BOOST_AUTO_TEST_CASE(test11_double_radd)
+{
+    const double a = 3, b =5;
+    const auto ta = gtpsa::TpsaOrDouble(a);
+
+
+    double r = b;
+    r += ta;
+
+    BOOST_CHECK_CLOSE(r, a + b, 1e-12);
+
+}

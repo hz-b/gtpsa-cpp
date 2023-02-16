@@ -16,6 +16,7 @@
 #include <gtpsa/ctpsa.hpp>
 #include <gtpsa/variant_forward_decl.hpp>
 #include <variant>
+#include <complex>
 
 namespace gtpsa {
     namespace intern {
@@ -54,6 +55,20 @@ namespace gtpsa {
         }, a, b);
     }
 
+    inline void neg_helper(const intern::ctpsa_or_cplx_t& a, intern::ctpsa_or_cplx_t* c)
+    {
+        std::visit( overloaded {
+                [&c](const intern::cplx_& ta) { c->emplace<intern::cplx_>(-ta); },
+                [&c](const ctpsa&         ta) { c->emplace<ctpsa>        (-ta); },
+        }, a);
+    }
+    inline void apply_helper(const intern::ctpsa_or_cplx_t& a, intern::ctpsa_or_cplx_t* r,
+                             intern::cplx_(fc)(const intern::cplx_&), ctpsa(ft)(const ctpsa&)){
+        std::visit( gtpsa::overloaded{
+                [&r, &fc](const intern::cplx_ &a) {r->emplace<intern::cplx_>( fc(a) );},
+                [&r, &ft](const ctpsa         &a) {r->emplace<ctpsa>        ( ft(a) );}
+        }, a);
+    }
 } // gtpsa namespace
 
 #include <gtpsa/gtpsa_base_variant.hpp>
@@ -73,6 +88,12 @@ namespace gtpsa {
     public:
         inline CTpsaOrComplex(const base_type c)
                 : base(c)
+        {}
+        inline CTpsaOrComplex(const double c)
+                : base(c)
+        {}
+        inline CTpsaOrComplex(const double re, const double im)
+                : base(base_type (re, im))
         {}
         inline CTpsaOrComplex(const tpsa_type t)
                 : base(t)
@@ -98,7 +119,7 @@ namespace gtpsa {
             }, this->m_arg);
             return res;
         }
-        const TpsaOrDouble imag(void) const {
+        inline const TpsaOrDouble imag(void) const {
             TpsaOrDouble res(0e0);
             std::visit(overloaded{
                     [&res](const base_type& arg){ res.m_arg.emplace<double>(arg.imag()); },
@@ -107,18 +128,31 @@ namespace gtpsa {
             return res;
         }
         //only implemented
-        void real(gtpsa::tpsa* t) const {
+        inline void real(gtpsa::tpsa* t) const {
             std::get<tpsa_type>(this->m_arg).real(t);
         }
-        void imag(gtpsa::tpsa* t) const {
+        inline void imag(gtpsa::tpsa* t) const {
             std::get<tpsa_type>(this->m_arg).imag(t);
         }
-        CTpsaOrComplex operator+ (const CTpsaOrComplex& o) const {return CTpsaOrComplex(base::operator+(o)); }
-        CTpsaOrComplex operator- (const CTpsaOrComplex& o) const {return CTpsaOrComplex(base::operator-(o)); }
-        CTpsaOrComplex operator* (const CTpsaOrComplex& o) const {return CTpsaOrComplex(base::operator*(o)); }
-        CTpsaOrComplex operator/ (const CTpsaOrComplex& o) const {return CTpsaOrComplex(base::operator/(o)); }
+        inline CTpsaOrComplex operator+ (const CTpsaOrComplex& o) const {return CTpsaOrComplex(base::operator+(o)); }
+        inline CTpsaOrComplex operator- (const CTpsaOrComplex& o) const {return CTpsaOrComplex(base::operator-(o)); }
+        inline CTpsaOrComplex operator* (const CTpsaOrComplex& o) const {return CTpsaOrComplex(base::operator*(o)); }
+        inline CTpsaOrComplex operator/ (const CTpsaOrComplex& o) const {return CTpsaOrComplex(base::operator/(o)); }
+
+        inline void rexp(const CTpsaOrComplex& o) { apply_helper(o.m_arg, &this->m_arg, std::exp, gtpsa::exp); }
     };
 
+    /*
+    inline std::complex<double> operator+ (const std::complex<double> a, const CTpsaOrComplex& b){ return std_complex_double_to_cpx_t(a) + b.cst(); }
+    inline std::complex<double> operator- (const std::complex<double> a, const CTpsaOrComplex& b){ return std_complex_double_to_cpx_t(a) - b.cst(); }
+    inline std::complex<double> operator* (const std::complex<double> a, const CTpsaOrComplex& b){ return std_complex_double_to_cpx_t(a) * b.cst(); }
+    inline std::complex<double> operator/ (const std::complex<double> a, const CTpsaOrComplex& b){ return std_complex_double_to_cpx_t(a) / b.cst(); }
 
+    inline ctpsa operator+ (const ctpsa a, const CTpsaOrComplex& b){ return a + static_cast<GTpsaOrBase<TpsaVariantComplexTypes>>(b); }
+    inline ctpsa operator- (const ctpsa a, const CTpsaOrComplex& b){ return a - static_cast<GTpsaOrBase<TpsaVariantComplexTypes>>(b); }
+    inline ctpsa operator* (const ctpsa a, const CTpsaOrComplex& b){ return a * static_cast<GTpsaOrBase<TpsaVariantComplexTypes>>(b); }
+    inline ctpsa operator/ (const ctpsa a, const CTpsaOrComplex& b){ return a / static_cast<GTpsaOrBase<TpsaVariantComplexTypes>>(b); }
+    */
+    inline CTpsaOrComplex exp(const CTpsaOrComplex& a) { auto n = a.clone(); n.rexp(a); return n;}
 } // namespace gtpsa
 #endif /* _GTPSA_CTPSA_COMPLEX_VARIANT_HPP_ */

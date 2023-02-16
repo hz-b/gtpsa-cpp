@@ -109,6 +109,8 @@ struct AddMethods
 	    .def(T()      *  py::self)
 	    .def(T()      /  py::self)
 
+	    .def("__pow__", [](BCls& inst, const int    n) { return gtpsa::pow(inst, n); })
+	    .def("__pow__", [](BCls& inst, const double v) { return gtpsa::pow(inst, v); })
 	    ;
     }
 
@@ -180,6 +182,11 @@ void py_gtpsa_init_tpsa(py::module &m)
       std::complex<double> tmpa = {a, 0};
       t.set(tmpa, b);
     })
+    .def("setv",  [](gtpsa::ctpsa& t, int m, const std::vector<std::complex<double>>& c) {
+	std::vector<cpx_t> cv;
+	std::transform(c.begin(), c.end(), std::back_inserter(cv), [](const std::complex<double>&v) { return std_complex_double_to_cpx_t(v); });
+	t.setv(m, cv);
+    })
     .def("setm",  &gtpsa::ctpsa::_setm)
     .def("real", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.real();}, "return real part (newly allocated object)")
     .def("imag", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.imag();}, "return imaginary part (newly allocated object)")
@@ -210,6 +217,8 @@ void py_gtpsa_init_tpsa(py::module &m)
 	    )
 	.def(py::init<const gtpsa::tpsa&, const ord_t>(), tpsa_init_same_doc,
 	     py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::same))
+	.def(py::init<const gtpsa::tpsa&, const gtpsa::tpsa&>(), "init from real and imag",
+	     py::arg("real"), py::arg("imag"))
 	;
 
 

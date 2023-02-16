@@ -6,6 +6,13 @@
 #include <memory>
 #include <utility>
 
+BOOST_AUTO_TEST_CASE(test01_variant_ctpsa_I)
+{
+    gtpsa::CTpsaOrComplex I (0e0, 1e0);
+    gtpsa::CTpsaOrComplex I2 (0, 1);
+
+}
+
 BOOST_AUTO_TEST_CASE(test10_variant_ctpsa_alloc)
 {
     auto a_desc = std::make_shared<gtpsa::desc>(6, 2);
@@ -27,7 +34,7 @@ BOOST_AUTO_TEST_CASE(test20_variant_complex_add)
     BOOST_CHECK_CLOSE(check.real(), c.real(), 1e-12);
     BOOST_CHECK_CLOSE(check.imag(), c.imag(), 1e-12);
 }
-#if 0
+
 BOOST_AUTO_TEST_CASE(test21_variant_double_sub)
 {
     double a = 3, b = 5;
@@ -57,18 +64,18 @@ BOOST_AUTO_TEST_CASE(test11_variant_double_div)
 
     BOOST_CHECK_CLOSE(tc.cst(), a / b, 1e-12);
 }
-static std::array<gtpsa::TpsaOrDouble, 2> create_tab(const double a, const double b)
+static std::array<gtpsa::CTpsaOrComplex, 2> create_tab(const double a, const double b)
 {
     auto desc = std::make_shared<gtpsa::desc>(6,1);
-    auto ta = gtpsa::tpsa(desc, 1);
-    auto tb = gtpsa::tpsa(desc, 1);
+    auto ta = gtpsa::ctpsa(desc, 1);
+    auto tb = gtpsa::ctpsa(desc, 1);
     ta += a; tb += b;
-    auto da = gtpsa::TpsaOrDouble(ta);
-    auto db = gtpsa::TpsaOrDouble(tb);
-    BOOST_CHECK_CLOSE(da.cst(), a, 1e-12);
-    BOOST_CHECK_CLOSE(db.cst(), b, 1e-12);
+    auto da = gtpsa::CTpsaOrComplex(ta);
+    auto db = gtpsa::CTpsaOrComplex(tb);
+    BOOST_CHECK_CLOSE(da.real().cst(), a, 1e-12);
+    BOOST_CHECK_CLOSE(db.real().cst(), b, 1e-12);
 
-    std::array<gtpsa::TpsaOrDouble, 2> r ({std::move(da), std::move(db)});
+    std::array<gtpsa::CTpsaOrComplex, 2> r ({std::move(da), std::move(db)});
     return r;
 }
 
@@ -78,7 +85,7 @@ BOOST_AUTO_TEST_CASE(test30_variant_tpsa_add)
     auto tmp = create_tab(a, b);
 
     auto dc = tmp[0] + tmp[1];
-    BOOST_CHECK_CLOSE(dc.cst(), a + b, 1e-12);
+    BOOST_CHECK_CLOSE(dc.real().cst(), a + b, 1e-12);
 }
 
 BOOST_AUTO_TEST_CASE(test30_variant_tpsa_sub)
@@ -87,7 +94,7 @@ BOOST_AUTO_TEST_CASE(test30_variant_tpsa_sub)
     auto tmp = create_tab(a, b);
 
     auto dc = tmp[0] - tmp[1];
-    BOOST_CHECK_CLOSE(dc.cst(), a - b, 1e-12);
+    BOOST_CHECK_CLOSE(dc.real().cst(), a - b, 1e-12);
 }
 
 BOOST_AUTO_TEST_CASE(test30_variant_tpsa_mul)
@@ -96,7 +103,7 @@ BOOST_AUTO_TEST_CASE(test30_variant_tpsa_mul)
     auto tmp = create_tab(a, b);
 
     auto dc = tmp[0] * tmp[1];
-    BOOST_CHECK_CLOSE(dc.cst(), a * b, 1e-12);
+    BOOST_CHECK_CLOSE(dc.real().cst(), a * b, 1e-12);
 }
 
 BOOST_AUTO_TEST_CASE(test30_variant_tpsa_div)
@@ -105,6 +112,13 @@ BOOST_AUTO_TEST_CASE(test30_variant_tpsa_div)
     auto tmp = create_tab(a, b);
 
     auto dc = tmp[0] / tmp[1];
-    BOOST_CHECK_CLOSE(dc.cst(), a / b, 1e-12);
+    BOOST_CHECK_CLOSE(dc.real().cst(), a / b, 1e-12);
 }
-#endif
+
+BOOST_AUTO_TEST_CASE(test40_variant_ctpsa_exp)
+{
+    auto ta = gtpsa::CTpsaOrComplex(0e0);
+    auto e = gtpsa::exp(ta);
+    BOOST_CHECK_CLOSE(e.real().cst(), 1e0, 1e-12);
+}
+

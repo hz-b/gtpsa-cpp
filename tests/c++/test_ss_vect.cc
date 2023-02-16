@@ -752,7 +752,7 @@ BOOST_AUTO_TEST_CASE(test120_vec2fld)
     }
 
     // let test deliberately fail: to see output
-    BOOST_CHECK(1 == 0);
+    // BOOST_CHECK(1 == 0);
 }
 
 // check that it works, does not crash
@@ -792,7 +792,7 @@ BOOST_AUTO_TEST_CASE(test121_fld2vec)
     t.print("t");
 
     // let test deliberately fail: to see output
-    BOOST_CHECK(1 == 0);
+    // BOOST_CHECK(1 == 0);
 }
 
 
@@ -829,7 +829,7 @@ BOOST_AUTO_TEST_CASE(test122_vec2fld_and_back)
     //tc.print("tc");
 
 // let test deliberately fail: to see output
-BOOST_CHECK(1 == 0);
+    // BOOST_CHECK(1 == 0);
 }
 
 // check that it works, does not crash
@@ -864,7 +864,8 @@ BOOST_AUTO_TEST_CASE(test140_inverse)
         std::string name(cname);
         res[k].print(name.c_str());
     }
-    BOOST_CHECK(1 == 0);
+    // BOOST_CHECK(1 == 0);
+
 #endif
     {
         const auto resc = res.clone();
