@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(test110_combine_re_im)
 
     auto cplx = gtpsa::ctpsa(re, im);
 
-    auto check = cplx.get_complex();
+    auto check = cplx.get();
     BOOST_CHECK_CLOSE(check.real(), re_v, 1e-12);
     BOOST_CHECK_CLOSE(check.imag(), im_v, 1e-12);
 }

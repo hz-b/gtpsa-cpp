@@ -112,7 +112,6 @@ namespace gtpsa {
         inline GTpsaOrBase& operator/= (const GTpsaOrBase& b) { div_helper(this->m_arg, b.m_arg, &this->m_arg); return *this; }
 
         inline GTpsaOrBase  operator-  (void)                 const { GTpsaOrBase n = *this; neg_helper(this->m_arg,    &n.m_arg); return n; }
-
         inline GTpsaOrBase  operator+  (const base_type    b) const { GTpsaOrBase n = *this; add_helper(this->m_arg, b, &n.m_arg); return n; }
         inline GTpsaOrBase  operator-  (const base_type    b) const { GTpsaOrBase n = *this; sub_helper(this->m_arg, b, &n.m_arg); return n; }
         inline GTpsaOrBase  operator*  (const base_type    b) const { GTpsaOrBase n = *this; mul_helper(this->m_arg, b, &n.m_arg); return n; }

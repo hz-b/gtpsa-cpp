@@ -288,9 +288,12 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	/**
 	 * @brief method get return cpx_t, which is incompatible with std::complex<double>
 	 */
+<<<<<<< HEAD
         inline auto get_complex(void) {
 	    return cpx_t_to_std_complex_double(this->get());
         }
+=======
+>>>>>>> f695661 (visitor added for exporing internal object to python object)
 
         inline auto cst(void) const { return cpx_t_to_std_complex_double(base::cst());}
 
