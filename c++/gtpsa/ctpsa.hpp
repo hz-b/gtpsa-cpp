@@ -127,7 +127,7 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	    {}
 
 
-    inline ctpsa(const ctpsa&              o) = default;
+	inline ctpsa(const ctpsa&              o) = default;
 
 #else /* GTSPA_ONLY_OPTIMISED_OPS */
 
@@ -137,10 +137,11 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
     /**
      * @brief method get return cnum_t, which is incompatible with std::complex<double>
      */
-    inline auto get_complex(void) {
-        std::complex<double> tmp(this->get());
-        return tmp;
-    }
+	inline auto get(void)                        const { return std::complex<double> ( base::get()  ); }
+	inline auto get(const idx_t i)               const { return std::complex<double> ( base::get(i) ); }
+	inline auto get(std::string s)               const { return std::complex<double> ( base::get(s) ); }
+	inline auto get(const std::vector<ord_t>& m) const { return std::complex<double> ( base::get(m) ); }
+
 	/**
 	 * @brief a*x[0]+b
 	 */
@@ -186,12 +187,20 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	inline void set(const std::vector<ord_t>& m, const cpx_t a, const cpx_t b) {
 	    base::set(m, a, b);
 	}
+	inline void setv(idx_t i, const std::vector<std::complex<double>> &v) {
+	    std::vector<cpx_t> tmp;
+	    std::transform(v.begin(), v.end(), std::back_inserter(tmp),
+			   [] (std::complex<double> val) { return std_complex_double_to_cpx_t(val); }
+		);
+	    base::setv(i, tmp);
+	}
 
 	inline void setsm(const std::vector<int>& m, const std::complex<double> a, const std::complex<double> b) {
 	    base::setsm(m, std_complex_double_to_cpx_t(a), std_complex_double_to_cpx_t(b));
 	}
 
-        inline void real(tpsa * re) const {
+	/* compatible to c++ and thus python */
+	inline void real(tpsa* re) const {
             this->m_impl.real(&re->m_impl);
         }
         inline void imag(tpsa * re) const {
@@ -222,12 +231,8 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
             this->m_impl.imag(&re->m_impl);
         }
 
-        inline void abs(tpsa * re) const {
-            this->m_impl.abs(&re->m_impl);
-        }
-
-        inline void arg(tpsa * re) const {
-            this->m_impl.arg(&re->m_impl);
+        inline void arg(tpsa * arg) const {
+            this->m_impl.arg(&arg->m_impl);
         }
 
         inline void runit(const ctpsa& c) {
@@ -241,28 +246,30 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
             this->m_impl.rrect(c.m_impl);
         }
 
+
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
         inline tpsa real() const {
             tpsa re = tpsa(this->getDescription(), this->order());
-            this->m_impl.real(&re.m_impl);
+            this->real(&re);
             return re;
         }
+
         inline tpsa imag() const {
             tpsa im = tpsa(this->getDescription(), this->order());
-            this->m_impl.imag(&im.m_impl);
+            this->imag(&im);
             return im;
         }
 
         inline tpsa abs() const {
-            tpsa r = tpsa(this->getDescription(), this->order());
-            this->m_impl.abs(&r.m_impl);
-            return r;
+            tpsa t = tpsa(this->getDescription(), this->order());
+            this->abs(&t);
+            return t;
         }
 
         inline tpsa arg() const {
-            tpsa r = tpsa(this->getDescription(), this->order());
-            this->m_impl.abs(&r.m_impl);
-            return r;
+            tpsa t = tpsa(this->getDescription(), this->order());
+            this->arg(&t);
+            return t;
         }
 
         inline ctpsa polar() const {
@@ -276,13 +283,13 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
             r.runit(*this);
             return r;
         }
-
 #endif
+
 	/**
 	 * @brief method get return cpx_t, which is incompatible with std::complex<double>
 	 */
         inline auto get_complex(void) {
-	  return cpx_t_to_std_complex_double(this->get());
+	    return cpx_t_to_std_complex_double(this->get());
         }
 
         inline auto cst(void) const { return cpx_t_to_std_complex_double(base::cst());}

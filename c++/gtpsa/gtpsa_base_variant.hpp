@@ -22,6 +22,21 @@ namespace gtpsa {
     };
 
 
+     /* forward declaration */
+    template<class C, typename = typename C::base_type, typename = typename C::tpsa_type,  typename = typename C::variant_type>
+    class GTpsaOrBase;
+
+    template<class C>
+    class GTpsaOrBaseVisitor {
+    public:
+	virtual ~GTpsaOrBaseVisitor(void) {}
+	virtual void visit(const GTpsaOrBase<C>& o) = 0;
+    };
+
+    template<class C>
+    class GTpsaOrBaseVisitorImplementation;
+
+
     /**
      * @brief a class that either contains a double or a tpsa object
      *
@@ -29,9 +44,13 @@ namespace gtpsa {
      *
      * @todo: consider adding power function, further functions required ?
      */
-    template<class C, typename = typename C::base_type, typename = typename C::tpsa_type,  typename = typename C::variant_type>
+    template<class C, typename, typename, typename>
     class GTpsaOrBase
     {
+
+	friend class GTpsaOrBaseVisitor<C>;
+	friend class GTpsaOrBaseVisitorImplementation<C>;
+
     protected:
 	    using base_type = typename C::base_type;
 	    using tpsa_type = typename C::tpsa_type;
@@ -40,6 +59,9 @@ namespace gtpsa {
 	    variant_type m_arg;
 
     public:
+	virtual ~GTpsaOrBase(void)
+	    {}
+
         inline GTpsaOrBase(const base_type d)
 	    : m_arg(d)
 	    {}
@@ -65,7 +87,6 @@ namespace gtpsa {
 
         inline GTpsaOrBase clone(void) const { GTpsaOrBase n = *this; return n; }
 
-<<<<<<< HEAD
 	std::string pstr(void) const {
 	    std::stringstream strm;
             std::visit(overloaded{
@@ -75,8 +96,10 @@ namespace gtpsa {
 	    return strm.str();
 	}
 
-=======
->>>>>>> 994ad6b (Preparations so that tpsa and double or ctpsa and complex can be used)
+	virtual  void accept(GTpsaOrBaseVisitor<C>& visitor) {
+	    visitor.visit(*this);
+	}
+
         // provided to implement operators taking double as first argument
         inline GTpsaOrBase& operator+= (const base_type    b) { add_helper(this->m_arg, b, &this->m_arg); return *this; }
         inline GTpsaOrBase& operator-= (const base_type    b) { sub_helper(this->m_arg, b, &this->m_arg); return *this; }
@@ -88,6 +111,7 @@ namespace gtpsa {
         inline GTpsaOrBase& operator*= (const GTpsaOrBase& b) { mul_helper(this->m_arg, b.m_arg, &this->m_arg); return *this; }
         inline GTpsaOrBase& operator/= (const GTpsaOrBase& b) { div_helper(this->m_arg, b.m_arg, &this->m_arg); return *this; }
 
+        inline GTpsaOrBase  operator-  (void)                 const { GTpsaOrBase n = *this; neg_helper(this->m_arg,    &n.m_arg); return n; }
         inline GTpsaOrBase  operator+  (const base_type    b) const { GTpsaOrBase n = *this; add_helper(this->m_arg, b, &n.m_arg); return n; }
         inline GTpsaOrBase  operator-  (const base_type    b) const { GTpsaOrBase n = *this; sub_helper(this->m_arg, b, &n.m_arg); return n; }
         inline GTpsaOrBase  operator*  (const base_type    b) const { GTpsaOrBase n = *this; mul_helper(this->m_arg, b, &n.m_arg); return n; }
@@ -113,16 +137,29 @@ namespace gtpsa {
         inline GTpsaOrBase  dmul       (const tpsa_type    a) const { GTpsaOrBase n = *this; mul_helper(a, this->m_arg, &n.m_arg); return n; }
         inline GTpsaOrBase  ddiv       (const tpsa_type    a) const { GTpsaOrBase n = *this; div_helper(a, this->m_arg, &n.m_arg); return n; }
 
-        inline tpsa_type asTpsaType(void) const {
-            tpsa_type res;
-            std::visit(overloaded{
-                    /* only return tpsa type. use variant to throw an error if
-                     * other value occurs
-                     * */
-                    [&res] (const auto& arg){ res = std::get<tpsa_type>(arg); },
-            }, this->m_arg);
-            return res;
+        /**
+         *
+         * @return argument as tpsa or cptsa object
+         *
+	 * ref needed to see which desc etc ...
+         * @warning fails if not reached
+         */
+        inline tpsa_type toTpsaType(const tpsa_type& ref) const noexcept {
+	    if(std::holds_alternative<tpsa_type>(this->m_arg)){
+		return this->tpsaType();
+	    }
 
+	    // assuming only two types need to be supported .. so now make
+	    // a tpsa object and restun
+            tpsa_type res = ref.newFromThis();
+	    auto tmp =  std::get<base_type>(this->m_arg);
+	    res.set(0, tmp);
+	    return res;
+        };
+
+        inline tpsa_type tpsaType(void) const noexcept {
+
+            return std::get<tpsa_type>(this->m_arg);
         };
 
         inline  base_type cst(void) const noexcept {
@@ -134,7 +171,7 @@ namespace gtpsa {
             }, this->m_arg);
             return res;
         }
-        void show (std::ostream& strm) const {
+        void show (std::ostream& strm) const noexcept {
             std::visit(overloaded{
                     [&strm] (const tpsa_type& arg){ strm << arg; },
                     [&strm] (const base_type& arg){ strm << arg; }
@@ -162,6 +199,26 @@ namespace gtpsa {
     template<class C>
     inline GTpsaOrBase<C> operator/ (const typename C::tpsa_type a, const GTpsaOrBase<C>& b){ return b.ddiv(a); }
 
+    /*
+    template<class C>
+    inline typename C::base_type operator+ (const typename C::base_type a, const GTpsaOrBase<C>& b){ return a + b.cst(); }
+    template<class C>
+    inline typename C::base_type operator- (const typename C::base_type a, const GTpsaOrBase<C>& b){ return a - b.cst(); }
+    template<class C>
+    inline typename C::base_type operator* (const typename C::base_type a, const GTpsaOrBase<C>& b){ return a * b.cst(); }
+    template<class C>
+    inline typename C::base_type operator/ (const typename C::base_type a, const GTpsaOrBase<C>& b){ return a / b.cst(); }
+
+    template<class C>
+    inline typename C::tpsa_type operator+ (const typename C::tpsa_type a, const GTpsaOrBase<C>& b){ return a + b.toTpsaType(a); }
+    template<class C>
+    inline typename C::tpsa_type operator- (const typename C::tpsa_type a, const GTpsaOrBase<C>& b){ return a - b.toTpsaType(a); }
+    template<class C>
+    inline typename C::tpsa_type operator* (const typename C::tpsa_type a, const GTpsaOrBase<C>& b){ return a * b.toTpsaType(a); }
+    template<class C>
+    inline typename C::tpsa_typeo operator/ (const typename C::tpsa_type a, const GTpsaOrBase<C>& b){ return a / b.toTpsaType(a); }
+    */
+
 
     template<class C>
     inline
@@ -170,6 +227,19 @@ namespace gtpsa {
 	td.show(strm);
 	return strm;
     }
+
+
+    template<class C>
+    class GTpsaOrBaseVisitorImplementation : public GTpsaOrBaseVisitor<C> {
+	// provide access to this internal detail .. a hack...
+    public:
+	virtual ~GTpsaOrBaseVisitorImplementation() {}
+    protected:
+	auto getArg(const GTpsaOrBase<C>& o) {
+	    return o.m_arg;
+	}
+    };
+
 } // namespace gtpsa
 
 

@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(test110_combine_re_im)
 
     auto cplx = gtpsa::ctpsa(re, im);
 
-    auto check = cplx.get_complex();
+    auto check = cplx.get();
     BOOST_CHECK_CLOSE(check.real(), re_v, 1e-12);
     BOOST_CHECK_CLOSE(check.imag(), im_v, 1e-12);
 }
@@ -97,6 +97,7 @@ BOOST_AUTO_TEST_CASE(test111_cplx_to_re_im)
 // check that it works, does not crash
 BOOST_AUTO_TEST_CASE(test112_cplx_to_polar)
 {
+
     const double angle = 45e0/180e0 * M_PI;
     const double r = 1.0/std::sqrt(2e0), a = r * std::cos(angle), b = r * std::sin(angle);
     std::complex<double> c = {a,b};
@@ -112,9 +113,11 @@ BOOST_AUTO_TEST_CASE(test112_cplx_to_polar)
     BOOST_CHECK_CLOSE(val.real(), r, 1e-12);
     BOOST_CHECK_CLOSE(val.imag(), angle, 1e-12);
 }
+
 // check that it works, does not crash
 BOOST_AUTO_TEST_CASE(test113_cplx_to_polar_to_real_imag)
 {
+
     const double angle = 60e0/180e0 * M_PI;
     const double r = 1.0, a = r * std::cos(angle), b = r * std::sin(angle);
     std::complex<double> c = {a,b};

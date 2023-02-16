@@ -6,6 +6,8 @@
  */
 #include "gtpsa_module.h"
 #include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
+
 #include <gtpsa/gtpsa_base_variant.hpp>
 #include <gtpsa/tpsa_double_variant.hpp>
 #include <gtpsa/ctpsa_complex_variant.hpp>
@@ -73,29 +75,37 @@ auto variant_cast_no_monostate(const std::variant<Args...>& v) -> variant_cast_n
     return {v};
 }
 
-static gtpsa::TpsaOrDouble to_tpsa_or_double(const gtpsa::intern::tpsa_or_double_t tmp)
-{
 
-    gtpsa::TpsaOrDouble res = std::visit(overloaded {
-	    [](const double&        arg) { return gtpsa::TpsaOrDouble(arg); },
-	    [](const gtpsa::tpsa&   arg) { return gtpsa::TpsaOrDouble(arg); }
+template<class Cls>
+struct AddMethods {
+    template<typename T>
+    void add_methods(py::class_<Cls> a_cls) {
+    }
+};
+
+template<typename C, typename T>
+static auto to_tpsa_or_base(const typename C::variant_type tmp)
+{
+    T res = std::visit(overloaded {
+	    [](const typename C::base_type& arg) { return T(arg); },
+	    [](const typename C::tpsa_type& arg) { return T(arg); }
 	}, tmp);
     return res;
-
 }
 
-class PythonVisitor : public gtpsa::TODVImpl
+template<class C>
+class PythonVisitor : public gtpsa::GTpsaOrBaseVisitorImplementation<C>
 {
     py::object m_obj;
 
 public:
-    virtual void visit(const gtpsa::TpsaOrDouble& o) override final {
+    virtual void visit(const gtpsa::GTpsaOrBase<C>& o) override final {
 	py::object obj;
 
 	auto arg = this->getArg(o);
 	std::visit(overloaded {
-		[&obj](const double&        arg) { obj = py::cast(arg); },
-		[&obj](const gtpsa::tpsa&   arg) { obj = py::cast(arg); }
+		[&obj](const typename C::base_type& arg) { obj = py::cast(arg); },
+		[&obj](const typename C::tpsa_type& arg) { obj = py::cast(arg); }
 	}, arg);
 	m_obj = obj;
     }
@@ -106,37 +116,60 @@ public:
 
 };
 
-static auto
-to_pyobject(gtpsa::TpsaOrDouble& inst)
+template<typename C, typename T>
+auto to_pyobject(T& inst)
 {
-    PythonVisitor visitor;
+    PythonVisitor<C> visitor;
     inst.accept(visitor);
     return visitor.getObject();
+}
+
+
+template<typename Types, typename Class>
+void add_methods(py::class_<Class> t_mapper)
+{
+    t_mapper
+	.def("__repr__", &Class::pstr)
+	.def("to_object", [](Class& inst){ return to_pyobject<Types, Class>(inst); })
+	.def(py::self += py::self)
+	.def(py::self -= py::self)
+	.def(py::self *= py::self)
+	.def(py::self /= py::self)
+	.def(py::self +  py::self)
+	.def(py::self -  py::self)
+	.def(py::self *  py::self)
+	.def(py::self /  py::self)
+	// .def("__pow__", [](Class& inst, const int    n ) { return gtpsa::pow(inst, n); })
+	// .def("__pow__", [](Class& inst, const double v ) { return gtpsa::pow(inst, v); })
+	.def(py::init<>(
+		 [](const typename Types::base_type& v) {
+		     // class provides ctor's for both types
+		     return Class(v);
+		 }),
+	     "initialise gtpsa or base with a base value", py::arg("base") = 0e0)
+	.def(py::init<>(
+		 [](const typename Types::tpsa_type& t) {
+		     // class provides ctor's for both types
+		     return Class(t);
+		 }),
+	     /* no default here .. due to desc obj */
+	     "initialise tpsa or double with a double value", py::arg("tpsa object"))
+	.def(py::init<>(
+		 /* is this used at all ? */
+		 [](typename Types::variant_type& v) {
+		     return to_tpsa_or_base<Types, Class>(v);
+		 }),
+	     "initialise tpsa or double", py::arg("tpsa or double"))
+	;
 }
 
 void py_gtpsa_init_variant(pybind11::module &m)
 {
 
-    py::class_<gtpsa::TpsaOrDouble>(m, "TpsaOrDouble")
-	.def("__repr__", &gtpsa::TpsaOrDouble::pstr)
-	.def(py::init<>(
-		 /* is this used at all ? */
-		 [](gtpsa::intern::tpsa_or_double_t& v) {
-		     return to_tpsa_or_double(v);
-		 }),
-	     "initialise tpsa or double", py::arg("tpsa or double"))
-	.def(py::init<>(
-		 [](const double& v) {
-		     return gtpsa::TpsaOrDouble(v);
-		 }),
-	     "initialise tpsa or double with a double value", py::arg("double") = 0e0)
-	.def(py::init<>(
-		 [](const gtpsa::tpsa& t) {
-		     return gtpsa::TpsaOrDouble(t);
-		 }),
-	     /* no default here .. due to desc obj */
-	     "initialise tpsa or double with a double value", py::arg("tpsa object"))
-	.def("to_object", [](gtpsa::TpsaOrDouble& inst){ return to_pyobject(inst); })
-	;
+    py::class_<gtpsa::TpsaOrDouble> t_d(m, "TpsaOrDouble");
+    add_methods<gtpsa::TpsaVariantDoubleTypes, gtpsa::TpsaOrDouble>(t_d);
+
+    py::class_<gtpsa::CTpsaOrComplex> t_c(m, "CTpsaOrComplex");
+    add_methods<gtpsa::TpsaVariantComplexTypes, gtpsa::CTpsaOrComplex>(t_c);
 
 }
