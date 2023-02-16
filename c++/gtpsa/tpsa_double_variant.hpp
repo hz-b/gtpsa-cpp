@@ -48,10 +48,27 @@ namespace gtpsa {
 
     inline void div_helper(const intern::tpsa_or_double_t& a, const intern::tpsa_or_double_t& b, intern::tpsa_or_double_t* c)
     {
-	std::visit( overloaded {
-		[&c](const double& ta, const double& tb) { c->emplace<double>(ta / tb); },
-		[&c](const auto&   ta, const auto&   tb) { c->emplace<tpsa> (ta / tb); },
-	    }, a, b);
+        std::visit( overloaded {
+                [&c](const double& ta, const double& tb) { c->emplace<double>(ta / tb); },
+                [&c](const auto&   ta, const auto&   tb) { c->emplace<tpsa> (ta / tb); },
+        }, a, b);
+    }
+
+    inline void neg_helper(const intern::tpsa_or_double_t& a, intern::tpsa_or_double_t* c)
+    {
+        std::visit( overloaded {
+                [&c](const double& ta) { c->emplace<double>(-ta); },
+                [&c](const auto&   ta) { c->emplace<tpsa> (-ta); },
+        }, a);
+    }
+
+    inline void rapply_helper(const intern::tpsa_or_double_t& a, intern::tpsa_or_double_t* c,
+			     double (*fd)(const double), void (*ft)(const gtpsa::tpsa&, gtpsa::tpsa* ))
+    {
+        std::visit( overloaded {
+                [&c, &fd](const double& ta) { c->emplace<double>( fd(ta)); },
+		[&c, &ft](const auto&   ta) { tpsa& tmp = std::get<tpsa>(*c); ft(ta, &tmp); c->emplace<tpsa>(tmp); },
+	    }, a);
     }
 
     //inline void
@@ -63,23 +80,9 @@ namespace gtpsa {
      */
     typedef TpsaVariantTypes<double, tpsa, intern::tpsa_or_double_t> TpsaVariantDoubleTypes;
 
-    class TpsaOrDouble;
-
-    class TpsaOrDoubleVisitor {
-    public:
-	virtual ~TpsaOrDoubleVisitor(void) {}
-	virtual void visit(const TpsaOrDouble& o) = 0;
-    };
-
-    class TODVImpl;
-
     class TpsaOrDouble : public GTpsaOrBase<TpsaVariantDoubleTypes> {
         using base = GTpsaOrBase<TpsaVariantDoubleTypes>;
         friend class CTpsaOrComplex;
-	friend class TpsaOrDoubleVisitor;
-	friend class TODVImpl;
-
-	int t_access;
     public:
 	virtual ~TpsaOrDouble() {}
 
@@ -98,9 +101,13 @@ namespace gtpsa {
         {}
         TpsaOrDouble clone(void) const {return TpsaOrDouble(base::clone()) ;}
 
-	virtual  void accept(TpsaOrDoubleVisitor& visitor) {
-	    visitor.visit(*this);
-	}
+        inline TpsaOrDouble operator - ( void                  ) const { return TpsaOrDouble( std::move( base::operator- (*this) ) ) ; }
+
+        inline TpsaOrDouble operator + ( const TpsaOrDouble& o ) const { return TpsaOrDouble( std::move( base::operator+ (o) ) ) ; }
+        inline TpsaOrDouble operator - ( const TpsaOrDouble& o ) const { return TpsaOrDouble( std::move( base::operator- (o) ) ) ; }
+        inline TpsaOrDouble operator * ( const TpsaOrDouble& o ) const { return TpsaOrDouble( std::move( base::operator* (o) ) ) ; }
+        inline TpsaOrDouble operator / ( const TpsaOrDouble& o ) const { return TpsaOrDouble( std::move( base::operator/ (o) ) ) ; }
+
 #if 0
 // bool operators currently not working using a hack on user side
         inline bool operator== (const base_type o) const {
@@ -121,6 +128,39 @@ namespace gtpsa {
             return flag;
         }
 #endif
+        inline void rsin(const TpsaOrDouble& o) { rapply_helper( o.m_arg, &this->m_arg, std::sin, gtpsa::sin_); }
+        inline void rcos(const TpsaOrDouble& o) { rapply_helper( o.m_arg, &this->m_arg, std::cos, gtpsa::cos_); }
+	// required for operator +=
+	inline double& ladd(double& a) const {
+            std::visit(overloaded{
+                    [&a] (const double& t){ a += t;       },
+                    [&a] (const tpsa&   t){ a += t.cst(); },
+            }, m_arg);
+	    return a;
+	}
+	// required for operator -=
+	inline double& lsub(double& a) const {
+            std::visit(overloaded{
+                    [&a] (const double& t){ a -= t;       },
+                    [&a] (const tpsa&   t){ a -= t.cst(); },
+            }, m_arg);
+	    return a;
+	}
+	inline double& lmul(double& a) const {
+            std::visit(overloaded{
+                    [&a] (const double& t){ a *= t;       },
+                    [&a] (const tpsa&   t){ a *= t.cst(); },
+            }, m_arg);
+	    return a;
+	}
+	// required for operator /=
+	inline double& ldiv(double& a) const {
+            std::visit(overloaded{
+                    [&a] (const double& t){ a /= t;       },
+                    [&a] (const tpsa&   t){ a /= t.cst(); },
+            }, m_arg);
+	    return a;
+	}
     };
 
 
@@ -128,16 +168,16 @@ namespace gtpsa {
     inline bool operator== (const double a, const TpsaOrDouble& b){ return b.operator==(a); }
 #endif
 
-    class TODVImpl : public TpsaOrDoubleVisitor {
-	// provide access to this internal detail .. a hack...
-    public:
-	virtual ~TODVImpl() {}
-    protected:
-	auto getArg(const TpsaOrDouble& o) {
-	    return o.m_arg;
-	}
-    };
+#if 1
+    /* just experimenting if conversion could be made  */
+    inline double& operator+= (double& a, const TpsaOrDouble& b) { return b.ladd(a); }
+    inline double& operator-= (double& a, const TpsaOrDouble& b) { return b.lsub(a); }
+    inline double& operator*= (double& a, const TpsaOrDouble& b) { return b.lmul(a); }
+    inline double& operator/= (double& a, const TpsaOrDouble& b) { return b.ldiv(a); }
 
+    inline TpsaOrDouble sin(const TpsaOrDouble& o){ TpsaOrDouble n = o; n.rsin(o); return n; }
+    inline TpsaOrDouble cos(const TpsaOrDouble& o){ TpsaOrDouble n = o; n.rcos(o); return n; }
+#endif
 
 } // namespace gtpsa
 #endif /*   _GTPSATODVImpl_TPSA_DOUBLE_VARIANT_HPP_ */
