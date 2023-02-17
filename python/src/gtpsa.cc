@@ -38,14 +38,14 @@ struct AddMethods
 	    })
 	    .def("get",             [](const Cls& inst, const std::vector<ord_t>& m){
 		auto index = inst.index(m);
-		if(index <= 0){
+		if(index < 0){
 		    throw std::runtime_error("index out of range");
 		}
 		return inst.get(m);
 	    })
 	    .def("set",             [](Cls& inst,      const std::vector<ord_t>& m, T a, T b){
 		auto index = inst.index(m);
-		if(index <= 0){
+		if(index < 0){
 		    throw std::runtime_error("index out of range");
 		}
 		inst.set(m, a, b);
