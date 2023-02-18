@@ -13,7 +13,6 @@ namespace gtpsa::mad {
     /*
      * forward declarations required as real and complex
      * implementation befriend each other
-
      */
     class _TpsaWrapper;
     class _CTpsaWrapper;
