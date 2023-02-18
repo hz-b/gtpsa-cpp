@@ -183,9 +183,7 @@ void py_gtpsa_init_tpsa(py::module &m)
       t.set(tmpa, b);
     })
     .def("setv",  [](gtpsa::ctpsa& t, int m, const std::vector<std::complex<double>>& c) {
-	std::vector<cpx_t> cv;
-	std::transform(c.begin(), c.end(), std::back_inserter(cv), [](const std::complex<double>&v) { return std_complex_double_to_cpx_t(v); });
-	t.setv(m, cv);
+	t.setv(m, c);
     })
     .def("setm",  &gtpsa::ctpsa::_setm)
     .def("real", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.real();}, "return real part (newly allocated object)")
