@@ -157,6 +157,10 @@ namespace gtpsa {
 	    return res;
         }
 
+	inline tpsa_type tpsaType(void) const noexcept {
+            return std::get<tpsa_type>(this->m_arg);
+        }
+
         inline  base_type cst(void) const noexcept {
             base_type res;
             std::visit(overloaded{
