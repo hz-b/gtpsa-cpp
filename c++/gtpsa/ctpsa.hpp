@@ -203,35 +203,16 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	inline void real(tpsa* re) const {
             this->m_impl.real(&re->m_impl);
         }
-        inline void imag(tpsa * re) const {
-            this->m_impl.imag(&re->m_impl);
-        }
-
-#ifndef GTSPA_ONLY_OPTIMISED_OPS
-        inline tpsa real() const {
-            tpsa re = tpsa(this->getDescription(), mad::same);
-            this->m_impl.real(&re.m_impl);
-            return re;
-        }
-        inline tpsa imag() const {
-            tpsa im = tpsa(this->getDescription(), mad::same);
-            this->m_impl.imag(&im.m_impl);
-            return im;
-        }
-#endif
-        inline auto cst(void) const {return std::complex<double>(base::cst());}
-
-
-    inline ctpsa& operator += (const ctpsa& o ) { base::operator += (o) ; return *this; }
-	inline ctpsa& operator -= (const ctpsa& o ) { base::operator -= (o) ; return *this; }
-	inline ctpsa& operator *= (const ctpsa& o ) { base::operator *= (o) ; return *this; }
-	inline ctpsa& operator /= (const ctpsa& o ) { base::operator /= (o) ; return *this; }
 
         inline void imag(tpsa * re) const {
             this->m_impl.imag(&re->m_impl);
         }
 
-        inline void arg(tpsa * arg) const {
+	inline void abs(tpsa * abs) const {
+            this->m_impl.abs(&abs->m_impl);
+        }
+
+	inline void arg(tpsa * arg) const {
             this->m_impl.arg(&arg->m_impl);
         }
 
@@ -242,6 +223,7 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
         inline void rpolar(const ctpsa& c)  {
             this->m_impl.rpolar(c.m_impl);
         }
+
         inline void rrect(const ctpsa& c)  {
             this->m_impl.rrect(c.m_impl);
         }
