@@ -77,6 +77,8 @@ namespace gtpsa {
 
 
 namespace gtpsa {
+
+
     /**
      * @brief a variant allowing tpsa or double
      */
@@ -91,9 +93,6 @@ namespace gtpsa {
         {}
         inline CTpsaOrComplex(const double c)
                 : base(c)
-        {}
-        inline CTpsaOrComplex(const double re, const double im)
-                : base(base_type (re, im))
         {}
         inline CTpsaOrComplex(const tpsa_type t)
                 : base(t)
@@ -120,6 +119,7 @@ namespace gtpsa {
 			}, re.m_arg, im.m_arg);
                 this->m_arg = res;
         }
+
         /*
         inline CTpsaOrComplex(const CTpsaOrComplex& o)
                 : base(o)
