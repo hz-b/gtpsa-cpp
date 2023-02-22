@@ -160,8 +160,12 @@ arma::cube gtpsa::ss_vect<gtpsa::tpsa>::hessian() const
     cube.fill(NAN);
     std::vector<num_t> vec(nv * nv);
 
-    /* start to prepare for a general access .... */
-    const size_t start = estimate_start_order(2, nv);
+    /*
+     * tried to start to prepare for a general access ....
+     * but hessian is stored sparse ... seems that one has to
+     * retrieve element by element
+     */
+    //const size_t start = estimate_start_order(2, nv);
     for(size_t slice = 0; slice < nv; ++slice) {
         for(auto& e: vec) e = NAN;
         auto &t = this->state_space[slice];

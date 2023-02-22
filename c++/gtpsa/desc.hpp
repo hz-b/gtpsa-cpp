@@ -36,23 +36,23 @@ namespace gtpsa::mad {
 
     class desc{
     public:
-	inline desc(int nv,           ord_t no = 0)                         : dm( std::make_unique<desc_mgr>( mad_desc_newv  (nv,     no    ) ) ) { }
-	inline desc(int nv, ord_t np, ord_t no,              ord_t po = 0 ) : dm( std::make_unique<desc_mgr>( mad_desc_newvp (nv, np, no, po) ) ) { }
-	inline desc(int nv, ord_t np, ord_t no[/*nv+np?*/],  ord_t po = 0 ) : dm( std::make_unique<desc_mgr>( mad_desc_newvpo(nv, np, no, po) ) ) { }
-	inline desc(int nv, ord_t np, std::vector<ord_t> no, ord_t po = 0 ) : dm( nullptr ) {
-	auto req_elem = nv+np;
-	if(int(no.size()) <= req_elem){
-	    std::stringstream strm;
-	    strm << "nv= "<<nv<<"+ np="<<np <<"="<<req_elem<<"req. elem, got only "<<no.size()<<"elem";
-	    std::runtime_error(strm.str());
+	inline desc(int nv,         ord_t mo                            ) : dm( std::make_unique<desc_mgr>( mad_desc_newv  (nv,     mo    ) ) ) { }
+	inline desc(int nv, int np, ord_t mo,              ord_t po = 0 ) : dm( std::make_unique<desc_mgr>( mad_desc_newvp (nv, np, mo, po) ) ) { }
+	inline desc(int nv, int np, ord_t no[/*nv+np?*/],  ord_t po = 0 ) : dm( std::make_unique<desc_mgr>( mad_desc_newvpo(nv, np, no, po) ) ) { }
+	inline desc(int nv, int np, std::vector<ord_t> no, ord_t po = 0 ) : dm( nullptr ) {
+	    auto req_elem = nv+np;
+	    if(int(no.size()) <= req_elem){
+		std::stringstream strm;
+		strm << "nv= "<<nv<<"+ np="<<np <<"="<<req_elem<<"req. elem, got only "<<no.size()<<"elem";
+		std::runtime_error(strm.str());
+	    }
+	    this->dm = std::make_unique<desc_mgr> (mad_desc_newvpo(nv, np, no.data(), po));
 	}
-	this->dm = std::make_unique<desc_mgr> (mad_desc_newvpo(nv, np, no.data(), po));
-    }
 	// inline desc(const desc_t* a_desc)                             { this->t_desc = a_desc;                            }
 	// inline desc(const desc&& o) : dm(std::move(o.dm))     {}
 	inline desc(const desc& o) = delete;
 
-    inline ~desc(void)                                                    {  }
+	inline ~desc(void)                                                    {  }
 
     private:
 	inline const desc_t *  getPtr(void)                     const { return this->dm->getPtr(); }

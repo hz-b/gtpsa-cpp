@@ -10,10 +10,9 @@ extern "C" {
   /* a non standard hack */
   // typedef bool _Bool;
   typedef bool _Bool;
- 
+
 }
 #endif
-
 
 #include <gtpsa/mad/forward_decl.hpp>
 
@@ -25,10 +24,10 @@ namespace gtpsa {
     {
 	using ptr_type =  T;
 	using base_type =  B;
-    using tpsa_type = D;
+	using tpsa_type = D;
 	using bridge_type = Bridge;
-    using bridge_base_type = BridgeBase; // required ? just need to extract pointer in the bridge container later on
-    using bridge_container_type = BridgeContainer;
+	using bridge_base_type = BridgeBase; // required ? just need to extract pointer in the bridge container later on
+	using bridge_container_type = BridgeContainer;
     };
 
     class tpsa;

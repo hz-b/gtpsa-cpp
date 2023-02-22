@@ -326,6 +326,8 @@ namespace gtpsa::mad {
         friend inline void
         taylor(const GTPSA_CLASS(Wrapper) &a, std::vector<GTPSA_BASE_T> coeff, GTPSA_CLASS(Wrapper) *c);
 
+        friend inline ord_t maxord(const std::vector<const GTPSA_CLASS(Wrapper) *>& vec);
+
     }; /* class GTPSA_CLASS(Wrapper) */
 
 /*
@@ -468,6 +470,19 @@ namespace gtpsa::mad {
         GTPSA_METH(taylor)(a.getPtr(), coeff.size(), coeff.data(), c->getPtr());
     }
 
+    /**
+     * would naturally blend into bridge, but also required for instantiating
+     * ctpsa from (tpsa re, tpsa im)
+     *
+     * @param vec
+     * @return
+     */
+    inline ord_t maxord(const std::vector<const GTPSA_CLASS(Wrapper)*>& vec){
+        std::vector<const GTPSA_PTR_T*> tmp(vec.size());
+        std::transform(vec.begin(), vec.end(), tmp.begin(), [](const GTPSA_CLASS(Wrapper)* p) {return p->getPtr();});
+        auto r =  GTPSA_METH(ordn)(tmp.size(), tmp.data());
+        return r;
+    }
     /*
       inline GTPSA_CLASS(Wrapper) add (const GTPSA_CLASS(Wrapper)& a, const GTPSA_CLASS(Wrapper)& b){ return process2w(a, b, add_wr); }
       inline GTPSA_CLASS(Wrapper) dif (const GTPSA_CLASS(Wrapper)& a, const GTPSA_CLASS(Wrapper)& b){ return process2w(a, b, dif_wr); }

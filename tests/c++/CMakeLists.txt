@@ -109,3 +109,24 @@ target_link_libraries(test_template
 )
 add_test(test_template test_template)
 
+add_executable(test_tpsa_variant test_tpsa_variant.cc)
+target_link_libraries(test_tpsa_variant
+  gtpsa-c++
+  gtpsa
+  lapack
+  blas
+  ${Boost_PRG_EXEC_MONITOR_LIBRARY}
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+)
+add_test(test_tpsa_variant test_tpsa_variant)
+
+add_executable(test_ctpsa_variant test_ctpsa_variant.cc)
+target_link_libraries(test_ctpsa_variant
+  gtpsa-c++
+  gtpsa
+  lapack
+  blas
+  ${Boost_PRG_EXEC_MONITOR_LIBRARY}
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+)
+add_test(test_ctpsa_variant test_ctpsa_variant)

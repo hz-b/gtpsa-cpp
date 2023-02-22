@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(test4_getorder)
 #if 0
 BOOST_AUTO_TEST_CASE(test10_neg)
 {
-    auto a_desc = std::make_shared<gtpsa::desc>(1, 0);
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
 
     auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
 
@@ -614,5 +614,14 @@ BOOST_AUTO_TEST_CASE(test70_integ)
     t1.rinteg(t1, 3);
     t1.print("integrated");
 
-    BOOST_CHECK(1 == 1);
+}
+BOOST_AUTO_TEST_CASE(test60_compare){
+    auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
+    auto t1 = gtpsa::tpsa(a_desc, gtpsa::mad::default_);
+
+    // mainly compile checks
+    BOOST_CHECK(t1 == t1);
+    BOOST_CHECK(t1 == 0);
+    BOOST_CHECK(0 == t1);
+
 }

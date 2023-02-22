@@ -12,7 +12,7 @@ extern "C" {
 namespace gtpsa::mad {
     /*
      * forward declarations required as real and complex
-     *  implementation befriend each other
+     * implementation befriend each other
      */
     class _TpsaWrapper;
     class _CTpsaWrapper;
@@ -20,10 +20,10 @@ namespace gtpsa::mad {
     class TpsaWrapper;
 
     /*
-	 * @brief how to initialise new object if another is presented
+     * @brief how to initialise new object if another is presented
      *
      * mad's gtpsa exports it as an opaque external value
-	 */
+     */
     enum init {
         default_ = ord_t(-1),
         same     = ord_t(-2)
