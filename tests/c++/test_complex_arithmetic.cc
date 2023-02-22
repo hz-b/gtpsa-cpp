@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(test113_cplx_to_polar_to_real_imag)
     BOOST_CHECK_CLOSE(z.imag(), std::sqrt(3)/2.0, 1e-12);
 
 
-    auto t_polar = t_cplx.polar();
+    auto t_polar = t_cplx.rect();
     auto val = std::complex(t_polar.cst());
     BOOST_CHECK_CLOSE(val.real(), r, 1e-12);
     BOOST_CHECK_CLOSE(val.imag(), angle, 1e-12);

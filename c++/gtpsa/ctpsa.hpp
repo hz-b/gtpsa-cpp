@@ -260,6 +260,12 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
             return r;
         }
 
+        inline ctpsa rect() const {
+            ctpsa r = this->newFromThis();
+            r.rrect(*this);
+            return r;
+        }
+
         inline ctpsa unit() const {
             ctpsa r = this->newFromThis();
             r.runit(*this);
