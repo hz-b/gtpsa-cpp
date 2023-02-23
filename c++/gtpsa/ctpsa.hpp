@@ -137,10 +137,10 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
     /**
      * @brief method get return cnum_t, which is incompatible with std::complex<double>
      */
-	inline auto get(void)                        const { return std::complex<double> ( base::get()  ); }
-	inline auto get(const idx_t i)               const { return std::complex<double> ( base::get(i) ); }
-	inline auto get(std::string s)               const { return std::complex<double> ( base::get(s) ); }
-	inline auto get(const std::vector<ord_t>& m) const { return std::complex<double> ( base::get(m) ); }
+	inline auto get(void)                        const { return cpx_t_to_std_complex_double ( base::get()  ); }
+	inline auto get(const idx_t i)               const { return cpx_t_to_std_complex_double ( base::get(i) ); }
+	inline auto get(std::string s)               const { return cpx_t_to_std_complex_double ( base::get(s) ); }
+	inline auto get(const std::vector<ord_t>& m) const { return cpx_t_to_std_complex_double ( base::get(m) ); }
 
 	/**
 	 * @brief a*x[0]+b

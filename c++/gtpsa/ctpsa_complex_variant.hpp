@@ -162,10 +162,10 @@ namespace gtpsa {
         inline CTpsaOrComplex& operator*= (const CTpsaOrComplex& o)  { CTpsaOrComplex(base::operator*=(o)); return *this; }
         inline CTpsaOrComplex& operator/= (const CTpsaOrComplex& o)  { CTpsaOrComplex(base::operator/=(o)); return *this; }
 
-        inline CTpsaOrComplex& operator+= (const std::complex<double>& o) { CTpsaOrComplex(base::operator+=(std_complex_double_to_cpx_t(o))); return *this; }
-        inline CTpsaOrComplex& operator-= (const std::complex<double>& o) { CTpsaOrComplex(base::operator-=(std_complex_double_to_cpx_t(o))); return *this; }
-        inline CTpsaOrComplex& operator*= (const std::complex<double>& o) { CTpsaOrComplex(base::operator*=(std_complex_double_to_cpx_t(o))); return *this; }
-        inline CTpsaOrComplex& operator/= (const std::complex<double>& o) { CTpsaOrComplex(base::operator/=(std_complex_double_to_cpx_t(o))); return *this; }
+        inline CTpsaOrComplex& operator+= (const std::complex<double>& o) { CTpsaOrComplex(base::operator+=(o)); return *this; }
+        inline CTpsaOrComplex& operator-= (const std::complex<double>& o) { CTpsaOrComplex(base::operator-=(o)); return *this; }
+        inline CTpsaOrComplex& operator*= (const std::complex<double>& o) { CTpsaOrComplex(base::operator*=(o)); return *this; }
+        inline CTpsaOrComplex& operator/= (const std::complex<double>& o) { CTpsaOrComplex(base::operator/=(o)); return *this; }
 
         inline void rexp(const CTpsaOrComplex& o) { apply_helper(o.m_arg, &this->m_arg, std::exp, gtpsa::exp); }
     };
