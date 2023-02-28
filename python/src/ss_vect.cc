@@ -1,13 +1,15 @@
-#include <gtpsa/ss_vect.h>
-#include <gtpsa/ctpsa.hpp>
-#include "gtpsa_module.h"
-#include <pybind11/operators.h>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
-#include <pybind11/complex.h>
 #include <armadillo>
+#include <gtpsa/ctpsa.hpp>
+#include <gtpsa/python/name_index.h>
+#include <gtpsa/ss_vect.h>
+#include "gtpsa_module.h"
+#include <pybind11/complex.h>
+#include <pybind11/operators.h>
+#include <pybind11/numpy.h>
+#include <pybind11/stl.h>
 
-namespace py=pybind11;
+namespace py = pybind11;
+namespace gpy = gtpsa::python;
 
 
 /**
@@ -70,6 +72,7 @@ static py::array_t<double> from_arma_mat(arma::mat& mat)
 
 
 
+
 static const char init_ss_vect_doc [] = \
     "Initialise the space state vector using one vector argument as reference and its size";
 
@@ -78,6 +81,8 @@ static const char init_ss_vect_from_vec_doc [] = \
 
 static const char init_ss_vect_desc_doc [] = \
     "Initialise the space state vector with a description";
+
+
 
 template<class WrappedClass, class P_MGR>
 struct AddMethods
@@ -91,6 +96,15 @@ struct AddMethods
 	    .def("__str__",      &WrappedClass::pstr)
 	    .def("__repr__",     &WrappedClass::repr)
 	    .def("__len__",      &WrappedClass::size)
+	    .def("__dir__",      [](const WrappedClass& self){
+		                    return gpy::DefaultIndexMapping.pdir();
+	                         })
+            .def("__getattr__",  [](const WrappedClass& self, const std::string& key){
+		                    return self.at(gpy::mapping_index(gpy::DefaultIndexMapping, key));
+	                         })
+	    .def("__setattr__",  [](      WrappedClass& self, const std::string& key, T& v){
+		                    self.at(gpy::mapping_index(gpy::DefaultIndexMapping, key)) = v;
+	                         })
 	    .def("cst_as_array", [](const WrappedClass& self) {
 				    return py::array(py::cast(self.cst()));
 				 })
@@ -164,24 +178,18 @@ struct AddMethods
 };
 
 
-void py_gtpsa_init_ss_vect(py::module &m)
+void gpy::py_gtpsa_init_ss_vect(py::module &m)
 {
 	typedef gtpsa::ss_vect<double> ss_vect_dbl_t;
 	typedef gtpsa::ss_vect<gtpsa::tpsa> ss_vect_tpsa_t;
 
 
-    py::class_<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> ss_vect_double (m, "ss_vect_double");
+	py::class_<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> ss_vect_double (m, "ss_vect_double");
 	AddMethods<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> double_cls;
 	double_cls.add_methods<double>(ss_vect_double);
 
-	/*
-	typedef std::complex<double> dcplx;
-	py::class_<gtpsa::ss_vect<dcplx>>  ss_vect_dcplx (m, "ss_vect_complex_double");
-	AddMethods<gtpsa::ss_vect<dcplx>> dcplx_cls;
-	dcplx_cls.add_methods<dcplx>(ss_vect_dcplx);
-	*/
 
-    py::class_<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>>  ss_vect_tpsa   (m, "ss_vect_tpsa");
+	py::class_<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>>  ss_vect_tpsa (m, "ss_vect_tpsa");
 	AddMethods<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>> tpsa_cls;
 	tpsa_cls.add_methods<gtpsa::tpsa>(ss_vect_tpsa);
 	tpsa_cls.add_methods_tpsa<gtpsa::tpsa>(ss_vect_tpsa);
@@ -192,14 +200,14 @@ void py_gtpsa_init_ss_vect(py::module &m)
 	   .def(py::self -  gtpsa::ss_vect<double>(0e0))
 	   ;
 
-    // adding functions
-    m.def("compose", &gtpsa::compose);
+	// adding functions
+	m.def("compose", &gtpsa::compose);
 
-    /*
-        py::class_<gtpsa::ss_vect<gtpsa::ctpsa>> ss_vect_ctpsa  (m, "ss_vect_ctpsa");
-    AddMethods<gtpsa::ss_vect<gtpsa::ctpsa>> ctpsa_cls;
-    ctpsa_cls.add_methods<gtpsa::ctpsa>(ss_vect_ctpsa);
-    ctpsa_cls.add_methods_tpsa<gtpsa::ctpsa>(ss_vect_ctpsa);
-    */
+	/*
+	  py::class_<gtpsa::ss_vect<gtpsa::ctpsa>> ss_vect_ctpsa  (m, "ss_vect_ctpsa");
+	  AddMethods<gtpsa::ss_vect<gtpsa::ctpsa>> ctpsa_cls;
+	  ctpsa_cls.add_methods<gtpsa::ctpsa>(ss_vect_ctpsa);
+	  ctpsa_cls.add_methods_tpsa<gtpsa::ctpsa>(ss_vect_ctpsa);
+	*/
 
 }

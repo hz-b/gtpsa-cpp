@@ -89,6 +89,11 @@ namespace gtpsa {
 	inline auto name()                   const { return this->m_impl.nam();     }
 	inline auto setName(std::string s)         {        this->m_impl.setnam(s); }
 
+	inline std::pair<idx_t,base_type> cycle(std::vector<ord_t>* m, const idx_t i) const {
+	    base_type v = NAN;
+	    idx_t r = this->m_impl.cycle(m, i, &v);
+	    return std::pair<idx_t, base_type>(r, v);
+	}
 	inline void clear()  { this->m_impl.clear(); }
 	inline void isNull() { this->m_impl.isNull(); }
 
@@ -151,11 +156,11 @@ namespace gtpsa {
 	inline void getv(idx_t i,       std::vector<typename T::base_type> *v) const { this->m_impl.getv(i, v); }
 	inline void setv(idx_t i, const std::vector<typename T::base_type> &v)       { this->m_impl.setv(i, v); }
 
-    inline void rgetOrder(const TpsaBridge& src, size_t order) { this->m_impl.rgetOrder(src.m_impl, order); };
-    inline void rderiv(const TpsaBridge& src, int iv) { this->m_impl.rderiv(src.m_impl, iv); };
-    inline void rinteg(const TpsaBridge& src, int iv) { this->m_impl.rinteg(src.m_impl, iv); };
+	inline void rgetOrder(const TpsaBridge& src, const size_t order) { this->m_impl.rgetOrder(src.m_impl, order); };
+	inline void rderiv(const TpsaBridge& src, const int iv) { this->m_impl.rderiv(src.m_impl, iv); };
+	inline void rinteg(const TpsaBridge& src, const int iv) { this->m_impl.rinteg(src.m_impl, iv); };
 
-	inline void setVariable(typename T::base_type v, idx_t iv= 0, typename T::base_type scale = 0) {	    this->m_impl.setvar(v, iv, scale);	}
+	 inline void setVariable(const typename T::base_type v, const idx_t iv= 0, const typename T::base_type scale = 0) {	    this->m_impl.setvar(v, iv, scale);	}
 
 	/**
 	 *
@@ -166,7 +171,6 @@ namespace gtpsa {
 	}
 
 	inline auto cst(void)                        const { return this->get(); }
-
 
 	/* O----------------------------------------------------------------O
 	   | methods supporting functions that require access to the        |

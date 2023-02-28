@@ -3,15 +3,17 @@
 #include <pybind11/numpy.h>
 #include <pybind11/complex.h>
 #include <pybind11/operators.h>
-#include <gtpsa/tpsa.hpp>
 #include <gtpsa/ctpsa.hpp>
-#include <string>
+#include <gtpsa/tpsa.hpp>
+#include <algorithm>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "gtpsa_module.h"
 
 namespace py = pybind11;
+namespace gpy = gtpsa::python;
 
 static const char tpsa_init_same_doc[] = "Create a new (c)tpsa object with the same properties as this one\n\
 Use clone to create a copy of the content too. \n";
@@ -19,6 +21,115 @@ Use clone to create a copy of the content too. \n";
 static const char tpsa_init_desc_doc[] = "Create a new (c)tpsa object using the passed description object. Default order\
  will be used if none is speficied\n\
 Use clone to create a copy of the content too. \n";
+
+
+template<class Cls, typename T>
+static void set_variable(Cls& inst, const T& v, idx_t i, const T& s, const bool check_first)
+{
+    auto nv = inst.getDescription()->getNv();
+    if(check_first) {
+	if(i <= 0){
+	    std::stringstream strm;
+	    strm << "index of variable must be at least 1, but was " << i;
+	    throw std::runtime_error(strm.str());
+	}
+	if(i > nv){
+	    std::stringstream strm;
+	    strm << "index of derivative must not exceed number of variables (" << nv << ") but was " << i;
+	    throw std::runtime_error(strm.str());
+	}
+    }
+    inst.setVariable(v, i, s);
+}
+
+template<class Cls, typename T>
+static void set_variable(Cls& inst, const T& v, const std::string& var_name, const T& s, const gpy::IndexMapping& im, bool check_first)
+{
+    const auto index = im.index(var_name);
+    /* seems that variables start to count at 1 not at zero */
+    set_variable(inst, v, index + 1, s, check_first);
+}
+
+static const std::vector<ord_t> convert_size_t_to_ord_t(const std::vector<size_t>& m)
+{
+    std::vector<ord_t> v(m.size());
+    /* should include check ... */
+    std::transform(m.begin(), m.end(), v.begin(), [](size_t v){return ord_t(v);});
+    return v;
+}
+
+template<class Cls>
+static auto check_index(const Cls& inst, const std::vector<ord_t>& m)
+{
+    auto index = inst.index(m);
+    if(index < 0){
+	throw std::runtime_error("index out of range");
+    }
+    return index;
+}
+
+
+template<class Cls, typename T>
+static void set(Cls& inst, const gpy::index_mapping& powers, const T& a, const T& b, const gpy::IndexMapping& im, const bool check_first)
+{
+    const auto tmp =  im.order_vector_from_power(powers);
+    const auto p = convert_size_t_to_ord_t(tmp);
+    if(check_first){
+	check_index(inst, p);
+    }
+    inst.set(p, a, b);
+}
+
+template<class Cls, typename T>
+static inline T get(const Cls& inst, const gpy::index_mapping& powers, const gpy::IndexMapping& im, const bool check_first)
+{
+    // std::cerr << "get with mapping" << std::endl;
+    const auto tmp =  im.order_vector_from_power(powers);
+    // std::cerr << "order {";
+    // for(const auto t: tmp) {std::cerr << t << " , ";}
+    // std::cerr << "}";
+    const auto p = convert_size_t_to_ord_t(tmp);
+    if(check_first) {
+	check_index(inst, p);
+    }
+    // std::cerr << "get value";
+    return inst.get(p);
+}
+
+struct coefficient_entry_double {
+    ord_t order;
+    double val;
+    idx_t index;
+};
+
+struct coefficient_entry_complex {
+    //std::vector<ord_t> order;
+    ord_t order;
+    std::complex<double> cval;
+    idx_t index;
+};
+
+
+#if 0
+//template<class Cls>
+static inline void coefficient_arrays(const gtpsa::tpsa& inst)
+{
+    const auto coeffs = inst.getCoefficients();
+    if(coeffs.size() <= 0){
+	throw std::runtime_error("get cofficients returned no coefficients");
+    }
+
+    const auto& tup = coeffs[0];
+    std::vector<ord_t> ord = std::get<0>(tup);
+    const auto value = std::get<1>(tup);
+    const auto index = std::get<2>(tup);
+
+    py::array_t<ord_t> orders_a(
+	{coeffs.size(), tup.size()} // shape
+	);
+
+}
+#endif
 
 template<class Cls>
 struct AddMethods
@@ -32,27 +143,35 @@ struct AddMethods
 	    .def("get_description", &Cls::getDescription)
 	    .def("clear",           &Cls::clear)
 	    .def("is_null",         &Cls::isNull)
-	    .def("mono",            &Cls::mono)
+	    //.def("mono",            &Cls::mono)
 	    .def("get",             [](const Cls& inst){
 					return inst.get();
 	    })
-	    .def("get",             [](const Cls& inst, const std::vector<ord_t>& m){
-		auto index = inst.index(m);
-		if(index < 0){
-		    throw std::runtime_error("index out of range");
+	    .def("get",             [](const Cls& inst, const std::vector<ord_t>& m, const bool check_first){
+		if(check_first) {
+		    check_index(inst, m);
 		}
 		return inst.get(m);
-	    })
-	    .def("set",             [](Cls& inst,      const std::vector<ord_t>& m, T a, T b){
-		auto index = inst.index(m);
-		if(index < 0){
-		    throw std::runtime_error("index out of range");
+	    }, "get coefficient at given powers", py::arg("vector of orders"), py::arg("check_index")=true)
+	    .def("get",             [](const Cls& inst, const gpy::index_mapping& powers, const bool check_first){
+		return get<Cls, T>(inst, powers, gpy::DefaultIndexMapping, check_first);
+	    },
+		"get coefficient at given powers, specify powers in the dictionary",
+		py::arg("dict of no zero order"), py::arg("check_index")=true
+		)
+	    .def("get_coefficients", &Cls::getCoefficients)
+	    .def("set",             [](Cls& inst,      const std::vector<ord_t>& m, const T& a, const T& b, const bool check_first){
+		if(check_first) {
+		    check_index(inst, m);
 		}
 		inst.set(m, a, b);
 	    })
+	    .def("set",             [](Cls& inst,      const gpy::index_mapping& p, const T& a, const T& b, const bool check_first){
+		set(inst, p, a, b, gpy::DefaultIndexMapping, check_first);
+	    })
 	    .def("set",             [](Cls& inst,                                   T a, T b){
-					inst.set(a, b);
-				    })
+		inst.set(a, b);
+	    })
 	    .def("index",          [](const Cls& inst, const std::vector<ord_t>& m){ return inst.index(m);})
 	    // make it more pythonic!
 	    .def("getv",           [](const Cls& inst, idx_t i){
@@ -61,20 +180,31 @@ struct AddMethods
 				   })
 	    .def("setv",           &Cls::setv)
 	    .def("getsm",          &Cls::getsm)
-	    .def("set_variable",    &Cls::setVariable, "set the variable?",
-		 py::arg("v"), py::arg("iv") = 0, py::arg("scl") = 0)
-         .def("print", [](const Cls& inst, std::string name, double eps, bool nohdr){
+	    .def("get_coefficients", [](const Cls& inst) {})
+	    .def("set_variable",  [](Cls& inst, const T& v, idx_t i, const T& s, const bool check_first){
+		set_variable(inst, v, i, s, check_first);
+	    },
+		"set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
+		py::arg("value"), py::arg("index_of_variable") = 0, py::arg("scale") = 0, py::arg("check_first") = true)
+	    .def("set_variable",  [](Cls& inst, const T& v, const std::string& var_name, const T& s, const bool check_first){
+		set_variable(inst, v, var_name, s, gpy::DefaultIndexMapping, check_first);
+	    },
+		"set the variable to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
+		py::arg("value"), py::arg("variable_name"), py::arg("scale") = 0, py::arg("check_first") = true)
+	    .def("print", [](const Cls& inst, std::string name, double eps, bool nohdr){
                 FILE* f = stdout;
                 inst.print(name.c_str(), eps, nohdr, f);
-             },
-              "print the cofficients to stdout using c's stdout",
-              py::arg("name") = "", py::arg("eps") = 0 , py::arg("nohdr") = false)
+	    },
+		"print the cofficients to stdout using c's stdout",
+		py::arg("name") = "", py::arg("eps") = 0 , py::arg("nohdr") = false)
 	    .def_property("name",  &Cls::name, &Cls::setName)
 	    .def_property("uid",   [](Cls& inst){ return inst.uid(0);}, &Cls::uid)
 	    .def_property_readonly("order", &Cls::order)
 	    .def(py::init<std::shared_ptr<gtpsa::mad::desc>, const ord_t>(), tpsa_init_desc_doc,
 		 py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::default_)
 		)
+#if 0
+#endif
 	    .def(py::init<const BCls&, const ord_t>(), tpsa_init_same_doc,
 		 py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::same))
 	    ;
@@ -110,7 +240,7 @@ struct AddMethods
 	    .def(T()      /  py::self)
 
 	    .def("__pow__", [](BCls& inst, const int    n) { return gtpsa::pow(inst, n); })
-	    .def("__pow__", [](BCls& inst, const double v) { return gtpsa::pow(inst, v); })
+	    .def("__pow__", [](BCls& inst, const T      v) { return gtpsa::pow(inst, v); })
 	    ;
     }
 
@@ -122,9 +252,12 @@ struct AddMethods
 };
 
 
-void py_gtpsa_init_tpsa(py::module &m)
+void gpy::py_gtpsa_init_tpsa(py::module &m)
 {
 
+
+    PYBIND11_NUMPY_DTYPE(coefficient_entry_double, order, val, index);
+    //PYBIND11_NUMPY_DTYPE(coefficient_entry_complex, order, val, index);
 
     typedef gtpsa::TpsaWithOp<gtpsa::TpsaTypeInfo>   TpsaOp;
     typedef gtpsa::TpsaWithOp<gtpsa::CTpsaTypeInfo> CTpsaOp;
@@ -169,7 +302,7 @@ void py_gtpsa_init_tpsa(py::module &m)
     py::class_<CTpsaOp, std::shared_ptr<CTpsaOp>> ctpsa_with_op  (m, "_CTPSAWithOp");
     py::class_<gtpsa::ctpsa , std::shared_ptr<gtpsa::ctpsa>>  ctpsa (m, "ctpsa", ctpsa_with_op);
     AddMethods<gtpsa::ctpsa> ctpsa_m;
-    ctpsa_m.add_methods<gtpsa::ctpsa, cpx_t>(ctpsa);
+    ctpsa_m.add_methods<gtpsa::ctpsa, std::complex<double>>(ctpsa);
     ctpsa
     .def("set0",  [](gtpsa::ctpsa& t, const std::complex<double> a, const std::complex<double> b) {
       t.set(a, b);

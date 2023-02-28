@@ -7,6 +7,7 @@
 #include "gtpsa_module.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
+#include <pybind11/complex.h>
 
 #include <gtpsa/gtpsa_base_variant.hpp>
 #include <gtpsa/tpsa_double_variant.hpp>
@@ -14,6 +15,7 @@
 #include <variant>
 
 namespace py=pybind11;
+namespace gpy = gtpsa::python;
 
 // helper type for std::visit
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
@@ -84,7 +86,7 @@ struct AddMethods {
 };
 
 template<typename C, typename T>
-static auto to_tpsa_or_base(const typename C::variant_type tmp)
+static auto to_tpsa_base_variant(const typename C::variant_type tmp)
 {
     T res = std::visit(overloaded {
 	    [](const typename C::base_type& arg) { return T(arg); },
@@ -92,6 +94,7 @@ static auto to_tpsa_or_base(const typename C::variant_type tmp)
 	}, tmp);
     return res;
 }
+
 
 template<class C>
 class PythonVisitor : public gtpsa::GTpsaOrBaseVisitorImplementation<C>
@@ -124,13 +127,13 @@ auto to_pyobject(T& inst)
     return visitor.getObject();
 }
 
-
+static const char to_object_doc[] = "return the stored variant as a python object.";
 template<typename Types, typename Class>
 void add_methods(py::class_<Class> t_mapper)
 {
     t_mapper
 	.def("__repr__", &Class::pstr)
-	.def("to_object", [](Class& inst){ return to_pyobject<Types, Class>(inst); })
+	.def("to_object", [](Class& inst){ return to_pyobject<Types, Class>(inst); }, to_object_doc)
 	.def(py::self += py::self)
 	.def(py::self -= py::self)
 	.def(py::self *= py::self)
@@ -157,19 +160,44 @@ void add_methods(py::class_<Class> t_mapper)
 	.def(py::init<>(
 		 /* is this used at all ? */
 		 [](typename Types::variant_type& v) {
-		     return to_tpsa_or_base<Types, Class>(v);
+		     return to_tpsa_base_variant<Types, Class>(v);
 		 }),
 	     "initialise tpsa or double", py::arg("tpsa or double"))
 	;
 }
 
-void py_gtpsa_init_variant(pybind11::module &m)
+void gpy::py_gtpsa_init_variant(pybind11::module &m)
 {
 
     py::class_<gtpsa::TpsaOrDouble> t_d(m, "TpsaOrDouble");
     add_methods<gtpsa::TpsaVariantDoubleTypes, gtpsa::TpsaOrDouble>(t_d);
+    t_d
+	.def(py::self += double())
+	.def(py::self -= double())
+	.def(py::self *= double())
+	.def(py::self /= double())
+
+	.def(py::self + double())
+	.def(py::self - double())
+	.def(py::self * double())
+	.def(py::self / double())
+
+	;
 
     py::class_<gtpsa::CTpsaOrComplex> t_c(m, "CTpsaOrComplex");
     add_methods<gtpsa::TpsaVariantComplexTypes, gtpsa::CTpsaOrComplex>(t_c);
+    t_c
+	.def("real", [](const gtpsa::CTpsaOrComplex& inst){ return inst.real();})
+	.def("imag", [](const gtpsa::CTpsaOrComplex& inst){ return inst.imag();})
 
+	.def(py::self += std::complex<double>())
+	.def(py::self -= std::complex<double>())
+	.def(py::self *= std::complex<double>())
+	.def(py::self /= std::complex<double>())
+
+	.def(py::self + std::complex<double>())
+	.def(py::self - std::complex<double>())
+	.def(py::self * std::complex<double>())
+	.def(py::self / std::complex<double>())
+	;
 }

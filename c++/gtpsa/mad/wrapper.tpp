@@ -21,10 +21,11 @@
  * @todo: add wrapper for more advanced functions
  */
 #include <algorithm>
-#include <memory>
-#include <vector>
-#include <string>
+#include <cassert>
 #include <cstdbool>
+#include <memory>
+#include <string>
+#include <vector>
 
 #ifndef GTPSA_CLASS
 #error "GTPSA CLASS has to be defined (either MadTpsa_ or MadCTpsa_)"
@@ -84,7 +85,7 @@ namespace gtpsa::mad {
      */
     class GTPSA_CLASS(Wrapper) {
     private:
-        // managed access to the underlying pointer
+	 // managed access to the underlying pointer
         std::shared_ptr<desc> t_desc;
         std::unique_ptr<GTPSA_CLASS(LifeTimeManager)> ltm;
 
@@ -111,8 +112,9 @@ namespace gtpsa::mad {
          * @todo: define it for ctpsa &t too
          */
         inline GTPSA_CLASS(Wrapper)(const GTPSA_CLASS(Wrapper) &t, const ord_t mo)
-                : t_desc(t.getDescription()),
-                  ltm(std::make_unique<GTPSA_CLASS(LifeTimeManager)>(GTPSA_METH(new)(t.getPtr(), mo))) {}
+	    : t_desc(t.getDescription()),
+	    ltm(std::make_unique<GTPSA_CLASS(LifeTimeManager)>(GTPSA_METH(new)(t.getPtr(), mo)))
+	    {}
 
 
         /**
@@ -121,17 +123,18 @@ namespace gtpsa::mad {
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
 
         inline GTPSA_CLASS(Wrapper)(const GTPSA_CLASS(Wrapper) &o)
-                : t_desc(o.getDescription()), ltm(std::make_unique<GTPSA_CLASS(LifeTimeManager)>(
-                GTPSA_METH(new)(o.getPtr(), init::same))) { this->_copyInPlace(o); };
+	    : t_desc(o.getDescription())
+	    , ltm(std::make_unique<GTPSA_CLASS(LifeTimeManager)>(GTPSA_METH(new)(o.getPtr(), init::same)))
+	      { this->_copyInPlace(o); }
+
 #else /* GTSPA_ONLY_OPTIMISED_OPS */
-        inline GTPSA_CLASS(Wrapper)(const GTPSA_CLASS(Wrapper)&              o) = delete;
+        inline GTPSA_CLASS(Wrapper)(const GTPSA_CLASS(Wrapper)& o) = delete;
 #endif /* GTSPA_ONLY_OPTIMISED_OPS */
 
         /**
          * move ctor
          */
-        inline GTPSA_CLASS(Wrapper)(GTPSA_CLASS(
-                                            Wrapper) &&o) = default; //  noexcept :  ltm(std::move(o.tm)), t_desc(std::move(o.t_desc)) { };
+        inline GTPSA_CLASS(Wrapper)(GTPSA_CLASS(Wrapper) &&o) = default;
         inline GTPSA_CLASS(Wrapper) &operator=(GTPSA_CLASS(Wrapper) &&o) = default;
 
 
@@ -150,9 +153,9 @@ namespace gtpsa::mad {
 
         inline GTPSA_CLASS(Wrapper) newFromThis(void) const { return GTPSA_CLASS(Wrapper)(*this, init::same); }
 
-        void rgetOrder(const GTPSA_CLASS(Wrapper)& src, int order)  { return GTPSA_METH(getord)(src.getPtr(), this->getPtr(), order);}
-        void rderiv(const GTPSA_CLASS(Wrapper)& src, int iv)  { return GTPSA_METH(deriv)(src.getPtr(), this->getPtr(), iv);}
-        void rinteg(const GTPSA_CLASS(Wrapper)& src, int iv)  { return GTPSA_METH(integ)(src.getPtr(), this->getPtr(), iv);}
+        void rgetOrder (const GTPSA_CLASS(Wrapper)& src, const int order)  { return GTPSA_METH(getord)(src.getPtr(), this->getPtr(), order);}
+        void rderiv    (const GTPSA_CLASS(Wrapper)& src, const int iv   )  { return GTPSA_METH(deriv)(src.getPtr(), this->getPtr(), iv);}
+        void rinteg    (const GTPSA_CLASS(Wrapper)& src, const int iv   )  { return GTPSA_METH(integ)(src.getPtr(), this->getPtr(), iv);}
         /**
          * @short set uid if != 0
          *
@@ -178,26 +181,26 @@ namespace gtpsa::mad {
 
         inline auto isNull(void) const { GTPSA_METH(isnul)(this->getPtr()); }
 
-        inline void setnam(std::string name) { GTPSA_METH(setnam)(this->getPtr(), name.c_str()); }
+        inline void setnam(const std::string name) { GTPSA_METH(setnam)(this->getPtr(), name.c_str()); }
 
         /**
          * @brief:
          */
-        void setvar(GTPSA_BASE_T v, idx_t iv_ = 0, GTPSA_BASE_T scl_ = 0) {
+        void setvar(const GTPSA_BASE_T v, const idx_t iv_ = 0, const GTPSA_BASE_T scl_ = 0) {
             GTPSA_METH(setvar)(this->getPtr(), v, iv_, scl_);
         }
 
         /**
          * @brief indexing / monomials (return idx_t = -1 if invalid)
          */
-        inline auto mono(std::vector<ord_t> &m, idx_t i) const {
+        inline auto mono(std::vector<ord_t> &m, const idx_t i) const {
             return GTPSA_METH(mono)(this->getPtr(), m.size(), m.data(), i);
         }
 
         /**
          *  @brief string mono "[0-9]*"
          */
-        inline auto idxs(std::string s) const { return GTPSA_METH(idxs)(this->getPtr(), s.size(), s.data()); }
+        inline auto idxs(const std::string s) const { return GTPSA_METH(idxs)(this->getPtr(), s.size(), s.data()); }
 
         inline auto idxm(const std::vector<ord_t> &m) const {
             return GTPSA_METH(idxm)(this->getPtr(), m.size(), m.data());
@@ -211,8 +214,9 @@ namespace gtpsa::mad {
             return GTPSA_METH(idxsm)(this->getPtr(), m.size(), m.data());
         }
 
-        inline auto cycle(std::vector<ord_t> m, idx_t i, GTPSA_BASE_T *v) {
-            return GTPSA_METH(cycle)(this->getPtr(), m.size(), m.data(), i, v);
+	// can't define order m as const ...
+        inline auto cycle(std::vector<ord_t>* m, const idx_t i, GTPSA_BASE_T *v) const  {
+	    return  GTPSA_METH(cycle)(this->getPtr(), m->size(), m->data(), i, v);
         }
 
         /**
@@ -222,7 +226,7 @@ namespace gtpsa::mad {
 
         inline auto geti(const idx_t i) const { return GTPSA_METH(geti)(this->getPtr(), i); }
 
-        inline auto gets(std::string s) const { return GTPSA_METH(gets)(this->getPtr(), s.size(), s.data()); }
+        inline auto gets(const std::string s) const { return GTPSA_METH(gets)(this->getPtr(), s.size(), s.data()); }
 
         inline auto getm(const std::vector<ord_t> &m) const {
             return GTPSA_METH(getm)(this->getPtr(), m.size(), m.data());
@@ -239,24 +243,24 @@ namespace gtpsa::mad {
         /**
          * @brief a*x[0]+b
          */
-        inline void set0(GTPSA_BASE_T a, GTPSA_BASE_T b) { GTPSA_METH(set0)(this->getPtr(), a, b); }
+        inline void set0(const GTPSA_BASE_T a, const GTPSA_BASE_T b) { GTPSA_METH(set0)(this->getPtr(), a, b); }
 
         /**
          * @brief a*x[i]+b
          */
-        inline void seti(const idx_t i, GTPSA_BASE_T a, GTPSA_BASE_T b) { GTPSA_METH(seti)(this->getPtr(), i, a, b); }
+        inline void seti(const idx_t i, const GTPSA_BASE_T a, const GTPSA_BASE_T b) { GTPSA_METH(seti)(this->getPtr(), i, a, b); }
 
         /**
          * @brief a*x[m]+b
          */
-        inline void sets(const std::string &s, GTPSA_BASE_T a, GTPSA_BASE_T b) {
+        inline void sets(const std::string &s, const GTPSA_BASE_T a, const GTPSA_BASE_T b) {
             GTPSA_METH(sets)(this->getPtr(), s.size(), s.data(), a, b);
         }
 
         /**
          * @brief a*x[m]+b
          */
-        inline void setm(const std::vector<ord_t> &m, GTPSA_BASE_T a, GTPSA_BASE_T b) {
+        inline void setm(const std::vector<ord_t> &m, const GTPSA_BASE_T a, const GTPSA_BASE_T b) {
             GTPSA_METH(setm)(this->getPtr(), m.size(), m.data(), a, b);
         }
 
@@ -264,21 +268,21 @@ namespace gtpsa::mad {
          * @brief a*x[m]+b, sparse mono [(i,o)]
          * @todo vector of pairs?
          */
-        inline auto setsm(const std::vector<int> m, GTPSA_BASE_T a, GTPSA_BASE_T b) {
+        inline auto setsm(const std::vector<int> m, const GTPSA_BASE_T a, const GTPSA_BASE_T b) {
             return GTPSA_METH(setsm)(this->getPtr(), m.size(), m.data(), a, b);
         }
 
 
-        inline void getv(idx_t i, std::vector<GTPSA_BASE_T> *v) const {
+        inline void getv(const idx_t i, std::vector<GTPSA_BASE_T> *v) const {
             GTPSA_METH(getv)(this->getPtr(), i, v->size(), v->data());
         }
 
-        inline void setv(idx_t i, const std::vector<GTPSA_BASE_T> &v) {
+        inline void setv(const idx_t i, const std::vector<GTPSA_BASE_T> &v) {
             GTPSA_METH(setv)(this->getPtr(), i, v.size(), v.data());
         }
 
 
-        inline void print(str_t name = nullptr, num_t eps = 0, int nohdr = 0, FILE *stream = nullptr) const {
+        inline void print(const str_t name = nullptr, const num_t eps = 0, const int nohdr = 0, FILE *stream = nullptr) const {
             GTPSA_METH(print)(this->getPtr(), name, eps, nohdr, stream);
         }
 
@@ -466,7 +470,7 @@ namespace gtpsa::mad {
         process1to2w_(t, r1, r2, GTPSA_METH(sincosh));
     }
 
-    inline void taylor(const GTPSA_CLASS(Wrapper) &a, std::vector<GTPSA_BASE_T> coeff, GTPSA_CLASS(Wrapper) *c) {
+    inline void taylor(const GTPSA_CLASS(Wrapper) &a, const std::vector<GTPSA_BASE_T> coeff, GTPSA_CLASS(Wrapper) *c) {
         GTPSA_METH(taylor)(a.getPtr(), coeff.size(), coeff.data(), c->getPtr());
     }
 

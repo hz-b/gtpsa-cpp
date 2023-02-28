@@ -19,6 +19,10 @@ set(gtpsa_c++_intern_HEADERS
   gtpsa/intern/with_operators.hpp
   )
 
+set(gtpsa_c++_python_HEADERS
+  gtpsa/python/name_index.h
+  )
+
 set(gtpsa_c++_HEADERS
   gtpsa/funcs.h
 
@@ -53,12 +57,18 @@ install(FILES ${gtpsa_c++_bridge_HEADERS}
 install(FILES ${gtpsa_c++_intern_HEADERS}
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gtpsa/intern/
   )
+install(FILES ${gtpsa_c++_python_HEADERS}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gtpsa/python/
+  )
 
 
 set(gtpsa_c++_FILES
   gtpsa/mad/tpsa_wrapper.cc
   gtpsa/mad/ctpsa_wrapper.cc
 
+  gtpsa/python/name_index.cc
+
+  gtpsa/desc.cc
   gtpsa/tpsa.cc
   gtpsa/ctpsa.cc
   gtpsa/ss_vect.cc
@@ -72,6 +82,7 @@ add_library(gtpsa-c++ SHARED
   ${gtpsa_c++_mad_HEADERS}
   ${gtpsa_c++_bridge_HEADERS}
   ${gtpsa_c++_intern_HEADERS}
+  ${gtpsa_c++_python_HEADERS}
   )
 
 target_link_libraries(gtpsa-c++ gtpsa lapack blas ${OpenMP_C_LIBRARIES} ${ARMADILLO_LIBRARIES})

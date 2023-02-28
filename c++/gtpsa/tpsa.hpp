@@ -140,9 +140,9 @@ namespace gtpsa {
 	inline bool  operator >= (const num_t a ) const { return this->cst() >= a; }
 	inline bool  operator <= (const num_t a ) const { return this->cst() <= a; }
 	inline bool  operator >  (const num_t a ) const { return this->cst() >  a; }
-    inline bool  operator <  (const num_t a ) const { return this->cst() <  a; }
-    inline bool  operator == (const num_t a ) const { return this->cst() ==  a; }
-    inline bool  operator == (const tpsa& a ) const { return this->cst() ==  a.cst(); }
+	inline bool  operator <  (const num_t a ) const { return this->cst() <  a; }
+	inline bool  operator == (const num_t a ) const { return this->cst() ==  a; }
+	inline bool  operator == (const tpsa& a ) const { return this->cst() ==  a.cst(); }
 
 	inline tpsa  operator  - ( void         ) const { return tpsa( base::operator-(*this) ); }
 
@@ -203,6 +203,7 @@ namespace gtpsa {
 	return mad_tpsa_ordn(tv.size(), tv.data());
     }
     */
+
 
     inline std::ostream& operator<<(std::ostream& strm, const tpsa& a)
     {

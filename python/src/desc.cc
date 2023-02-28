@@ -3,8 +3,9 @@
 #include <gtpsa/desc.hpp>
 
 namespace py = pybind11;
+namespace gpy = gtpsa::python;
 
-void py_gtpsa_init_desc(py::module &m)
+void gpy::py_gtpsa_init_desc(py::module &m)
 {
     const char desc_newv_doc[] = "\
 Args:\n\

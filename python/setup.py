@@ -47,6 +47,7 @@ ext_modules = [
         "_gtpsa",
         sorted([
             "src/gtpsa_module.cc",
+            "src/gtpsa_variant.cc",
             "src/desc.cc",
             "src/gtpsa.cc",
             "src/ss_vect.cc",

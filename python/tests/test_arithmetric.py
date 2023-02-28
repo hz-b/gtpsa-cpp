@@ -47,8 +47,7 @@ def test_20_radd():
     del desc
 
     a = np.pi / 6
-    v = np.array([a, 0, 1, 0, 0, 0, 0])
-    t1.setv(0, v)
+    t1.set_variable(a, 2, 0)
 
     b = 5
     t1 += b
@@ -61,8 +60,7 @@ def test_21_add():
     del desc
 
     a = np.pi / 6
-    v = np.array([a, 0, 1, 0, 0, 0, 0])
-    t1.setv(0, v)
+    t1.set_variable(a, 2, 0)
 
     b = 5
     t2 = t1 + b
@@ -76,8 +74,7 @@ def test_22_rsub():
     del desc
 
     a = np.pi / 6
-    v = np.array([a, 0, 1, 0, 0, 0, 0])
-    t1.setv(0, v)
+    t1.set_variable(a, 2, 0)
 
     b = 5
     t1 -= b
@@ -123,6 +120,16 @@ def test_31_polar():
 
     assert real_part.get() == pytest.approx(1/2)
     assert imag_part.get() == pytest.approx(np.sqrt(3)/2)
+
+def test_40_pow():
+    desc = gtpsa.desc(6, 1)
+    t = gtpsa.tpsa(desc, 0)
+    t.set_variable(355/113, 2, 0)
+    t.print("pi")
+
+    tp = t**2
+
+    tp.print("pi**2", eps=1e-12)
 
 
 if __name__ == "__main__":

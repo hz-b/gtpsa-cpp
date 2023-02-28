@@ -30,7 +30,8 @@ static inline cpx_t std_complex_double_to_cpx_t(const std::complex<double> a_cpl
      */
     return res;
 }
-static inline std::complex<double> cpx_t_to_std_complex_double(cpx_t a_cplx)
+
+static inline std::complex<double> cpx_t_to_std_complex_double(const cpx_t a_cplx)
 {
     std::complex<double> res;
     /*

@@ -187,16 +187,28 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	inline void set(const std::vector<ord_t>& m, const cpx_t a, const cpx_t b) {
 	    base::set(m, a, b);
 	}
-	inline void setv(idx_t i, const std::vector<std::complex<double>> &v) {
+	inline void setv(const idx_t i, const std::vector<std::complex<double>> &v) {
 	    std::vector<cpx_t> tmp;
 	    std::transform(v.begin(), v.end(), std::back_inserter(tmp),
 			   [] (std::complex<double> val) { return std_complex_double_to_cpx_t(val); }
 		);
 	    base::setv(i, tmp);
 	}
+	inline void getv(const idx_t i, std::vector<std::complex<double>> *v) const {
+	    std::vector<cpx_t> tmp(v->size());
+	    base::getv(i, &tmp);
+	    std::transform(tmp.begin(), tmp.end(), v->begin(),
+			   [] (cpx_t val) { return  cpx_t_to_std_complex_double(val); }
+		);
+	}
+
 
 	inline void setsm(const std::vector<int>& m, const std::complex<double> a, const std::complex<double> b) {
 	    base::setsm(m, std_complex_double_to_cpx_t(a), std_complex_double_to_cpx_t(b));
+	}
+
+	inline void setVariable(const std::complex<double> v, idx_t iv= 0, const std::complex<double> scale = 0) {
+	    base::setVariable( std_complex_double_to_cpx_t(v), iv, std_complex_double_to_cpx_t(scale) );
 	}
 
 	/* compatible to c++ and thus python */
@@ -327,9 +339,9 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
     inline ctpsa operator *  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cpx_t(a) * ctpsa::base(b); }
     inline ctpsa operator /  (const std::complex<double> a, const ctpsa& b)  { return std_complex_double_to_cpx_t(a) / ctpsa::base(b); }
 
-    inline ctpsa pow (const ctpsa& a,  const ctpsa& b){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), static_cast<const ctpsa::base&>(b) ) ); }
-    inline ctpsa pow (const ctpsa& a,  const int    i){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), i) ); }
-    inline ctpsa pow (const ctpsa& a,  const cpx_t v){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), v  )); }
+    inline ctpsa pow (const ctpsa& a,  const ctpsa&               b){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), static_cast<const ctpsa::base&>(b) ) ); }
+    inline ctpsa pow (const ctpsa& a,  const int                  i){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), i) ); }
+    inline ctpsa pow (const ctpsa& a,  const std::complex<double> v){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), std_complex_double_to_cpx_t(v) )); }
 
     inline std::ostream& operator<<(std::ostream& strm, const ctpsa& a)
     {

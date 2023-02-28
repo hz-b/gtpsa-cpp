@@ -14,10 +14,18 @@ import gtpsa
 
 desc = gtpsa.desc(6, 2)
 ss1 = gtpsa.ss_vect_tpsa(desc, 1)
+ss1.px.set(0, 2)
 
 a_tpsa_obj = ss1[1]
 a_tpsa_obj.set(0, 2)
 ss1[1] = a_tpsa_obj
+ss1.px = a_tpsa_obj
+
+print("Entries")
+print(dir(ss1))
+print(ss1.x)
+
+
 del a_tpsa_obj
 
 assert (ss1[1].get() == 2)

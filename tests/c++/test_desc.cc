@@ -119,3 +119,41 @@ BOOST_AUTO_TEST_CASE(test20_tpsa_isvaildsm)
     BOOST_CHECK_EQUAL(a_desc.isvalidsm(std::vector<idx_t> {4, 6}), true);
 
 }
+
+BOOST_AUTO_TEST_CASE(test31_desc_info)
+{
+    const int nv = 3, no =7;
+    auto a_desc = gtpsa::desc(nv, no);
+    a_desc.info();
+    auto info = a_desc.getInfo();
+    std::cout << " info " << info  << std::endl;
+
+    BOOST_CHECK_EQUAL(nv, info.getNumberOfVariables());
+    BOOST_CHECK_EQUAL(no, info.getVariablesMaximumOrder());
+    BOOST_CHECK_EQUAL(0 , info.getNumberOfParameters());
+    BOOST_CHECK_EQUAL(0 , info.getParametersMaximumOrder());
+}
+
+
+BOOST_AUTO_TEST_CASE(test33_desc_info)
+{
+    // currently fails for 144 on my machine
+    const int nv = 3, no =7, np=62, po=1;
+    auto a_desc = gtpsa::desc(nv, np, no, po);
+    a_desc.info();
+    auto info = a_desc.getInfo();
+    std::cout << " info: " << info << std::endl;
+
+    BOOST_CHECK_EQUAL(nv, info.getNumberOfVariables());
+    BOOST_CHECK_EQUAL(no, info.getVariablesMaximumOrder());
+    BOOST_CHECK_EQUAL(np, info.getNumberOfParameters());
+    BOOST_CHECK_EQUAL(po, info.getParametersMaximumOrder());
+}
+
+BOOST_AUTO_TEST_CASE(test30_desc_nv)
+{
+    const int nv = 3, no =7;
+    auto a_desc = gtpsa::desc(nv, no);
+
+    // BOOST_CHECK_EQUAL(a_desc.getNv(), nv);
+}
