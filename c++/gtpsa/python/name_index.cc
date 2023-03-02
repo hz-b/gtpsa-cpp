@@ -159,4 +159,5 @@ std::vector<size_t> gpy::IndexMapping::order_vector_from_power(const index_mappi
 
 namespace gtpsa::python {
 	const IndexMapping DefaultIndexMapping(gpy::default_mapping, "gtpsa::ss_vect");
+	std::shared_ptr<IndexMapping> default_index_mapping_ptr = std::make_shared<IndexMapping>(gpy::default_mapping, "gtpsa::ss_vect");
 } // namespace gtpa::python

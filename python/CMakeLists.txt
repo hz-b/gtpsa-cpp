@@ -6,6 +6,7 @@ cmake_policy(SET CMP0063 NEW)
 add_library(_gtpsa MODULE
   src/gtpsa_module.cc
   src/desc.cc
+  src/named_index.cc
   src/gtpsa.cc
   src/ss_vect.cc
   src/arma.cc

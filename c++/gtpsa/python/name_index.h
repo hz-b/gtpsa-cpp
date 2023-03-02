@@ -11,6 +11,7 @@
  */
 
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace gtpsa::python {
@@ -62,6 +63,8 @@ namespace gtpsa::python {
 	 */
 	IndexMapping(const index_mapping& d, const std::string info="");
 
+	IndexMapping(IndexMapping&&) = default;
+
 	/**
 	 * @brief provide list of keys from mapping as required for python __dir__
 	 */
@@ -83,5 +86,9 @@ namespace gtpsa::python {
     };
 
     extern const IndexMapping DefaultIndexMapping;
+    /**
+     * @brief common object in python
+     */
+    extern std::shared_ptr<IndexMapping> default_index_mapping_ptr;
 } /* namespace gtpsa::python */
 #endif /* _GTPSA_PYTHON_NAME_INDEX_H_ */

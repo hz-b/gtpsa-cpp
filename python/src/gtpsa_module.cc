@@ -22,6 +22,7 @@ const size_t gpy::mapping_index(const gpy::IndexMapping& im, const std::string k
 PYBIND11_MODULE(_gtpsa, m) {
     m.doc() = "gtpsa python wrapper";
 
+    gpy::py_gtpsa_init_named_index(m);
     gpy::py_gtpsa_init_desc(m);
     gpy::py_gtpsa_init_tpsa(m);
     gpy::py_gtpsa_init_variant(m);

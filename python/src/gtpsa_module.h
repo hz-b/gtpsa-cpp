@@ -6,6 +6,7 @@
 
 namespace gtpsa::python {
     void py_gtpsa_init_desc(pybind11::module &m);
+    void py_gtpsa_init_named_index(pybind11::module &m);
     void py_gtpsa_init_tpsa(pybind11::module &m);
     void py_gtpsa_init_variant(pybind11::module &m);
     void py_gtpsa_init_ss_vect(pybind11::module &m);

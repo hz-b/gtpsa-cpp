@@ -3,6 +3,7 @@
 //#include <gtpsa/python/name_index.h>
 #include <gtpsa/ss_vect.h>
 #include "gtpsa_module.h"
+#include "named_index.h"
 #include <pybind11/complex.h>
 #include <pybind11/operators.h>
 #include <pybind11/numpy.h>
@@ -71,6 +72,39 @@ static py::array_t<double> from_arma_mat(arma::mat& mat)
 }
 
 
+
+namespace gtpsa::python{
+    template<typename T>
+    class StateSpaceWithNamedIndex : public gtpsa::ss_vect<T> {
+	std::shared_ptr<gpy::IndexMapping> m_mapping;
+
+	using base = gtpsa::ss_vect<T>;
+
+    public:
+	StateSpaceWithNamedIndex(const std::shared_ptr<gtpsa::mad::desc> desc, const ord_t mo, const size_t n = ss_vect_n_dim,
+				 std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(desc, mo, n)
+	    , m_mapping(mapping)
+	    {}
+
+	StateSpaceWithNamedIndex(const T& t, const size_t n = ss_vect_n_dim,
+				 std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(t, n)
+	    , m_mapping(mapping)
+	    {}
+
+	/*
+	StateSpaceWithNamedIndex(const std::vector<T> &vec, const size_t n = ss_vect_n_dim,
+				 std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(vec, n)
+	    , m_mapping(mapping)
+	    {}
+	*/
+	inline auto getMapping(void) const {
+	    return this->m_mapping;
+	}
+    };
+}; // namespace gtpsa::python
 
 
 static const char init_ss_vect_doc [] = \
@@ -180,27 +214,47 @@ struct AddMethods
 };
 
 
+
 void gpy::py_gtpsa_init_ss_vect(py::module &m)
 {
 	typedef gtpsa::ss_vect<double> ss_vect_dbl_t;
 	typedef gtpsa::ss_vect<gtpsa::tpsa> ss_vect_tpsa_t;
 
+	typedef gtpsa::python::StateSpaceWithNamedIndex<double> ss_vect_dbl_py_t;
+	typedef gtpsa::python::StateSpaceWithNamedIndex<gtpsa::tpsa> ss_vect_tpsa_py_t;
 
-	py::class_<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> ss_vect_double (m, "ss_vect_double");
+	py::class_<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> ss_vect_double_intern (m, "_ss_vect_double");
 	AddMethods<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> double_cls;
-	double_cls.add_methods<double>(ss_vect_double);
+	double_cls.add_methods<double>(ss_vect_double_intern);
 
 
-	py::class_<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>>  ss_vect_tpsa (m, "ss_vect_tpsa");
+	py::class_<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>>  ss_vect_tpsa_intern (m, "_ss_vect_tpsa");
 	AddMethods<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>> tpsa_cls;
-	tpsa_cls.add_methods<gtpsa::tpsa>(ss_vect_tpsa);
-	tpsa_cls.add_methods_tpsa<gtpsa::tpsa>(ss_vect_tpsa);
-	ss_vect_tpsa
+	tpsa_cls.add_methods<gtpsa::tpsa>(ss_vect_tpsa_intern);
+	tpsa_cls.add_methods_tpsa<gtpsa::tpsa>(ss_vect_tpsa_intern);
+	ss_vect_tpsa_intern
 	   .def(py::self += gtpsa::ss_vect<double>(0e0))
 	   .def(py::self -= gtpsa::ss_vect<double>(0e0))
 	   .def(py::self +  gtpsa::ss_vect<double>(0e0))
 	   .def(py::self -  gtpsa::ss_vect<double>(0e0))
 	   ;
+
+
+	py::class_<ss_vect_dbl_py_t, std::shared_ptr<ss_vect_dbl_py_t>> ss_vect_double (m, "ss_vect_double", ss_vect_double_intern);
+	add_methods_named_index<ss_vect_dbl_py_t, std::shared_ptr<ss_vect_dbl_py_t>, double>(ss_vect_double);
+	ss_vect_double
+	    ;
+	py::class_<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>> ss_vect_tpsa (m, "ss_vect_tpsa", ss_vect_tpsa_intern);
+	add_methods_named_index<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>, gtpsa::tpsa>(ss_vect_tpsa);
+	ss_vect_tpsa
+	    .def(py::init<const std::shared_ptr<gtpsa::mad::desc>, const ord_t, const size_t, std::shared_ptr<gpy::IndexMapping>>(),
+		 "init state space",
+		 py::arg("desc"), py::arg("maximum_order"), py::arg("state_space_size") = gtpsa::ss_vect_n_dim,
+		 py::arg("index_mapping") =  gpy::default_index_mapping_ptr
+		)
+	    ;
+#if 0
+#endif
 
 	// adding functions
 	m.def("compose", &gtpsa::compose);
