@@ -235,16 +235,19 @@ struct AddMethods
 	    .def_property("name",  &Cls::name, &Cls::setName)
 	    .def_property("uid",   [](Cls& inst){ return inst.uid(0);}, &Cls::uid)
 	    .def_property_readonly("order", &Cls::order)
+	    ;
+    }
+
+    template<typename BCls, typename T>
+    void add_methods_init(py::class_<BCls> a_cls) {
+	a_cls
 	    .def(py::init<std::shared_ptr<gtpsa::mad::desc>, const ord_t>(), tpsa_init_desc_doc,
 		 py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::default_)
 		)
-#if 0
-#endif
 	    .def(py::init<const BCls&, const ord_t>(), tpsa_init_same_doc,
 		 py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::same))
 	    ;
     }
-
     template<typename BCls, typename T>
     void add_methods_ops(py::class_<BCls> a_cls) {
 	a_cls
@@ -322,6 +325,7 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
     py::class_<gtpsa::tpsa, std::shared_ptr<gtpsa::tpsa>>   tpsa_intern  (m, "_tpsa",  tpsa_with_op);
     AddMethods<gtpsa::tpsa> tpsa_m;
     tpsa_m.add_methods_ops<gtpsa::tpsa, num_t>(tpsa_intern);
+    tpsa_m.add_methods_init<TpsaOp, num_t>(tpsa_intern);
     tpsa_intern
 	//.def("set", py::overload_cast<num_t, num_t>( &gtpsa::tpsa::set))
 	//.def("set", py::overload_cast<const std::vector<ord_t>&, num_t, num_t>( &gtpsa::tpsa::set))
@@ -353,10 +357,13 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
 
 #undef GTPSA_FUNC_ARG1
 
+
+
     py::class_<CTpsaOp, std::shared_ptr<CTpsaOp>> ctpsa_with_op  (m, "_CTPSAWithOp");
     py::class_<gtpsa::ctpsa , std::shared_ptr<gtpsa::ctpsa>>  ctpsa_intern (m, "_ctpsa", ctpsa_with_op);
     AddMethods<gtpsa::ctpsa> ctpsa_m;
     ctpsa_m.add_methods<gtpsa::ctpsa, std::complex<double>>(ctpsa_intern);
+    ctpsa_m.add_methods_init<gtpsa::ctpsa, std::complex<double>>(ctpsa_intern);
     ctpsa_intern
     .def("set0",  [](gtpsa::ctpsa& t, const std::complex<double> a, const std::complex<double> b) {
       t.set(a, b);
@@ -413,6 +420,35 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
    m.def(#func  "_",  py::overload_cast<const gtpsa::ctpsa&, gtpsa::ctpsa*>(&gtpsa:: func ## _));
 #include <gtpsa/funcs.h>
 #undef GTPSA_FUNC_ARG1
+
+    py::class_<gpy::TpsaWithNamedIndex, std::shared_ptr<gpy::TpsaWithNamedIndex>>   tpsa (m, "tpsa",  tpsa_intern);
+    AddMethods<gpy::TpsaWithNamedIndex> tpsa_methods;
+    tpsa_methods.add_methods<gpy::TpsaWithNamedIndex, num_t>(tpsa);
+    tpsa_methods.add_methods_with_named_index<gpy::TpsaWithNamedIndex, num_t>(tpsa);
+    /*
+    tpsa
+	.def(
+	    py::init<std::shared_ptr<gtpsa::mad::desc>, const ord_t>(), tpsa_init_desc_doc,
+	    py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::default_)
+	    )
+	;
+    */
+    tpsa
+	.def(
+	    py::init<std::shared_ptr<gtpsa::mad::desc>, const ord_t, std::shared_ptr<gpy::IndexMapping>>(), tpsa_init_desc_doc,
+	     py::arg("desc"), py::arg("order") = int(gtpsa::mad::init::default_), py::arg("mapping") = gpy::default_index_mapping_ptr
+	    )
+	;
+    py::class_<gpy::CTpsaWithNamedIndex, std::shared_ptr<gpy::CTpsaWithNamedIndex>>   ctpsa (m, "ctpsa",  ctpsa_intern);
+    AddMethods<gpy::CTpsaWithNamedIndex> ctpsa_methods;
+    ctpsa_methods.add_methods<gpy::CTpsaWithNamedIndex, std::complex<double>>(ctpsa);
+    ctpsa_methods.add_methods_with_named_index<gpy::CTpsaWithNamedIndex, std::complex<double>>(ctpsa);
+    ctpsa
+	.def(
+	    py::init<std::shared_ptr<gtpsa::mad::desc>, const ord_t, std::shared_ptr<gpy::IndexMapping>>(), tpsa_init_desc_doc,
+	    py::arg("desc"), py::arg("order") = int(gtpsa::mad::init::default_), py::arg("mapping") = gpy::default_index_mapping_ptr
+	    )
+	;
 
 
     py::enum_<gtpsa::mad::init>(m, "init")

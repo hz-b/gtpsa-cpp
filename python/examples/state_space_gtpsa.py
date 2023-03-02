@@ -33,3 +33,8 @@ assert (ss1[1].get() == 2)
 assert (ss1.cst()[1] == 2)
 
 np.array(ss1)
+# Check it for a double type ss_vect
+ss1 = gtpsa.ss_vect_double(0e0)
+ss1.px = 3
+
+print("ss1", ss1)
