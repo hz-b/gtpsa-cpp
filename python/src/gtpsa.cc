@@ -21,6 +21,62 @@ static const char tpsa_init_desc_doc[] = "Create a new (c)tpsa object using the 
  will be used if none is speficied\n\
 Use clone to create a copy of the content too. \n";
 
+namespace gtpsa::python {
+    class TpsaWithNamedIndex : public gtpsa::tpsa {
+	std::shared_ptr<gpy::IndexMapping> m_mapping;
+
+	using base = gtpsa::tpsa;
+
+    public:
+	TpsaWithNamedIndex(std::shared_ptr<mad::desc> desc, const ord_t mo,
+			   std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(desc, mo)
+	    , m_mapping(mapping)
+	    {}
+
+	TpsaWithNamedIndex(const tpsa& t, const ord_t mo,
+			   std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(t, mo)
+	    , m_mapping(mapping)
+	    {}
+
+	TpsaWithNamedIndex(const base& t,  std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(t)
+	    , m_mapping(mapping)
+	    {}
+	/* not accepting solely base object ... if mapping is lost, it is lost ...*/
+
+    };
+
+    class CTpsaWithNamedIndex : public gtpsa::ctpsa {
+	std::shared_ptr<gpy::IndexMapping> m_mapping;
+
+	using base = gtpsa::ctpsa;
+
+    public:
+	CTpsaWithNamedIndex(std::shared_ptr<mad::desc> desc, const ord_t mo,
+			   std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(desc, mo)
+	    , m_mapping(mapping)
+	    {}
+
+	CTpsaWithNamedIndex(const tpsa& t, const ord_t mo,
+			   std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(t, mo)
+	    , m_mapping(mapping)
+	    {}
+
+	CTpsaWithNamedIndex(const base& t,  std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(t)
+	    , m_mapping(mapping)
+	    {}
+
+	/* not accepting solely base object ... if mapping is lost, it is lost ...*/
+
+    };
+
+
+} // namespace gtpsa::python
 
 template<class Cls, typename T>
 static void set_variable(Cls& inst, const T& v, idx_t i, const T& s, const bool check_first)

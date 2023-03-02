@@ -97,6 +97,8 @@ namespace gtpsa::python {
 
 	IndexMappingBase(IndexMappingBase&&) = default;
 
+	IndexMapping(IndexMapping&&) = default;
+
 	/**
 	 * @brief provide list of keys from mapping as required for python __dir__
 	 */
