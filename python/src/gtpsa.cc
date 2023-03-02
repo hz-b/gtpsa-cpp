@@ -21,6 +21,62 @@ static const char tpsa_init_desc_doc[] = "Create a new (c)tpsa object using the 
  will be used if none is speficied\n\
 Use clone to create a copy of the content too. \n";
 
+namespace gtpsa::python {
+    class TpsaWithNamedIndex : public gtpsa::tpsa {
+	std::shared_ptr<gpy::IndexMapping> m_mapping;
+
+	using base = gtpsa::tpsa;
+
+    public:
+	TpsaWithNamedIndex(std::shared_ptr<mad::desc> desc, const ord_t mo,
+			   std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(desc, mo)
+	    , m_mapping(mapping)
+	    {}
+
+	TpsaWithNamedIndex(const tpsa& t, const ord_t mo,
+			   std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(t, mo)
+	    , m_mapping(mapping)
+	    {}
+
+	TpsaWithNamedIndex(const base& t,  std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(t)
+	    , m_mapping(mapping)
+	    {}
+	/* not accepting solely base object ... if mapping is lost, it is lost ...*/
+
+    };
+
+    class CTpsaWithNamedIndex : public gtpsa::ctpsa {
+	std::shared_ptr<gpy::IndexMapping> m_mapping;
+
+	using base = gtpsa::ctpsa;
+
+    public:
+	CTpsaWithNamedIndex(std::shared_ptr<mad::desc> desc, const ord_t mo,
+			   std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(desc, mo)
+	    , m_mapping(mapping)
+	    {}
+
+	CTpsaWithNamedIndex(const tpsa& t, const ord_t mo,
+			   std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(t, mo)
+	    , m_mapping(mapping)
+	    {}
+
+	CTpsaWithNamedIndex(const base& t,  std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
+	    : base(t)
+	    , m_mapping(mapping)
+	    {}
+
+	/* not accepting solely base object ... if mapping is lost, it is lost ...*/
+
+    };
+
+
+} // namespace gtpsa::python
 
 template<class Cls, typename T>
 static void set_variable(Cls& inst, const T& v, idx_t i, const T& s, const bool check_first)
@@ -208,6 +264,7 @@ struct AddMethods
 	    .def("getsm",          &Cls::getsm)
 	    //.def("get_coefficients", [](const Cls& inst) {})
 	    .def("set_variable",  [](Cls& inst, const T& v, idx_t i, const T& s, const bool check_first){
+<<<<<<< HEAD
 		                      set_variable(inst, v, i, s, check_first);
                                   },
 		                  "set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
@@ -218,6 +275,18 @@ struct AddMethods
 	                          },
 		                  "print the cofficients to stdout using c's stdout",
 		                  py::arg("name") = "", py::arg("eps") = 0 , py::arg("nohdr") = false)
+=======
+		set_variable(inst, v, i, s, check_first);
+	    },
+		"set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
+		py::arg("value"), py::arg("index_of_variable") = 0, py::arg("scale") = 0, py::arg("check_first") = true)
+	    .def("print", [](const Cls& inst, std::string name, double eps, bool nohdr){
+                FILE* f = stdout;
+                inst.print(name.c_str(), eps, nohdr, f);
+	    },
+		"print the cofficients to stdout using c's stdout",
+		py::arg("name") = "", py::arg("eps") = 0 , py::arg("nohdr") = false)
+>>>>>>> 95009ef (Named Index in python: development status)
 	    .def_property("name",  &Cls::name, &Cls::setName)
 	    .def_property("uid",   [](Cls& inst){ return inst.uid(0);}, &Cls::uid)
 	    .def_property_readonly("order", &Cls::order)
@@ -271,6 +340,7 @@ struct AddMethods
     template<typename BCls, typename T>
     void add_methods_with_named_index(py::class_<BCls> a_cls) {
 	a_cls
+<<<<<<< HEAD
 	    .def("get",             [](const Cls& inst, const gpy::index_mapping_t& powers, const bool check_first){
 		                        return get<Cls, T>(inst, powers, *inst.getMapping().get(), check_first);
 	                            },
@@ -303,6 +373,31 @@ struct AddMethods
 	    add_methods_ops<BCls, T>(a_cls);
     }
 
+=======
+	    .def("get",             [](const Cls& inst, const gpy::index_mapping& powers, const bool check_first){
+		return get<Cls, T>(inst, powers, gpy::DefaultIndexMapping, check_first);
+	    },
+		"get coefficient at given powers, specify powers in the dictionary",
+		py::arg("dict of no zero order"), py::arg("check_index")=true
+		)
+	    .def("set",             [](Cls& inst,      const gpy::index_mapping& p, const T& a, const T& b, const bool check_first){
+		set(inst, p, a, b, gpy::DefaultIndexMapping, check_first);
+	    })
+	    .def("set_variable",  [](Cls& inst, const T& v, const std::string& var_name, const T& s, const bool check_first){
+		set_variable(inst, v, var_name, s, gpy::DefaultIndexMapping, check_first);
+	    },
+		"set the variable to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
+		py::arg("value"), py::arg("variable_name"), py::arg("scale") = 0, py::arg("check_first") = true)
+	    ;
+    }
+
+    template<typename BCls, typename T>
+    void add_methods(py::class_<BCls> a_cls) {
+	add_methods_gtpsa_mad<BCls, T>(a_cls);
+	add_methods_ops<BCls, T>(a_cls);
+    }
+
+>>>>>>> 95009ef (Named Index in python: development status)
 };
 
 
@@ -320,7 +415,10 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
     py::class_<gtpsa::tpsa, std::shared_ptr<gtpsa::tpsa>>   tpsa_intern  (m, "_tpsa",  tpsa_with_op);
     AddMethods<gtpsa::tpsa> tpsa_m;
     tpsa_m.add_methods_ops<gtpsa::tpsa, num_t>(tpsa_intern);
+<<<<<<< HEAD
     tpsa_m.add_methods_init<TpsaOp, num_t>(tpsa_intern);
+=======
+>>>>>>> 95009ef (Named Index in python: development status)
     tpsa_intern
 	//.def("set", py::overload_cast<num_t, num_t>( &gtpsa::tpsa::set))
 	//.def("set", py::overload_cast<const std::vector<ord_t>&, num_t, num_t>( &gtpsa::tpsa::set))
@@ -358,7 +456,10 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
     py::class_<gtpsa::ctpsa , std::shared_ptr<gtpsa::ctpsa>>  ctpsa_intern (m, "_ctpsa", ctpsa_with_op);
     AddMethods<gtpsa::ctpsa> ctpsa_m;
     ctpsa_m.add_methods<gtpsa::ctpsa, std::complex<double>>(ctpsa_intern);
+<<<<<<< HEAD
     ctpsa_m.add_methods_init<gtpsa::ctpsa, std::complex<double>>(ctpsa_intern);
+=======
+>>>>>>> 95009ef (Named Index in python: development status)
     ctpsa_intern
     .def("set0",  [](gtpsa::ctpsa& t, const std::complex<double> a, const std::complex<double> b) {
                       t.set(a, b);

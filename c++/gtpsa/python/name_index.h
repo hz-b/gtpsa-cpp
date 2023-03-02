@@ -12,7 +12,10 @@
 
 #include <map>
 #include <memory>
+<<<<<<< HEAD
 #include <utility>
+=======
+>>>>>>> 95009ef (Named Index in python: development status)
 #include <vector>
 
 namespace gtpsa::python {
@@ -96,6 +99,8 @@ namespace gtpsa::python {
 	    virtual ~IndexMappingBase(void) {};
 
 	IndexMappingBase(IndexMappingBase&&) = default;
+
+	IndexMapping(IndexMapping&&) = default;
 
 	/**
 	 * @brief provide list of keys from mapping as required for python __dir__

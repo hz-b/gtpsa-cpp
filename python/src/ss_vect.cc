@@ -104,40 +104,6 @@ namespace gtpsa::python{
 	    return this->m_mapping;
 	}
     };
-
-
-
-    /**
-     * @brief: implement .loc
-     */
-    template<typename T>
-    class ss_vect_list_access {
-	gpy::StateSpaceWithNamedIndex<T>* ss_vect;
-
-    public:
-	inline ss_vect_list_access(gpy::StateSpaceWithNamedIndex<T>* p_inst)
-	    : ss_vect(p_inst)
-	    {}
-
-	inline auto getVector(void) {return ss_vect;}
-    };
-
-    template<class WrappedClass, class P_MGR, typename T>
-    static void add_methods_list_access(pybind11::class_<WrappedClass, P_MGR>& inst)
-    {
-	inst
-	    .def("__len__",      [](WrappedClass &self){
-		                    return self.getVector()->size();
-	                         })
-	    .def("__getitem__",  [](WrappedClass &self, const long int idx){
-				    return self.getVector()->at(idx);
-				 })
-	    .def("__setitem__",  [](WrappedClass &self, const long int idx, const T& v){
-				    self.getVector()->at(idx) = v;
-				 })
-	    ;
-    }
-
 }; // namespace gtpsa::python
 
 
@@ -241,14 +207,18 @@ struct AddMethods
 };
 
 
+<<<<<<< HEAD
 namespace gtpsa::python {
 } // gtpsa:: python
+=======
+>>>>>>> 95009ef (Named Index in python: development status)
 
 void gpy::py_gtpsa_init_ss_vect(py::module &m)
 {
 	typedef gtpsa::ss_vect<double> ss_vect_dbl_t;
 	typedef gtpsa::ss_vect<gtpsa::tpsa> ss_vect_tpsa_t;
 
+<<<<<<< HEAD
 	/* access using named index */
 	typedef gtpsa::python::StateSpaceWithNamedIndex<double> ss_vect_dbl_py_t;
 	typedef gtpsa::python::StateSpaceWithNamedIndex<gtpsa::tpsa> ss_vect_tpsa_py_t;
@@ -266,6 +236,11 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 
 	/**
 	 */
+=======
+	typedef gtpsa::python::StateSpaceWithNamedIndex<double> ss_vect_dbl_py_t;
+	typedef gtpsa::python::StateSpaceWithNamedIndex<gtpsa::tpsa> ss_vect_tpsa_py_t;
+
+>>>>>>> 95009ef (Named Index in python: development status)
 	py::class_<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> ss_vect_double_intern (m, "_ss_vect_double");
 	AddMethods<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> double_cls;
 	double_cls.add_methods<double>(ss_vect_double_intern);
