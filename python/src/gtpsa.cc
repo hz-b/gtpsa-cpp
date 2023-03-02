@@ -264,7 +264,6 @@ struct AddMethods
 	    .def("getsm",          &Cls::getsm)
 	    //.def("get_coefficients", [](const Cls& inst) {})
 	    .def("set_variable",  [](Cls& inst, const T& v, idx_t i, const T& s, const bool check_first){
-<<<<<<< HEAD
 		                      set_variable(inst, v, i, s, check_first);
                                   },
 		                  "set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
@@ -275,18 +274,6 @@ struct AddMethods
 	                          },
 		                  "print the cofficients to stdout using c's stdout",
 		                  py::arg("name") = "", py::arg("eps") = 0 , py::arg("nohdr") = false)
-=======
-		set_variable(inst, v, i, s, check_first);
-	    },
-		"set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
-		py::arg("value"), py::arg("index_of_variable") = 0, py::arg("scale") = 0, py::arg("check_first") = true)
-	    .def("print", [](const Cls& inst, std::string name, double eps, bool nohdr){
-                FILE* f = stdout;
-                inst.print(name.c_str(), eps, nohdr, f);
-	    },
-		"print the cofficients to stdout using c's stdout",
-		py::arg("name") = "", py::arg("eps") = 0 , py::arg("nohdr") = false)
->>>>>>> 95009ef (Named Index in python: development status)
 	    .def_property("name",  &Cls::name, &Cls::setName)
 	    .def_property("uid",   [](Cls& inst){ return inst.uid(0);}, &Cls::uid)
 	    .def_property_readonly("order", &Cls::order)
@@ -416,9 +403,13 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
     AddMethods<gtpsa::tpsa> tpsa_m;
     tpsa_m.add_methods_ops<gtpsa::tpsa, num_t>(tpsa_intern);
 <<<<<<< HEAD
+<<<<<<< HEAD
     tpsa_m.add_methods_init<TpsaOp, num_t>(tpsa_intern);
 =======
 >>>>>>> 95009ef (Named Index in python: development status)
+=======
+    tpsa_m.add_methods_init<TpsaOp, num_t>(tpsa_intern);
+>>>>>>> f4830e4 ([task, saved] gtpsa / ss_vect with named index: c++ version)
     tpsa_intern
 	//.def("set", py::overload_cast<num_t, num_t>( &gtpsa::tpsa::set))
 	//.def("set", py::overload_cast<const std::vector<ord_t>&, num_t, num_t>( &gtpsa::tpsa::set))
@@ -457,9 +448,13 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
     AddMethods<gtpsa::ctpsa> ctpsa_m;
     ctpsa_m.add_methods<gtpsa::ctpsa, std::complex<double>>(ctpsa_intern);
 <<<<<<< HEAD
+<<<<<<< HEAD
     ctpsa_m.add_methods_init<gtpsa::ctpsa, std::complex<double>>(ctpsa_intern);
 =======
 >>>>>>> 95009ef (Named Index in python: development status)
+=======
+    ctpsa_m.add_methods_init<gtpsa::ctpsa, std::complex<double>>(ctpsa_intern);
+>>>>>>> f4830e4 ([task, saved] gtpsa / ss_vect with named index: c++ version)
     ctpsa_intern
     .def("set0",  [](gtpsa::ctpsa& t, const std::complex<double> a, const std::complex<double> b) {
                       t.set(a, b);
@@ -534,6 +529,7 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
 	     py::arg("desc"), py::arg("order") = int(gtpsa::mad::init::default_), py::arg("mapping") = gpy::default_index_mapping_ptr
 	    )
 	;
+<<<<<<< HEAD
 
 
 /* function without return argument should not require cast */
@@ -546,6 +542,8 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
 
     //m.def("atan2",       py::overload_cast<const gpy::TpsaWithNamedIndex&,const gpy::TpsaWithNamedIndex& >(&gpy:: func     ));
 
+=======
+>>>>>>> f4830e4 ([task, saved] gtpsa / ss_vect with named index: c++ version)
     py::class_<gpy::CTpsaWithNamedIndex, std::shared_ptr<gpy::CTpsaWithNamedIndex>>   ctpsa (m, "ctpsa",  ctpsa_intern);
     AddMethods<gpy::CTpsaWithNamedIndex> ctpsa_methods;
     ctpsa_methods.add_methods<gpy::CTpsaWithNamedIndex, std::complex<double>>(ctpsa);
@@ -557,12 +555,15 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
 	    )
 	;
 
+<<<<<<< HEAD
 
 #define GTPSA_FUNC_ARG1(func)                                                                                          \
     m.def(#func,       py::overload_cast<const gpy::CTpsaWithNamedIndex&                           >(&gpy:: func     )); \
     m.def(#func  "_",  py::overload_cast<const gpy::CTpsaWithNamedIndex&, gpy::CTpsaWithNamedIndex*>(&gpy:: func ## _));
 #include <gtpsa/funcs.h>
 #undef GTPSA_FUNC_ARG1
+=======
+>>>>>>> f4830e4 ([task, saved] gtpsa / ss_vect with named index: c++ version)
 
     py::enum_<gtpsa::mad::init>(m, "init")
 	.value("default", gtpsa::mad::init::default_)

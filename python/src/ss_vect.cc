@@ -207,18 +207,12 @@ struct AddMethods
 };
 
 
-<<<<<<< HEAD
-namespace gtpsa::python {
-} // gtpsa:: python
-=======
->>>>>>> 95009ef (Named Index in python: development status)
 
 void gpy::py_gtpsa_init_ss_vect(py::module &m)
 {
 	typedef gtpsa::ss_vect<double> ss_vect_dbl_t;
 	typedef gtpsa::ss_vect<gtpsa::tpsa> ss_vect_tpsa_t;
 
-<<<<<<< HEAD
 	/* access using named index */
 	typedef gtpsa::python::StateSpaceWithNamedIndex<double> ss_vect_dbl_py_t;
 	typedef gtpsa::python::StateSpaceWithNamedIndex<gtpsa::tpsa> ss_vect_tpsa_py_t;
@@ -236,11 +230,6 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 
 	/**
 	 */
-=======
-	typedef gtpsa::python::StateSpaceWithNamedIndex<double> ss_vect_dbl_py_t;
-	typedef gtpsa::python::StateSpaceWithNamedIndex<gtpsa::tpsa> ss_vect_tpsa_py_t;
-
->>>>>>> 95009ef (Named Index in python: development status)
 	py::class_<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> ss_vect_double_intern (m, "_ss_vect_double");
 	AddMethods<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> double_cls;
 	double_cls.add_methods<double>(ss_vect_double_intern);
@@ -266,11 +255,6 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 		 py::arg("place_holder"), py::arg("state_space_size") = gtpsa::ss_vect_n_dim,
 		 py::arg("index_mapping") =  gpy::default_index_mapping_ptr
 		)
-	    /*
-	    .def("loc",          [](ss_vect_dbl_py_t &self) {
-		return ss_vect_dbl_list_access_t(&self);
-	    }, py::keep_alive<0, 1>())
-	    */
 	    ;
 
 	py::class_<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>> ss_vect_tpsa (m, "ss_vect_tpsa", ss_vect_tpsa_intern);
