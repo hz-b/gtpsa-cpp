@@ -243,7 +243,13 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 	py::class_<ss_vect_dbl_py_t, std::shared_ptr<ss_vect_dbl_py_t>> ss_vect_double (m, "ss_vect_double", ss_vect_double_intern);
 	add_methods_named_index<ss_vect_dbl_py_t, std::shared_ptr<ss_vect_dbl_py_t>, double>(ss_vect_double);
 	ss_vect_double
+	    .def(py::init<const double&, const size_t, std::shared_ptr<gpy::IndexMapping>>(),
+		 "init state space",
+		 py::arg("place_holder"), py::arg("state_space_size") = gtpsa::ss_vect_n_dim,
+		 py::arg("index_mapping") =  gpy::default_index_mapping_ptr
+		)
 	    ;
+
 	py::class_<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>> ss_vect_tpsa (m, "ss_vect_tpsa", ss_vect_tpsa_intern);
 	add_methods_named_index<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>, gtpsa::tpsa>(ss_vect_tpsa);
 	ss_vect_tpsa

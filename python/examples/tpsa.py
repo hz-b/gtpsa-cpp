@@ -53,3 +53,9 @@ print("order", t.order)
 
 # available methods
 print(dir(t))
+
+
+# Power handled by dedicated c++ function
+tmp = t**2
+print(tmp, type(tmp))
+print("gradient for x", tmp.get(dict(x=1)))
