@@ -3,13 +3,12 @@
 #include <pybind11/numpy.h>
 #include <pybind11/complex.h>
 #include <pybind11/operators.h>
-#include <gtpsa/ctpsa.hpp>
-#include <gtpsa/tpsa.hpp>
 #include <algorithm>
 #include <sstream>
 #include <string>
 #include <vector>
 
+#include "objects_with_named_index.h"
 #include "gtpsa_module.h"
 
 namespace py = pybind11;
@@ -22,62 +21,6 @@ static const char tpsa_init_desc_doc[] = "Create a new (c)tpsa object using the 
  will be used if none is speficied\n\
 Use clone to create a copy of the content too. \n";
 
-namespace gtpsa::python {
-    class TpsaWithNamedIndex : public gtpsa::tpsa {
-	std::shared_ptr<gpy::IndexMapping> m_mapping;
-
-	using base = gtpsa::tpsa;
-
-    public:
-	TpsaWithNamedIndex(std::shared_ptr<mad::desc> desc, const ord_t mo,
-			   std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
-	    : base(desc, mo)
-	    , m_mapping(mapping)
-	    {}
-
-	TpsaWithNamedIndex(const tpsa& t, const ord_t mo,
-			   std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
-	    : base(t, mo)
-	    , m_mapping(mapping)
-	    {}
-
-	TpsaWithNamedIndex(const base& t,  std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
-	    : base(t)
-	    , m_mapping(mapping)
-	    {}
-	/* not accepting solely base object ... if mapping is lost, it is lost ...*/
-
-    };
-
-    class CTpsaWithNamedIndex : public gtpsa::ctpsa {
-	std::shared_ptr<gpy::IndexMapping> m_mapping;
-
-	using base = gtpsa::ctpsa;
-
-    public:
-	CTpsaWithNamedIndex(std::shared_ptr<mad::desc> desc, const ord_t mo,
-			   std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
-	    : base(desc, mo)
-	    , m_mapping(mapping)
-	    {}
-
-	CTpsaWithNamedIndex(const tpsa& t, const ord_t mo,
-			   std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
-	    : base(t, mo)
-	    , m_mapping(mapping)
-	    {}
-
-	CTpsaWithNamedIndex(const base& t,  std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
-	    : base(t)
-	    , m_mapping(mapping)
-	    {}
-
-	/* not accepting solely base object ... if mapping is lost, it is lost ...*/
-
-    };
-
-
-} // namespace gtpsa::python
 
 template<class Cls, typename T>
 static void set_variable(Cls& inst, const T& v, idx_t i, const T& s, const bool check_first)
@@ -220,7 +163,7 @@ struct AddMethods
 				   })
 	    .def("setv",           &Cls::setv)
 	    .def("getsm",          &Cls::getsm)
-	    .def("get_coefficients", [](const Cls& inst) {})
+	    //.def("get_coefficients", [](const Cls& inst) {})
 	    .def("set_variable",  [](Cls& inst, const T& v, idx_t i, const T& s, const bool check_first){
 		set_variable(inst, v, i, s, check_first);
 	    },
@@ -277,8 +220,8 @@ struct AddMethods
 	    .def(T()      *  py::self)
 	    .def(T()      /  py::self)
 
-	    .def("__pow__", [](BCls& inst, const int    n) { return gtpsa::pow(inst, n); })
-	    .def("__pow__", [](BCls& inst, const T      v) { return gtpsa::pow(inst, v); })
+	    .def("__pow__", [](BCls& inst, const int    n) { return pow(inst, n); })
+	    .def("__pow__", [](BCls& inst, const T      v) { return pow(inst, v); })
 	    ;
     }
 
@@ -286,20 +229,22 @@ struct AddMethods
     void add_methods_with_named_index(py::class_<BCls> a_cls) {
 	a_cls
 	    .def("get",             [](const Cls& inst, const gpy::index_mapping& powers, const bool check_first){
-		return get<Cls, T>(inst, powers, gpy::DefaultIndexMapping, check_first);
+		return get<Cls, T>(inst, powers, *inst.getMapping().get(), check_first);
 	    },
 		"get coefficient at given powers, specify powers in the dictionary",
 		py::arg("dict of no zero order"), py::arg("check_index")=true
 		)
 	    .def("set",             [](Cls& inst,      const gpy::index_mapping& p, const T& a, const T& b, const bool check_first){
-		set(inst, p, a, b, gpy::DefaultIndexMapping, check_first);
+		set(inst, p, a, b, *inst.getMapping().get(), check_first);
 	    })
 	    .def("set_variable",  [](Cls& inst, const T& v, const std::string& var_name, const T& s, const bool check_first){
-		set_variable(inst, v, var_name, s, gpy::DefaultIndexMapping, check_first);
+		set_variable(inst, v, var_name, s, *inst.getMapping().get(), check_first);
 	    },
 		"set the variable to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
 		py::arg("value"), py::arg("variable_name"), py::arg("scale") = 0, py::arg("check_first") = true)
+	    .def("get_mapping",  &Cls::getMapping)
 	    ;
+
     }
 
     template<typename BCls, typename T>
@@ -439,6 +384,18 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
 	     py::arg("desc"), py::arg("order") = int(gtpsa::mad::init::default_), py::arg("mapping") = gpy::default_index_mapping_ptr
 	    )
 	;
+
+
+/* function without return argument should not require cast */
+*
+#define GTPSA_FUNC_ARG1(func)                                                                                          \
+    m.def(#func,       py::overload_cast<const gpy::TpsaWithNamedIndex&                          >(&gpy:: func     )); \
+    m.def(#func  "_",  py::overload_cast<const gpy::TpsaWithNamedIndex&, gpy::TpsaWithNamedIndex*>(&gpy:: func ## _));
+#include <gtpsa/funcs.h>
+#undef GTPSA_FUNC_ARG1
+
+    //m.def("atan2",       py::overload_cast<const gpy::TpsaWithNamedIndex&,const gpy::TpsaWithNamedIndex& >(&gpy:: func     ));
+
     py::class_<gpy::CTpsaWithNamedIndex, std::shared_ptr<gpy::CTpsaWithNamedIndex>>   ctpsa (m, "ctpsa",  ctpsa_intern);
     AddMethods<gpy::CTpsaWithNamedIndex> ctpsa_methods;
     ctpsa_methods.add_methods<gpy::CTpsaWithNamedIndex, std::complex<double>>(ctpsa);
@@ -450,6 +407,12 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
 	    )
 	;
 
+
+#define GTPSA_FUNC_ARG1(func)                                                                                          \
+    m.def(#func,       py::overload_cast<const gpy::CTpsaWithNamedIndex&                           >(&gpy:: func     )); \
+    m.def(#func  "_",  py::overload_cast<const gpy::CTpsaWithNamedIndex&, gpy::CTpsaWithNamedIndex*>(&gpy:: func ## _));
+#include <gtpsa/funcs.h>
+#undef GTPSA_FUNC_ARG1
 
     py::enum_<gtpsa::mad::init>(m, "init")
 	.value("default", gtpsa::mad::init::default_)

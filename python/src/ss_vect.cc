@@ -3,7 +3,7 @@
 //#include <gtpsa/python/name_index.h>
 #include <gtpsa/ss_vect.h>
 #include "gtpsa_module.h"
-#include "named_index.h"
+#include "objects_with_named_index.h"
 #include <pybind11/complex.h>
 #include <pybind11/operators.h>
 #include <pybind11/numpy.h>
@@ -147,9 +147,11 @@ struct AddMethods
 	    .def("cst",          [](const WrappedClass& self) {
 				     return gtpsa::ss_vect<double>(self.cst());
 				 })
+	    /*
 	    .def("__getitem__",  [](WrappedClass &self, const long int idx){
 				    return self.at(idx);
 				 })
+	    */
 	    .def("__setitem__",  [](WrappedClass &self, const long int idx, const T& v){
 				     self.at(idx) = v;
 				 })
@@ -251,17 +253,26 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 	    ;
 
 	py::class_<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>> ss_vect_tpsa (m, "ss_vect_tpsa", ss_vect_tpsa_intern);
-	add_methods_named_index<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>, gtpsa::tpsa>(ss_vect_tpsa);
+	// these functions have to be here before the ones defined by the classes
 	ss_vect_tpsa
 	    .def(py::init<const std::shared_ptr<gtpsa::mad::desc>, const ord_t, const size_t, std::shared_ptr<gpy::IndexMapping>>(),
 		 "init state space",
 		 py::arg("desc"), py::arg("maximum_order"), py::arg("state_space_size") = gtpsa::ss_vect_n_dim,
 		 py::arg("index_mapping") =  gpy::default_index_mapping_ptr
 		)
+	    .def("__getitem__",  [](const ss_vect_tpsa_py_t& self, const long int idx){
+		auto t =  self.at(idx);
+		// misses index mapping
+		return gpy::TpsaWithNamedIndex(t, self.getMapping());
+	    })
+	    .def("__getattr__",  [](const ss_vect_tpsa_py_t&  self, const std::string& key){
+		auto t = self.at(self.getMapping()->index(key));
+		// misses index mapping
+		return gpy::TpsaWithNamedIndex(t, self.getMapping());
+	    })
 	    ;
-#if 0
-#endif
 
+	add_methods_named_index<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>, gtpsa::tpsa>(ss_vect_tpsa);
 	// adding functions
 	m.def("compose", &gtpsa::compose);
 
