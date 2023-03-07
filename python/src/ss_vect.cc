@@ -145,6 +145,14 @@ struct AddMethods
 	    .def("cst",          [](const WrappedClass& self) {
 				     return gtpsa::ss_vect<double>(self.cst());
 				 })
+	    /*
+	    .def("__getitem__",  [](WrappedClass &self, const long int idx){
+				    return self.at(idx);
+				 })
+	    */
+	    .def("__setitem__",  [](WrappedClass &self, const long int idx, const T& v){
+				     self.at(idx) = v;
+				 })
 	    .def("__copy__",     [](gtpsa::ss_vect<T> &self) {
 				  return self.clone();
 				 })
