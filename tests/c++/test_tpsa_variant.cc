@@ -4,6 +4,7 @@
 #include <boost/test/unit_test.hpp>
 #include <gtpsa/tpsa_double_variant.hpp>
 #include <memory>
+#include <array>
 #include <utility>
 
 BOOST_AUTO_TEST_CASE(test10_variant_tpsa_alloc)
