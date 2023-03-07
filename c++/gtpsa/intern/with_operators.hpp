@@ -124,6 +124,26 @@ namespace gtpsa {
 	}
 
 	/**
+	 *
+	 * @todo: how to find the total number of coefficients?
+	 */
+	inline auto getCoefficients(void) const {
+	    const auto n_max = this->getDescription()->getInfo().getTotalNumber();
+	    std::vector< std::tuple<std::vector<ord_t>, base_type, idx_t> > coefficients;
+	    int i = -1;
+	    while(true){
+		std::vector<ord_t> t_orders(n_max);
+		const auto r = this->cycle(&t_orders, i);
+		i = r.first;
+		if(i == -1){
+		    break;
+		}
+		coefficients.push_back(std::tie(t_orders, r.second, i));
+	    };
+	    return coefficients;
+	}
+
+	/**
 	 * @brief support python representation of this object
 	 */
 	inline std::string repr(void) const {

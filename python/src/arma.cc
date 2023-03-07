@@ -5,21 +5,7 @@
 #include "gtpsa_module.h"
 
 namespace py = pybind11;
-
-#if 0
-std::cerr << "Analysing row" << std::endl;
-size_t row_start = 0, row_stop = 0, row_step = 0, row_slicelength = 0;
-if (!row.compute(mat.n_rows, &row_start, &row_stop, &row_step, &row_slicelength)) {
-	throw py::error_already_set();
-}
-std::cerr << "Analysing col" << std::endl;
-size_t col_start = 0, col_stop = 0, col_step = 0, col_slicelength = 0;
-if (!col.compute(mat.n_cols, &col_start, &col_stop, &col_step, &col_slicelength)) {
-	throw py::error_already_set();
-}
-std::cerr << "Row access start " << row_start << " step " << row_step << " length " << row_slicelength << std::endl;
-std::cerr << "Col access start " << col_start << " step " << col_step << " length " << col_slicelength << std::endl;
-#endif
+namespace gpy = gtpsa::python;
 
 static py::buffer_info from_arma_mat(arma::mat &mat)
 {
@@ -97,7 +83,7 @@ static arma::mat mat_from_np_array(py::array_t<double, py::array::c_style|py::ar
 }
 
 
-void py_gtpsa_init_arma(py::module &m)
+void gpy::py_gtpsa_init_arma(py::module &m)
 {
 	//arma::mat;
 

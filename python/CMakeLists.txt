@@ -9,7 +9,7 @@ add_library(_gtpsa MODULE
   src/gtpsa.cc
   src/ss_vect.cc
   src/arma.cc
-  # src/gtpsa_variant.cc
+  src/gtpsa_variant.cc
   )
 
 target_link_libraries(_gtpsa

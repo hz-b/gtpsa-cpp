@@ -82,20 +82,60 @@ BOOST_AUTO_TEST_CASE(test4_getorder)
     {
         // check that it works for constant objects
         const auto t = t1.clone();
-        t.print("nn", 0, false, 0);
+        // t.print("nn", 0, false, 0);
     }
 
     auto t2 = t1.newFromThis();
     t2.rgetOrder(t1, 1);
-    t2.print("ord1", 0, false, 0);
+    // t2.print("ord1", 0, false, 0);
 
     auto t3 = t1.newFromThis();
     t3.rgetOrder(t1, 2);
-    t3.print("ord1", 0, false, 0);
+    // t3.print("ord1", 0, false, 0);
 
 
 
 }
+
+BOOST_AUTO_TEST_CASE(test5_set_variable)
+{
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 1);
+    const auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+
+    {
+	const double a = 42e0;
+	auto t2 = t1.clone();
+
+	const int  iv = 2;
+	t2.setVariable(a, iv, 0e0);
+
+	std::vector<double> derivs(6);
+	BOOST_CHECK_CLOSE(t2.get(), a, 1e-12);
+
+	t2.getv(1, &derivs);
+	// mad ng starts to count with 1 internally
+	BOOST_CHECK_CLOSE(derivs[iv - 1], 1, 1e-12);
+    }
+
+    {
+	const double a = 355e0/113e0;
+	auto t2 = t1.clone();
+
+	const int  iv = 4;
+	t2.setVariable(a, iv, 0e0);
+
+	std::vector<double> derivs(6);
+	BOOST_CHECK_CLOSE(t2.get(), a, 1e-12);
+
+	t2.getv(1, &derivs);
+	// mad ng starts to count with 1 internally
+	BOOST_CHECK_CLOSE(derivs[iv - 1], 1, 1e-12);
+    }
+
+
+}
+
+
 #if 0
 BOOST_AUTO_TEST_CASE(test10_neg)
 {
@@ -596,7 +636,7 @@ BOOST_AUTO_TEST_CASE(test60_deriv)
     auto t2 = t1.newFromThis();
 
     t1.rderiv(t1, 1);
-    t1.print();
+    // t1.print();
 
     BOOST_CHECK(0 ==0);
 }
@@ -610,12 +650,13 @@ BOOST_AUTO_TEST_CASE(test70_integ)
     t1.set(0, 20);
     t1.setv(0, {-1, 1, 2, 3, 4, 5, 6});
     t1.setv(1 + 6, {7, 11, 13, 17, 19, 23, 29, 31, 37, 41});
-    t1.print("start");
+    // t1.print("start");
 
     t1.rinteg(t1, 3);
-    t1.print("integrated");
+    // t1.print("integrated");
 
 }
+
 BOOST_AUTO_TEST_CASE(test60_compare){
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
     auto t1 = gtpsa::tpsa(a_desc, gtpsa::mad::default_);
@@ -625,4 +666,19 @@ BOOST_AUTO_TEST_CASE(test60_compare){
     BOOST_CHECK(t1 == 0);
     BOOST_CHECK(0 == t1);
 
+}
+
+BOOST_AUTO_TEST_CASE(test80_compare){
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 3, 6, 2);
+    auto t1 = gtpsa::tpsa(a_desc, gtpsa::mad::default_);
+    auto t3 = gtpsa::tpsa(a_desc, gtpsa::mad::default_);
+    t1.setVariable(42, 3);
+    t1.setv(1, {2, 3, 5, 7, 11, 13, 0, 0, 0, 17, 19, 23});
+    t3.setVariable(1./42 * 1./42., 5);
+
+    const auto t2 = t1 * t1 * t3;
+    t2.print("t3", 1e-12);
+    fflush(stdout);
+    std::cout << std::endl;
+    t2.getCoefficients();
 }
