@@ -4,6 +4,7 @@
 #include <boost/test/unit_test.hpp>
 #include <gtpsa/ctpsa_complex_variant.hpp>
 #include <memory>
+#include <array>
 #include <utility>
 
 BOOST_AUTO_TEST_CASE(test01_variant_ctpsa_I)

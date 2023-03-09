@@ -1,6 +1,6 @@
 #include <armadillo>
 #include <gtpsa/ctpsa.hpp>
-#include <gtpsa/python/name_index.h>
+//#include <gtpsa/python/name_index.h>
 #include <gtpsa/ss_vect.h>
 #include "gtpsa_module.h"
 #include <pybind11/complex.h>
@@ -99,12 +99,14 @@ struct AddMethods
 	    .def("__dir__",      [](const WrappedClass& self){
 		                    return gpy::DefaultIndexMapping.pdir();
 	                         })
+	  /*
             .def("__getattr__",  [](const WrappedClass& self, const std::string& key){
 		                    return self.at(gpy::mapping_index(gpy::DefaultIndexMapping, key));
 	                         })
 	    .def("__setattr__",  [](      WrappedClass& self, const std::string& key, T& v){
 		                    self.at(gpy::mapping_index(gpy::DefaultIndexMapping, key)) = v;
 	                         })
+	  */
 	    .def("cst_as_array", [](const WrappedClass& self) {
 				    return py::array(py::cast(self.cst()));
 				 })

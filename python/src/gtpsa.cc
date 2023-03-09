@@ -160,15 +160,18 @@ struct AddMethods
 		py::arg("dict of no zero order"), py::arg("check_index")=true
 		)
 	    .def("get_coefficients", &Cls::getCoefficients)
-	    .def("set",             [](Cls& inst,      const std::vector<ord_t>& m, const T& a, const T& b, const bool check_first){
+	    .def("set",             [](Cls& inst,      const std::vector<ord_t>& m, const T& a, const T& b){
+	      const bool check_first = true;
 		if(check_first) {
 		    check_index(inst, m);
 		}
 		inst.set(m, a, b);
 	    })
+	  /*
 	    .def("set",             [](Cls& inst,      const gpy::index_mapping& p, const T& a, const T& b, const bool check_first){
 		set(inst, p, a, b, gpy::DefaultIndexMapping, check_first);
 	    })
+	  */
 	    .def("set",             [](Cls& inst,                                   T a, T b){
 		inst.set(a, b);
 	    })

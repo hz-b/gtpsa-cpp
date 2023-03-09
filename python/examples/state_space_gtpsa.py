@@ -11,6 +11,7 @@
        Work in progress
 """
 import gtpsa
+import numpy as np
 
 desc = gtpsa.desc(6, 2)
 ss1 = gtpsa.ss_vect_tpsa(desc, 1)
@@ -30,3 +31,5 @@ del a_tpsa_obj
 
 assert (ss1[1].get() == 2)
 assert (ss1.cst()[1] == 2)
+
+np.array(ss1)
