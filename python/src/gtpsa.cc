@@ -52,7 +52,7 @@ static void set_variable(Cls& inst, const T& v, const std::string& var_name, con
 static const std::vector<ord_t> convert_size_t_to_ord_t(const std::vector<size_t>& m)
 {
     std::vector<ord_t> v(m.size());
-    /* should include check ... */
+    /* should include check that everyting is in range ... */
     std::transform(m.begin(), m.end(), v.begin(), [](size_t v){return ord_t(v);});
     return v;
 }
@@ -165,16 +165,16 @@ struct AddMethods
 	    .def("getsm",          &Cls::getsm)
 	    //.def("get_coefficients", [](const Cls& inst) {})
 	    .def("set_variable",  [](Cls& inst, const T& v, idx_t i, const T& s, const bool check_first){
-		set_variable(inst, v, i, s, check_first);
-	    },
-		"set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
-		py::arg("value"), py::arg("index_of_variable") = 0, py::arg("scale") = 0, py::arg("check_first") = true)
-	    .def("print", [](const Cls& inst, std::string name, double eps, bool nohdr){
-                FILE* f = stdout;
-                inst.print(name.c_str(), eps, nohdr, f);
-	    },
-		"print the cofficients to stdout using c's stdout",
-		py::arg("name") = "", py::arg("eps") = 0 , py::arg("nohdr") = false)
+		                      set_variable(inst, v, i, s, check_first);
+                                  },
+		                  "set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
+                                  py::arg("value"), py::arg("index_of_variable") = 0, py::arg("scale") = 0, py::arg("check_first") = true)
+	    .def("print",         [](const Cls& inst, std::string name, double eps, bool nohdr){
+                                      FILE* f = stdout;
+                                      inst.print(name.c_str(), eps, nohdr, f);
+	                          },
+		                  "print the cofficients to stdout using c's stdout",
+		                  py::arg("name") = "", py::arg("eps") = 0 , py::arg("nohdr") = false)
 	    .def_property("name",  &Cls::name, &Cls::setName)
 	    .def_property("uid",   [](Cls& inst){ return inst.uid(0);}, &Cls::uid)
 	    .def_property_readonly("order", &Cls::order)
@@ -229,28 +229,29 @@ struct AddMethods
     void add_methods_with_named_index(py::class_<BCls> a_cls) {
 	a_cls
 	    .def("get",             [](const Cls& inst, const gpy::index_mapping& powers, const bool check_first){
-		return get<Cls, T>(inst, powers, *inst.getMapping().get(), check_first);
-	    },
-		"get coefficient at given powers, specify powers in the dictionary",
-		py::arg("dict of no zero order"), py::arg("check_index")=true
-		)
-	    .def("set",             [](Cls& inst,      const gpy::index_mapping& p, const T& a, const T& b, const bool check_first){
-		set(inst, p, a, b, *inst.getMapping().get(), check_first);
-	    })
-	    .def("set_variable",  [](Cls& inst, const T& v, const std::string& var_name, const T& s, const bool check_first){
-		set_variable(inst, v, var_name, s, *inst.getMapping().get(), check_first);
-	    },
-		"set the variable to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
-		py::arg("value"), py::arg("variable_name"), py::arg("scale") = 0, py::arg("check_first") = true)
-	    .def("get_mapping",  &Cls::getMapping)
+		                        return get<Cls, T>(inst, powers, *inst.getMapping().get(), check_first);
+	                            },
+		                    "get coefficient at given powers, specify powers in the dictionary",
+		                    py::arg("dict of no zero order"), py::arg("check_index")=true
+	                            )
+	    .def("set",             [](Cls& inst,      const gpy::index_mapping& p, const T& a, const T& b, const bool check_first) {
+		                        set(inst, p, a, b, *inst.getMapping().get(), check_first);
+	                            })
+	    .def("set_variable",    [](Cls& inst, const T& v, const std::string& var_name, const T& s, const bool check_first) {
+                                        set_variable(inst, v, var_name, s, *inst.getMapping().get(), check_first);
+	                            },
+		                        "set the variable to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
+		                         py::arg("value"), py::arg("variable_name"), py::arg("scale") = 0, py::arg("check_first") = true
+		                    )
+	    .def("get_mapping",     &Cls::getMapping)
 	    ;
 
     }
 
     template<typename BCls, typename T>
     void add_methods(py::class_<BCls> a_cls) {
-	add_methods_gtpsa_mad<BCls, T>(a_cls);
-	add_methods_ops<BCls, T>(a_cls);
+	    add_methods_gtpsa_mad<BCls, T>(a_cls);
+	    add_methods_ops<BCls, T>(a_cls);
     }
 
 };
@@ -311,52 +312,51 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
     ctpsa_m.add_methods_init<gtpsa::ctpsa, std::complex<double>>(ctpsa_intern);
     ctpsa_intern
     .def("set0",  [](gtpsa::ctpsa& t, const std::complex<double> a, const std::complex<double> b) {
-      t.set(a, b);
-    })
+                      t.set(a, b);
+                  })
     .def("set0",  [](gtpsa::ctpsa& t, const double a, const std::complex<double> b) {
-      std::complex<double> tmpa = {a, 0};
-      t.set(tmpa, b);
-    })
-    .def("set",  [](gtpsa::ctpsa& t, const double a, const std::complex<double> b) {
-      std::complex<double> tmpa = {a, 0};
-      t.set(tmpa, b);
-    })
+                      std::complex<double> tmpa = {a, 0};
+                      t.set(tmpa, b);
+                  })
+    .def("set",   [](gtpsa::ctpsa& t, const double a, const std::complex<double> b) {
+                      std::complex<double> tmpa = {a, 0};
+		      t.set(tmpa, b);
+                  })
     .def("setv",  [](gtpsa::ctpsa& t, int m, const std::vector<std::complex<double>>& c) {
-	t.setv(m, c);
-    })
+	              t.setv(m, c);
+                  })
     .def("setm",  &gtpsa::ctpsa::_setm)
-    .def("real", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.real();}, "return real part (newly allocated object)")
-    .def("imag", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.imag();}, "return imaginary part (newly allocated object)")
-    .def("real", [](const gtpsa::ctpsa& t, gtpsa::tpsa *re) { t.real(re);}, "place real part in passed object re")
-    .def("imag", [](const gtpsa::ctpsa& t, gtpsa::tpsa *im) { t.real(im);}, "place imaginary part in passed object im")
+    .def("real",  [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.real();}, "return real part (newly allocated object)")
+    .def("imag",  [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.imag();}, "return imaginary part (newly allocated object)")
+    .def("real",  [](const gtpsa::ctpsa& t, gtpsa::tpsa *re) { t.real(re);}, "place real part in passed object re")
+    .def("imag",  [](const gtpsa::ctpsa& t, gtpsa::tpsa *im) { t.real(im);}, "place imaginary part in passed object im")
     .def("polar", &gtpsa::ctpsa::polar, "polar variables ")
     .def("unit",  &gtpsa::ctpsa::unit, "z / abs(z)")
-    .def("abs", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.abs();}, "abs(z)")
-    .def("arg", [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.abs();}, "arg(z)")
+    .def("abs",   [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.abs();}, "abs(z)")
+    .def("arg",   [](const gtpsa::ctpsa& t) -> gtpsa::tpsa { return t.abs();}, "arg(z)")
+    .def(py::self += std::complex<double>())
+    .def(py::self -= std::complex<double>())
+    .def(py::self *= std::complex<double>())
+    .def(py::self /= std::complex<double>())
 
-	.def(py::self += std::complex<double>())
-	.def(py::self -= std::complex<double>())
-	.def(py::self *= std::complex<double>())
-	.def(py::self /= std::complex<double>())
+    .def(py::self + std::complex<double>())
+    .def(py::self - std::complex<double>())
+    .def(py::self * std::complex<double>())
+    .def(py::self / std::complex<double>())
 
-	.def(py::self + std::complex<double>())
-	.def(py::self - std::complex<double>())
-	.def(py::self * std::complex<double>())
-	.def(py::self / std::complex<double>())
+    .def(std::complex<double>() + py::self)
+    .def(std::complex<double>() - py::self)
+    .def(std::complex<double>() * py::self)
+    .def(std::complex<double>() / py::self)
 
-	.def(std::complex<double>() + py::self)
-	.def(std::complex<double>() - py::self)
-	.def(std::complex<double>() * py::self)
-	.def(std::complex<double>() / py::self)
-
-	.def(py::init<std::shared_ptr<gtpsa::mad::desc>, const ord_t>(), tpsa_init_desc_doc,
-	     py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::default_)
-	    )
-	.def(py::init<const gtpsa::tpsa&, const ord_t>(), tpsa_init_same_doc,
-	     py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::same))
-	.def(py::init<const gtpsa::tpsa&, const gtpsa::tpsa&>(), "init from real and imag",
-	     py::arg("real"), py::arg("imag"))
-	;
+    .def(py::init<std::shared_ptr<gtpsa::mad::desc>, const ord_t>(), tpsa_init_desc_doc,
+         py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::default_)
+        )
+    .def(py::init<const gtpsa::tpsa&, const ord_t>(), tpsa_init_same_doc,
+         py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::same))
+    .def(py::init<const gtpsa::tpsa&, const gtpsa::tpsa&>(), "init from real and imag",
+         py::arg("real"), py::arg("imag"))
+    ;
 
 
 

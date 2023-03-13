@@ -104,6 +104,40 @@ namespace gtpsa::python{
 	    return this->m_mapping;
 	}
     };
+
+
+
+    /**
+     * @brief: implement .loc
+     */
+    template<typename T>
+    class ss_vect_list_access {
+	gpy::StateSpaceWithNamedIndex<T>* ss_vect;
+
+    public:
+	inline ss_vect_list_access(gpy::StateSpaceWithNamedIndex<T>* p_inst)
+	    : ss_vect(p_inst)
+	    {}
+
+	inline auto getVector(void) {return ss_vect;}
+    };
+
+    template<class WrappedClass, class P_MGR, typename T>
+    static void add_methods_list_access(pybind11::class_<WrappedClass, P_MGR>& inst)
+    {
+	inst
+	    .def("__len__",      [](WrappedClass &self){
+		                    return self.getVector()->size();
+	                         })
+	    .def("__getitem__",  [](WrappedClass &self, const long int idx){
+				    return self.getVector()->at(idx);
+				 })
+	    .def("__setitem__",  [](WrappedClass &self, const long int idx, const T& v){
+				    self.getVector()->at(idx) = v;
+				 })
+	    ;
+    }
+
 }; // namespace gtpsa::python
 
 
@@ -133,27 +167,17 @@ struct AddMethods
 	    .def("__dir__",      [](const WrappedClass& self){
 		                    return gpy::DefaultIndexMapping.pdir();
 	                         })
-	  /*
             .def("__getattr__",  [](const WrappedClass& self, const std::string& key){
 		                    return self.at(gpy::mapping_index(gpy::DefaultIndexMapping, key));
 	                         })
 	    .def("__setattr__",  [](      WrappedClass& self, const std::string& key, T& v){
 		                    self.at(gpy::mapping_index(gpy::DefaultIndexMapping, key)) = v;
 	                         })
-	  */
 	    .def("cst_as_array", [](const WrappedClass& self) {
 				    return py::array(py::cast(self.cst()));
 				 })
 	    .def("cst",          [](const WrappedClass& self) {
 				     return gtpsa::ss_vect<double>(self.cst());
-				 })
-	    /*
-	    .def("__getitem__",  [](WrappedClass &self, const long int idx){
-				    return self.at(idx);
-				 })
-	    */
-	    .def("__setitem__",  [](WrappedClass &self, const long int idx, const T& v){
-				     self.at(idx) = v;
 				 })
 	    .def("__copy__",     [](gtpsa::ss_vect<T> &self) {
 				  return self.clone();
@@ -216,15 +240,31 @@ struct AddMethods
 };
 
 
+namespace gtpsa::python {
+} // gtpsa:: python
 
 void gpy::py_gtpsa_init_ss_vect(py::module &m)
 {
 	typedef gtpsa::ss_vect<double> ss_vect_dbl_t;
 	typedef gtpsa::ss_vect<gtpsa::tpsa> ss_vect_tpsa_t;
 
+	/* access using named index */
 	typedef gtpsa::python::StateSpaceWithNamedIndex<double> ss_vect_dbl_py_t;
 	typedef gtpsa::python::StateSpaceWithNamedIndex<gtpsa::tpsa> ss_vect_tpsa_py_t;
 
+	/* python buffer protocol using array method */
+	typedef gtpsa::python::ss_vect_list_access<double>      ss_vect_dbl_list_access_t;
+	typedef gtpsa::python::ss_vect_list_access<gtpsa::tpsa> ss_vect_tpsa_list_access_t;
+
+	py::class_<ss_vect_dbl_list_access_t, std::shared_ptr<ss_vect_dbl_list_access_t>> ss_vect_double_list_access (m, "_ss_vect_double_list_access");
+
+	add_methods_list_access<ss_vect_dbl_list_access_t, std::shared_ptr<ss_vect_dbl_list_access_t>, double>(ss_vect_double_list_access);
+
+	py::class_<ss_vect_tpsa_list_access_t, std::shared_ptr<ss_vect_tpsa_list_access_t>> ss_vect_tpsa_list_access (m, "_ss_vect_tpsa_list_access");
+	add_methods_list_access<ss_vect_tpsa_list_access_t, std::shared_ptr<ss_vect_tpsa_list_access_t>, gtpsa::tpsa>(ss_vect_tpsa_list_access);
+
+	/**
+	 */
 	py::class_<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> ss_vect_double_intern (m, "_ss_vect_double");
 	AddMethods<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> double_cls;
 	double_cls.add_methods<double>(ss_vect_double_intern);
@@ -243,13 +283,18 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 
 
 	py::class_<ss_vect_dbl_py_t, std::shared_ptr<ss_vect_dbl_py_t>> ss_vect_double (m, "ss_vect_double", ss_vect_double_intern);
-	add_methods_named_index<ss_vect_dbl_py_t, std::shared_ptr<ss_vect_dbl_py_t>, double>(ss_vect_double);
+	// add_methods_named_index<ss_vect_dbl_py_t, std::shared_ptr<ss_vect_dbl_py_t>, double>(ss_vect_double);
 	ss_vect_double
 	    .def(py::init<const double&, const size_t, std::shared_ptr<gpy::IndexMapping>>(),
 		 "init state space",
 		 py::arg("place_holder"), py::arg("state_space_size") = gtpsa::ss_vect_n_dim,
 		 py::arg("index_mapping") =  gpy::default_index_mapping_ptr
 		)
+	    /*
+	    .def("loc",          [](ss_vect_dbl_py_t &self) {
+		return ss_vect_dbl_list_access_t(&self);
+	    }, py::keep_alive<0, 1>())
+	    */
 	    ;
 
 	py::class_<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>> ss_vect_tpsa (m, "ss_vect_tpsa", ss_vect_tpsa_intern);
@@ -270,9 +315,12 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 		// misses index mapping
 		return gpy::TpsaWithNamedIndex(t, self.getMapping());
 	    })
+	    .def_property_readonly("loc",          [](ss_vect_tpsa_py_t &self) {
+		return ss_vect_tpsa_list_access_t(&self);
+	    }, py::keep_alive<1, 0>())
 	    ;
 
-	add_methods_named_index<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>, gtpsa::tpsa>(ss_vect_tpsa);
+	// add_methods_named_index<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>, gtpsa::tpsa>(ss_vect_tpsa);
 	// adding functions
 	m.def("compose", &gtpsa::compose);
 
