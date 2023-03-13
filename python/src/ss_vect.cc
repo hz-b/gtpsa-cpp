@@ -104,6 +104,40 @@ namespace gtpsa::python{
 	    return this->m_mapping;
 	}
     };
+
+
+
+    /**
+     * @brief: implement .loc
+     */
+    template<typename T>
+    class ss_vect_list_access {
+	gpy::StateSpaceWithNamedIndex<T>* ss_vect;
+
+    public:
+	inline ss_vect_list_access(gpy::StateSpaceWithNamedIndex<T>* p_inst)
+	    : ss_vect(p_inst)
+	    {}
+
+	inline auto getVector(void) {return ss_vect;}
+    };
+
+    template<class WrappedClass, class P_MGR, typename T>
+    static void add_methods_list_access(pybind11::class_<WrappedClass, P_MGR>& inst)
+    {
+	inst
+	    .def("__len__",      [](WrappedClass &self){
+		                    return self.getVector()->size();
+	                         })
+	    .def("__getitem__",  [](WrappedClass &self, const long int idx){
+				    return self.getVector()->at(idx);
+				 })
+	    .def("__setitem__",  [](WrappedClass &self, const long int idx, const T& v){
+				    self.getVector()->at(idx) = v;
+				 })
+	    ;
+    }
+
 }; // namespace gtpsa::python
 
 
@@ -144,14 +178,6 @@ struct AddMethods
 				 })
 	    .def("cst",          [](const WrappedClass& self) {
 				     return gtpsa::ss_vect<double>(self.cst());
-				 })
-	    /*
-	    .def("__getitem__",  [](WrappedClass &self, const long int idx){
-				    return self.at(idx);
-				 })
-	    */
-	    .def("__setitem__",  [](WrappedClass &self, const long int idx, const T& v){
-				     self.at(idx) = v;
 				 })
 	    .def("__copy__",     [](gtpsa::ss_vect<T> &self) {
 				  return self.clone();
@@ -215,6 +241,8 @@ struct AddMethods
 };
 
 
+namespace gtpsa::python {
+} // gtpsa:: python
 
 void gpy::py_gtpsa_init_ss_vect(py::module &m)
 {
@@ -263,6 +291,11 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 		 py::arg("place_holder"), py::arg("state_space_size") = gtpsa::ss_vect_n_dim,
 		 py::arg("index_mapping") =  gpy::default_index_mapping_ptr
 		)
+	    /*
+	    .def("loc",          [](ss_vect_dbl_py_t &self) {
+		return ss_vect_dbl_list_access_t(&self);
+	    }, py::keep_alive<0, 1>())
+	    */
 	    ;
 
 	py::class_<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>> ss_vect_tpsa (m, "ss_vect_tpsa", ss_vect_tpsa_intern);
