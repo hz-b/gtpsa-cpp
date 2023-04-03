@@ -10,20 +10,28 @@ namespace gpy = gtpsa::python;
 static py::buffer_info from_arma_mat(arma::mat &mat)
 {
 	size_t n_cols = static_cast<size_t>(mat.n_cols);
+	size_t n_rows = static_cast<size_t>(mat.n_rows);
 	py::buffer_info r;
 	r.ptr = mat.memptr();         /* Pointer to buffer */
 	r.itemsize = sizeof(double); /* Size of one scalar */
 	r.format = py::format_descriptor<double>::format(); /* Python struct-style format descriptor */
 	r.ndim = 2;
+	/*
+	std::cerr << "From arma mat:"
+		  << " n_cols " << mat.n_cols
+		  << " n_rows " << mat.n_rows
+		  << std::endl;
+	*/
 	r.shape = {
-            static_cast<py::ssize_t>(mat.n_rows),
-		    static_cast<py::ssize_t>(mat.n_cols)
+		static_cast<py::ssize_t>(mat.n_rows),
+		static_cast<py::ssize_t>(mat.n_cols)
 	};/* Number of dimensions */
 	r.strides = {
 		/* Strides (in bytes) for each index */
 		static_cast<py::ssize_t>(sizeof(double)),
-        // should that not be n_rows ?
-		static_cast<py::ssize_t>(sizeof(double) * n_cols)};
+		// should that not be n_rows ?
+		// yes it should
+		static_cast<py::ssize_t>(sizeof(double) * n_rows)};
 	return r;
 }
 

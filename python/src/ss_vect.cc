@@ -222,10 +222,11 @@ struct AddMethods
 	a_cls
 	    .def("set_identity", &WrappedClass::set_identity)
 	    .def("jacobian",     [](const WrappedClass& self) {
-				     return py::array(
-					 py::cast( self.jacobian() )
-					);
-				 })
+		arma::mat res = self.jacobian();
+		return py::array(
+		    py::cast( res )
+		    );
+	    })
 	    .def("set_jacobian", [](WrappedClass& self, py::array_t<double, py::array::c_style|py::array::forcecast>& buffer){
 		arma::mat mat = from_np_array(buffer);
 		self.setJacobian(mat);
