@@ -12,11 +12,26 @@
 
 #include <map>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace gtpsa::python {
-    typedef std::map<const std::string, const size_t> index_mapping;
+    /**
+     * @brief map a name to an index
+     */
+    typedef std::map<const std::string, const size_t> index_mapping_t;
 
+
+    typedef std::pair<const std::string, const size_t> index_lookup_t;
+    /**
+     * @brief combine mappings to Hamiltonian pair
+     */
+    typedef std::pair<const index_lookup_t, const index_lookup_t> hamiltonian_pair_t;
+
+    /**
+     *
+     */
+    typedef std::map<const std::string, const hamiltonian_pair_t> hamiltonian_pair_mapping_t;
 
     /**
      * @brief default mapping for thor scsi
@@ -25,7 +40,7 @@ namespace gtpsa::python {
      *
      * Python would call it index key
      */
-    const index_mapping default_mapping = {
+    const index_mapping_t default_mapping = {
 	{ "x"     , 0 },
 	{ "px"    , 1 },
 
@@ -35,6 +50,28 @@ namespace gtpsa::python {
 	{ "delta" , 4 },
 	{ "ct"    , 5 },
 
+    };
+
+    const hamiltonian_pair_mapping_t default_hamiltonian_mapping = {
+	{
+	    "horizontal", {
+		{ "x"     , 0 },
+		{ "px"    , 1 }
+
+	    }
+	},
+	{
+	    "vertical", {
+		{ "y"     , 2 },
+		{ "py"    , 3 }
+	    }
+	},
+	{
+	    "longitudinal", {
+		    { "ct"    , 5 },
+		    { "delta" , 4 },
+	    }
+	}
     };
 
     /**
@@ -53,37 +90,60 @@ namespace gtpsa::python {
      * Support to access entries in a vector by name. Here provides mapping
      * from name to index
      */
-    class IndexMapping {
-	index_mapping m_mapping;
-	std::string m_info;
-
+    class IndexMappingBase {
     public:
-	/**
-	 * @brief
-	 */
-	IndexMapping(const index_mapping& d, const std::string info="");
+        inline IndexMappingBase(void) {};
+	    virtual ~IndexMappingBase(void) {};
 
-	IndexMapping(IndexMapping&&) = default;
+	IndexMappingBase(IndexMappingBase&&) = default;
 
 	/**
 	 * @brief provide list of keys from mapping as required for python __dir__
 	 */
-	std::vector<std::string> pdir(void) const;
+	virtual std::vector<std::string> pdir(void) const = 0;
 
 	/**
 	 * @brief provide index associated with key
 	 *
 	 * @throws keyerror if key is not found.
 	 */
-	size_t index(const std::string key) const;
+	virtual size_t index(const std::string key) const = 0;
 
-	/**
-	 * @brief create vector of powers assuming not mentiond ones are zero
-	 *
-	 * @throws keyerror if key is not found.
-	 */
-	std::vector<size_t> order_vector_from_power(const index_mapping& d) const;
     };
+
+    class IndexMapping : public IndexMappingBase {
+	index_mapping_t m_mapping;
+	std::string m_info;
+
+    public:
+	/**
+	 * @brief
+	 */
+	IndexMapping(const index_mapping_t& d, const std::string info="");
+
+	std::vector<std::string> pdir(void) const override final;
+	size_t index(const std::string key) const override final;
+	std::vector<size_t> order_vector_from_power(const index_mapping_t& d) const;
+
+    };
+
+    class HamiltonianIndexMapping : public IndexMappingBase {
+	hamiltonian_pair_mapping_t m_hamiltonian_mapping;
+	index_mapping_t m_mapping;
+	std::string m_info;
+
+    public:
+	/**
+	 * @brief
+	 */
+	HamiltonianIndexMapping(const hamiltonian_pair_mapping_t& d, const std::string info="");
+
+	std::vector<std::string> pdir(void) const override final;
+	size_t index(const std::string key) const override final;
+
+
+    };
+
 
     extern const IndexMapping DefaultIndexMapping;
     /**

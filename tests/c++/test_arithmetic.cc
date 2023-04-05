@@ -115,6 +115,17 @@ BOOST_AUTO_TEST_CASE(test5_set_variable)
 	t2.getv(1, &derivs);
 	// mad ng starts to count with 1 internally
 	BOOST_CHECK_CLOSE(derivs[iv - 1], 1, 1e-12);
+
+
+
+	// mad ng starts to count with 1 internally
+	BOOST_CHECK_CLOSE(derivs[iv - 1], 1, 1e-12);
+
+
+	std::vector<ord_t> power(6);
+	power[iv-1] = 1;
+	BOOST_CHECK_CLOSE(t2.get(power), 1, 1e-12);
+
     }
 
     {

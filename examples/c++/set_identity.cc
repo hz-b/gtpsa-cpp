@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     for(unsigned int i = 0; i < ss.size(); ++i){
 	std::stringstream strm;
 	strm << "vec " << i;
-	ss[i].print(strm.str().c_str(), 0, 0, 0);
+    ss[i].print(strm.str().c_str(), 0, 0, 0);
     }
 
     std::cout << "identity vec\n " << ss;
