@@ -121,7 +121,8 @@ void gpy::py_gtpsa_init_arma(py::module &m)
 				      return mat_from_np_array(b);
 			      }));
 
-    py::class_<arma::cube>(m, "Cube", py::buffer_protocol())
+	py::class_<arma::cube> cube(m, "Cube", py::buffer_protocol());
+	cube
             .def("__repr__", [](arma::cube &cube) -> std::string {
                 std::stringstream strm;
                 cube.print(strm, "<tpsa hessian>");

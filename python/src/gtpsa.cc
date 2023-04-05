@@ -42,11 +42,54 @@ static void set_variable(Cls& inst, const T& v, idx_t i, const T& s, const bool 
 }
 
 template<class Cls, typename T>
+static void set_knob(Cls& inst, const T& v, idx_t i, const T& s, const bool check_first)
+{
+    auto desc = inst.getDescription();
+    auto nv = desc->getNv();
+    auto info = desc->getInfo();
+    auto np = info.getNumberOfParameters();
+    auto total_number = info.getTotalNumber();
+
+    if(check_first) {
+	if(i <= nv){
+	    std::stringstream strm;
+	    strm << "index of variable must be be bigger than the number of parameters nv="<< nv
+		 <<", but was " << i;
+	    throw std::runtime_error(strm.str());
+	}
+	if(i > total_number){
+	    std::stringstream strm;
+	    strm << "index of derivative must not exceed total number nn=" << total_number
+		 << "= ( nv + np ) =(" << nv << "+" << np <<")"
+		 << "but was " << i;
+	    throw std::runtime_error(strm.str());
+	}
+    }
+
+    std::vector<ord_t> t_orders(total_number);
+    for(auto& e: t_orders){ e=0; }
+
+    t_orders.at(i) = 1;
+
+    if(inst.index(t_orders) < 0){
+	std::runtime_error("Setting knob failed: corresponding order not accepted!");
+    }
+    inst.set(t_orders, 0e0, v);
+}
+
+template<class Cls, typename T>
 static void set_variable(Cls& inst, const T& v, const std::string& var_name, const T& s, const gpy::IndexMapping& im, bool check_first)
 {
     const auto index = im.index(var_name);
     /* seems that variables start to count at 1 not at zero */
     set_variable(inst, v, index + 1, s, check_first);
+}
+
+template<class Cls, typename T>
+static void set_knob(Cls& inst, const T& v, const std::string& var_name, const T& s,  const gpy::IndexMapping& im, const bool check_first)
+{
+    const auto index = im.index(var_name);
+    set_knob(inst, v, index, s, check_first);
 }
 
 static const std::vector<ord_t> convert_size_t_to_ord_t(const std::vector<size_t>& m)
@@ -69,7 +112,7 @@ static auto check_index(const Cls& inst, const std::vector<ord_t>& m)
 
 
 template<class Cls, typename T>
-static void set(Cls& inst, const gpy::index_mapping& powers, const T& a, const T& b, const gpy::IndexMapping& im, const bool check_first)
+static void set(Cls& inst, const gpy::index_mapping_t& powers, const T& a, const T& b, const gpy::IndexMapping& im, const bool check_first)
 {
     const auto tmp =  im.order_vector_from_power(powers);
     const auto p = convert_size_t_to_ord_t(tmp);
@@ -80,7 +123,7 @@ static void set(Cls& inst, const gpy::index_mapping& powers, const T& a, const T
 }
 
 template<class Cls, typename T>
-static inline T get(const Cls& inst, const gpy::index_mapping& powers, const gpy::IndexMapping& im, const bool check_first)
+static inline T get(const Cls& inst, const gpy::index_mapping_t& powers, const gpy::IndexMapping& im, const bool check_first)
 {
     // std::cerr << "get with mapping" << std::endl;
     const auto tmp =  im.order_vector_from_power(powers);
@@ -228,19 +271,25 @@ struct AddMethods
     template<typename BCls, typename T>
     void add_methods_with_named_index(py::class_<BCls> a_cls) {
 	a_cls
-	    .def("get",             [](const Cls& inst, const gpy::index_mapping& powers, const bool check_first){
+	    .def("get",             [](const Cls& inst, const gpy::index_mapping_t& powers, const bool check_first){
 		                        return get<Cls, T>(inst, powers, *inst.getMapping().get(), check_first);
 	                            },
 		                    "get coefficient at given powers, specify powers in the dictionary",
 		                    py::arg("dict of no zero order"), py::arg("check_index")=true
 	                            )
-	    .def("set",             [](Cls& inst,      const gpy::index_mapping& p, const T& a, const T& b, const bool check_first) {
+	    .def("set",             [](Cls& inst,      const gpy::index_mapping_t& p, const T& a, const T& b, const bool check_first) {
 		                        set(inst, p, a, b, *inst.getMapping().get(), check_first);
 	                            })
 	    .def("set_variable",    [](Cls& inst, const T& v, const std::string& var_name, const T& s, const bool check_first) {
                                         set_variable(inst, v, var_name, s, *inst.getMapping().get(), check_first);
 	                            },
 		                        "set the variable to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
+		                         py::arg("value"), py::arg("variable_name"), py::arg("scale") = 0, py::arg("check_first") = true
+		                    )
+	    .def("set_knob",        [](Cls& inst, const T& v, const std::string& var_name, const T& s, const bool check_first) {
+                                        set_knob(inst, v, var_name, s, *inst.getMapping().get(), check_first);
+	                            },
+		                        "set the knob to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
 		                         py::arg("value"), py::arg("variable_name"), py::arg("scale") = 0, py::arg("check_first") = true
 		                    )
 	    .def("get_mapping",     &Cls::getMapping)

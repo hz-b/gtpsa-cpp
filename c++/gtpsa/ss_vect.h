@@ -26,6 +26,16 @@ namespace gtpsa {
  *        review space state length
  *        review description the state space should have
  */
+
+    void  report_vector_dimension_mismatch(size_t nv,  const size_t n);
+
+    inline void check_vector_dimension(const std::shared_ptr<mad::desc> desc,  const size_t n)
+    {
+	    size_t nv = size_t(desc->getNv());
+	    if (n > nv){
+	        report_vector_dimension_mismatch(nv, n);
+	    }
+    }
     template<typename T>
     class ss_vect {
     private:
@@ -34,17 +44,26 @@ namespace gtpsa {
 
     public:
         inline ss_vect(const std::shared_ptr<mad::desc> desc, const ord_t mo, const size_t n = ss_vect_n_dim) {
-            this->state_space.reserve(n);
-            for (size_t i = 0; i < n; ++i) {
-                T tmp(desc, mo);
-                this->state_space.push_back(tmp);
-            }
+                check_vector_dimension(desc, n);
+
+                this->state_space.reserve(n);
+                for (size_t i = 0; i < n; ++i) {
+                    T tmp(desc, mo);
+                    this->state_space.push_back(tmp);
+                }
         }
 
-        inline ss_vect(const T &t, const size_t n = ss_vect_n_dim)
-                : state_space(n, 0e0) {}
+        inline ss_vect(const T &t, const size_t n = ss_vect_n_dim) {
+		    check_vector_dimension(t.getDescription(), n);
+            this->state_space.reserve(n);
+            for (size_t i = 0; i < n; ++i) {
+                this->state_space.push_back(t.newFromThis());
+            }
 
-        /*
+        }
+
+
+        /*tps
         inline ss_vect(const T& t, std::vector<double> vec){
         this->state_space.reserve(vec.size());
         for(size_t i=0; i<vec.size(); ++i){
@@ -68,7 +87,8 @@ namespace gtpsa {
 */
 
         inline ss_vect(const std::vector<T> &vec)
-                : state_space(vec) { this->checkSize(this->state_space); }
+                : state_space(vec)
+                { this->checkSize(this->state_space); }
 
         void setName(std::string name) {
             this->m_name = name;
@@ -421,17 +441,37 @@ namespace gtpsa {
  * @brief special installation
  */
     template<>
-    inline ss_vect<double>::ss_vect(const std::shared_ptr<mad::desc> d, ord_t m, const size_t n)
-            : state_space(n) {}
+    inline ss_vect<double>::ss_vect(const std::shared_ptr<mad::desc> d, const ord_t m, const size_t n)
+            : state_space(n)
+            {}
 
     template<>
-    inline ss_vect<std::complex<double>>::ss_vect(const std::shared_ptr<mad::desc> d, ord_t m, const size_t n)
-            : state_space(n) {}
+    inline ss_vect<double>::ss_vect(const double& d, const size_t n)
+            : state_space(n)
+            {}
 
     template<>
-    inline ss_vect<tpsa>::ss_vect(const tpsa &t, const size_t n)
+    inline ss_vect<std::complex<double>>::ss_vect(const std::shared_ptr<mad::desc> d, const ord_t m, const size_t n)
+            : state_space(n)
+            {}
+
+/*
+    template<>
+    inline ss_vect<std::complex<double>>::ss_vect(const std::shared_ptr<mad::desc> d, const ord_t m, const size_t n)
+            : state_space(n) {}
+*/
+
+    /*
+    template<>
+    inline ss_vect<tpsa>::ss_vect(const tpsa &t,  const size_t n)
             : state_space(n, tpsa(t, mad_tpsa_same)) {}
+    */
 
+    /*
+      template<>
+      inline ss_vect<tpsa>::ss_vect(const std::shared_ptr<mad::desc> d, const ord_t m, const size_t n)
+      : state_space(n) {}
+    */
 /*
 {
 
@@ -527,10 +567,8 @@ namespace gtpsa {
         for (size_t i = 0; i < n; ++i) {
             auto &t_tpsa = this->state_space[i];
             t_tpsa.clear();
-            std::vector<num_t> vec(n);
-            for (auto &e: vec) e = 0;
-            vec[i] = 1;
-            t_tpsa.setv(1, vec);
+	    /* gtpsa starts counting variables at 1 ...*/
+	    t_tpsa.setVariable(0e0, i+1);
             // t_tpsa.setsm(std::vector<idx_t>{int(i+1), 1}, 0e0, 1e0);
         }
         // throw std::runtime_error("gtpsa set identity needs to be implemented!");
