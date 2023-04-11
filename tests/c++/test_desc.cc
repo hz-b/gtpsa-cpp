@@ -3,6 +3,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <gtpsa/desc.hpp>
+#include <iostream>
 
 // Simple check for some methods
 
