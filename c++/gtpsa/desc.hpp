@@ -10,8 +10,29 @@ extern "C" {
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <iostream>
 
-
+/**
+ * gtpsa description object handling
+ *
+ * Description object contains precomputed coefficients. gtpsa will only
+ * allocate a new object if its signature is different to the already known
+ * ones.
+ *
+ * Furthermore generating (and thus also deleteing) description objects is not
+ * thread safe. It is the user's responsibility that desc objects are created
+ * (and deleted) in a thread safe manner.
+ *
+ * Currently the desc objects will not be deleted. Roughly a hundred objects
+ * can be created.
+ *
+ *
+ * A good overview of gtpsa is given by the original authors at
+ * L. Deniau, C. I. Tomoiagă, "Generalised Truncated Power series algebra
+ * for fast particle accelerator transport maps", MOPJE039
+ * 6th International Particle Accelerator Conference IPAC2015,
+ * Richmond, VA, USA
+ */
 namespace gtpsa::mad {
 
 
@@ -23,7 +44,15 @@ namespace gtpsa::mad {
 	inline const desc_t *  getPtr(void) const { return this->ptr; }
 	friend class desc;
 	inline desc_mgr(const desc_t *p) : ptr(p) { if (!p) { throw std::runtime_error("out of memory"); } }
-	inline ~desc_mgr(void)                    { mad_desc_del(this->ptr); this->ptr=nullptr; }
+	inline ~desc_mgr(void)                    {
+            if(!this->ptr){
+                std::cerr << "gtpsa::desc: would delete underlaying desc_t pointer a second time" << std::endl;
+                return;
+            }
+#warning "gtpsa::desc: not deleting underlying gtpsa desc_t object. see comment in <gtpsa/desc.hpp>"
+        //mad_desc_del(this->ptr);
+        this->ptr=nullptr;
+    }
 
     private:
 	// inline desc_mgr(const desc& o)           = delete;
