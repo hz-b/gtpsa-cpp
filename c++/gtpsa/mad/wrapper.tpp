@@ -193,8 +193,8 @@ namespace gtpsa::mad {
         /**
          * @brief indexing / monomials (return idx_t = -1 if invalid)
          */
-        inline auto mono(std::vector<ord_t> &m, const idx_t i) const {
-            return GTPSA_METH(mono)(this->getPtr(), m.size(), m.data(), i);
+        inline auto mono( const idx_t i, std::vector<ord_t> *m) const {
+            return GTPSA_METH(mono)(this->getPtr(), i, m->size(), m->data());
         }
 
         /**
@@ -215,8 +215,8 @@ namespace gtpsa::mad {
         }
 
 	// can't define order m as const ...
-        inline auto cycle(std::vector<ord_t>* m, const idx_t i, GTPSA_BASE_T *v) const  {
-	    return  GTPSA_METH(cycle)(this->getPtr(), m->size(), m->data(), i, v);
+        inline auto cycle(const idx_t i, std::vector<ord_t>* m, GTPSA_BASE_T *v) const  {
+	    return  GTPSA_METH(cycle)(this->getPtr(), i, m->size(), m->data(), v);
         }
 
         /**

@@ -5,7 +5,9 @@
 int main(int argc, char *argv[])
 {
     std::vector<ord_t> m{3,3,2,2,1,1};
-    auto a_desc = std::make_shared<gtpsa::desc>(6, 0, m, 0);
+    const int nv = 6, np=0;
+    const ord_t mo=0, po=0;
+    auto a_desc = std::make_shared<gtpsa::desc>(6, mo, np, po, m);
     std::cout << "desc " << a_desc << std::endl;
 
     auto t1 = gtpsa::tpsa(a_desc, gtpsa::init::default_);

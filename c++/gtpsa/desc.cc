@@ -28,7 +28,8 @@ gtpsa::mad::desc_info gtpsa::mad::desc::getInfo() const
 	int np = -1;
 	auto nv =  mad_desc_getnv (this->getPtr(), &mo, &np, &po);
 	std::vector<ord_t> orders(nv + np);
-	this->getNo(orders.size(), orders.data());
+#warning "desc: need to get orders"
+	// this->getNo(orders.size(), orders.data());
 	auto info =  desc_info(nv, mo, np, po, orders);
 
 	return info;
