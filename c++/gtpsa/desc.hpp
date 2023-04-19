@@ -106,7 +106,7 @@ namespace gtpsa::mad {
 	    : dm( std::make_unique<desc_mgr>( mad_desc_newv  (nv,     mo    ) ) )
 	    {}
 	inline desc(int nv, ord_t mo, int np, ord_t po = 0 )
-	    : dm( std::make_unique<desc_mgr>( mad_desc_newvp (nv, np, mo, po) ) )
+	    : dm( std::make_unique<desc_mgr>( mad_desc_newvp (nv, mo, np, po) ) )
 	    {}
 	inline desc(int nv, ord_t mo, int np, ord_t po, const ord_t no[/*nv+np?*/] )
 	    : dm( std::make_unique<desc_mgr>( mad_desc_newvpo(nv, mo, np, po, no) ) )
@@ -138,7 +138,7 @@ namespace gtpsa::mad {
 	// inline ord_t getNo(int nn, ord_t *no_)                     const { return mad_desc_getno (this->getPtr(), nn, no_);       }
 	inline ord_t maxOrd(int nn=0, ord_t *no=nullptr)           const { return mad_desc_maxord(this->getPtr(), nn, nullptr);                }
 	inline ssz_t maxLen(ord_t mo)                              const { return mad_desc_maxlen(this->getPtr(), mo);                }
-	inline ssz_t ordLen(const ord_t mo)                        const { return mad_desc_ordlen(this->getPtr(), mo);            }
+	// inline ssz_t ordLen(const ord_t mo)                        const { return mad_desc_ordlen(this->getPtr(), mo);            }
 	inline ssz_t trunc(const ord_t to)                         const { return mad_desc_gtrunc(this->getPtr(), to);            }
 
         /*

@@ -158,3 +158,13 @@ BOOST_AUTO_TEST_CASE(test30_desc_nv)
 
     // BOOST_CHECK_EQUAL(a_desc.getNv(), nv);
 }
+
+
+BOOST_AUTO_TEST_CASE(test31_desc_for_bba)
+{
+    const int nv = 7, np = 144 * 3;
+    const ord_t mo = 3, po = 1;
+    auto a_desc = gtpsa::desc(nv, mo, np, po);
+
+    // BOOST_CHECK_EQUAL(a_desc.getNv(), nv);
+}

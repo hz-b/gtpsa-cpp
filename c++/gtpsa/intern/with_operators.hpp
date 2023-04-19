@@ -112,8 +112,9 @@ namespace gtpsa {
 	    strm << "gtpsa  cst:\n\t" << this->cst();
 	    if(this->order()){
 		// at least first order ...
-		auto nv = this->getDescription()->getNv(0, 0, 0);
-		std::vector<typename T::base_type> v(nv);
+		const auto& info = this->getDescription()->getInfo();
+		const int nn = info.getNumberOfVariables() + info.getNumberOfParameters();
+		std::vector<typename T::base_type> v(nn);
 		this->getv(1, &v);
 
 		strm  << "\ngtpsa linear :\n"

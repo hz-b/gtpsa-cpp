@@ -33,7 +33,9 @@ void gtpsa::ss_vect<T>::show(std::ostream& strm, int level, bool with_endl) cons
     // preserve order
     for(size_t i= 0; i<this->state_space.size(); ++i){
 	auto& t_tpsa = this->state_space[i];
-	for (int j = 0; j<6; ++j){
+	const auto& info = t_tpsa.getDescription()->getInfo();
+	const int nn = info.getNumberOfVariables() + info.getNumberOfParameters();
+	for (int j = 0; j<nn; ++j){
 	    // todo: validate index
 	    auto val = t_tpsa.getsm(std::vector<idx_t>{int(j+1), 1});
 	    strm << std::setw(14) << val << " ";
