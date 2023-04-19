@@ -3,7 +3,7 @@
 //#include <gtpsa/python/name_index.h>
 #include <gtpsa/ss_vect.h>
 #include "gtpsa_module.h"
-#include "objects_with_named_index.h"
+#include <gtpsa/python/objects_with_named_index.h>
 #include <pybind11/complex.h>
 #include <pybind11/operators.h>
 #include <pybind11/numpy.h>
@@ -74,38 +74,6 @@ static py::array_t<double> from_arma_mat(arma::mat& mat)
 
 
 namespace gtpsa::python{
-    template<typename T>
-    class StateSpaceWithNamedIndex : public gtpsa::ss_vect<T> {
-	std::shared_ptr<gpy::IndexMapping> m_mapping;
-
-	using base = gtpsa::ss_vect<T>;
-
-    public:
-	StateSpaceWithNamedIndex(const std::shared_ptr<gtpsa::mad::desc> desc, const ord_t mo, const size_t n = ss_vect_n_dim,
-				 std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
-	    : base(desc, mo, n)
-	    , m_mapping(mapping)
-	    {}
-
-	StateSpaceWithNamedIndex(const T& t, const size_t n = ss_vect_n_dim,
-				 std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
-	    : base(t, n)
-	    , m_mapping(mapping)
-	    {}
-
-	/*
-	StateSpaceWithNamedIndex(const std::vector<T> &vec, const size_t n = ss_vect_n_dim,
-				 std::shared_ptr<gpy::IndexMapping> mapping = gpy::default_index_mapping_ptr)
-	    : base(vec, n)
-	    , m_mapping(mapping)
-	    {}
-	*/
-	inline auto getMapping(void) const {
-	    return this->m_mapping;
-	}
-    };
-
-
 
     /**
      * @brief: implement .loc

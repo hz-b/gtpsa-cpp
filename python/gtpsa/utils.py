@@ -3,6 +3,9 @@
 from typing import Sequence, Tuple, Dict
 import numpy as np
 from ._gtpsa import tpsa, ctpsa, IndexMapping
+import logging
+
+logger = logging.getLogger("gtpsa")
 
 
 def tpsa_coefficients_to_nrec(
@@ -15,7 +18,7 @@ def tpsa_coefficients_to_nrec(
 
     If you want to use it as a pandas Dataframe just use
 
-        df = pd.Dataframe(r).set_index(index)
+        df = pd.Dataframe(r).set_index("index")
     """
 
     dtype = [("value", float), ("index", int)]
@@ -23,7 +26,17 @@ def tpsa_coefficients_to_nrec(
 
     # need to be tuples ...
     data = [(c[1], c[2]) + tuple(c[0]) for c in coeffs]
-    result = np.array(data[:3], dtype=dtype)
+    try:
+        result = np.array(data, dtype=dtype)
+    except ValueError as ev:
+        logger.error(
+            "Array creation failed: dtype = %s, data = %s variable_names = %s",
+            dtype,
+            data,
+            variable_names,
+        )
+        raise ev
+
     result = result.view(np.recarray)
     return result
 
@@ -33,6 +46,7 @@ def mapping_sorted(mapping: IndexMapping) -> Dict:
 
     Won't bet that they stay that way
     """
+
     class SortItem:
         def __init__(self, name):
             self.name = name
@@ -46,10 +60,12 @@ def mapping_sorted(mapping: IndexMapping) -> Dict:
 
         def __eq__(self, other):
             return self.index == other.index
+
     tmp = [SortItem(name) for name in dir(mapping)]
     tmp.sort()
 
     return [o.name for o in tmp]
+
 
 def tpsa_extract_coefficients_to_nrec(t: tpsa | ctpsa) -> np.recarray:
     """extract coefficents from a tpsa object"""
@@ -59,4 +75,4 @@ def tpsa_extract_coefficients_to_nrec(t: tpsa | ctpsa) -> np.recarray:
     return tpsa_coefficients_to_nrec(coeffs, names)
 
 
-__all__ = ["tpsa_coefficients_to_nrec"]
+__all__ = ["tpsa_extract_coefficients_to_nrec", "tpsa_coefficients_to_nrec"]

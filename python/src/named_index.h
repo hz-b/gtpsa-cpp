@@ -17,10 +17,10 @@ namespace gtpsa::python {
 	})
       .def("__getattr__",  [](const WrappedClass& self, const std::string& key){
 	  return self.at(self.getMapping()->index(key));
-	})
+      }, py::keep_alive<0, 1>())
       .def("__setattr__",  [](      WrappedClass& self, const std::string& key, T& v){
 	  self.at(self.getMapping()->index(key)) = v;
-	})
+      }, py::keep_alive<0, 1>())
       ;
   }
 

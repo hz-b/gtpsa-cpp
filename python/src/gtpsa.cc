@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "objects_with_named_index.h"
+#include <gtpsa/python/objects_with_named_index.h>
 #include "gtpsa_module.h"
 
 namespace py = pybind11;
@@ -51,9 +51,9 @@ static void set_knob(Cls& inst, const T& v, idx_t i, const T& s, const bool chec
     auto total_number = info.getTotalNumber();
 
     if(check_first) {
-	if(i <= nv){
+	if(i < nv){
 	    std::stringstream strm;
-	    strm << "index of variable must be be bigger than the number of parameters nv="<< nv
+	    strm << "index of variable must be be bigger or equal to the number of parameters nv="<< nv
 		 <<", but was " << i;
 	    throw std::runtime_error(strm.str());
 	}
@@ -74,7 +74,9 @@ static void set_knob(Cls& inst, const T& v, idx_t i, const T& s, const bool chec
     if(inst.index(t_orders) < 0){
 	std::runtime_error("Setting knob failed: corresponding order not accepted!");
     }
-    inst.set(t_orders, 0e0, v);
+    inst.set(t_orders, (s==0e0) ? 1.0 : s, 1.0);
+    // constant part
+    inst.set(s, v);
 }
 
 template<class Cls, typename T>
@@ -138,6 +140,33 @@ static inline T get(const Cls& inst, const gpy::index_mapping_t& powers, const g
     return inst.get(p);
 }
 
+static const gpy::index_mapping_t zero_powers;
+
+static
+gpy::index_mapping_t powers_from_type_and_dict (const gpy::index_mapping_t& powers, const py::kwargs& kwargs)
+{
+    /*
+    if(!powers){
+	if(!kwargs){
+	    throw std::runtime_error("Orders must be given either as dict or kwargs\n");
+	}
+    }
+    */
+    gpy::index_mapping_t r;
+    //if(powers){
+	for(auto& [key, val]: powers) {
+	    r.insert({key, val});
+	}
+	//}
+    if(kwargs){
+	for(auto& [key, val]: kwargs) {
+	    const std::string s_key = py::cast<std::string>(key);
+	    const size_t st_val = py::cast<size_t>(val);
+	    r.insert({s_key, st_val});
+	}
+    }
+    return r;
+}
 
 #if 0
 //template<class Cls>
@@ -176,6 +205,12 @@ struct AddMethods
 	    .def("get",             [](const Cls& inst){
 					return inst.get();
 	    })
+	    .def("get",             [](const Cls& inst, const std::vector<ord_t>& m, const bool check_first){
+		if(check_first) {
+		    check_index(inst, m);
+		}
+		return inst.get(m);
+	    }, "get coefficient at given powers", py::arg("vector of orders"), py::arg("check_index")=true)
 	    .def("get",             [](const Cls& inst, const std::vector<ord_t>& m, const bool check_first){
 		if(check_first) {
 		    check_index(inst, m);
@@ -271,15 +306,16 @@ struct AddMethods
     template<typename BCls, typename T>
     void add_methods_with_named_index(py::class_<BCls> a_cls) {
 	a_cls
-	    .def("get",             [](const Cls& inst, const gpy::index_mapping_t& powers, const bool check_first){
-		                        return get<Cls, T>(inst, powers, *inst.getMapping().get(), check_first);
+	    .def("get",             [](const Cls& inst, const gpy::index_mapping_t& powers, const bool check_first, const py::kwargs &kwargs){
+		                        const gpy::index_mapping_t t_powers = powers_from_type_and_dict(powers, kwargs);
+		                        return get<Cls, T>(inst, t_powers, *inst.getMapping().get(), check_first);
 	                            },
 		                    "get coefficient at given powers, specify powers in the dictionary",
-		                    py::arg("dict of no zero order"), py::arg("check_index")=true
+                                    py::arg("dict of no zero order")=zero_powers, py::arg("check_index")=true
 	                            )
-	    .def("set",             [](Cls& inst,      const gpy::index_mapping_t& p, const T& a, const T& b, const bool check_first) {
-		                        set(inst, p, a, b, *inst.getMapping().get(), check_first);
-	                            })
+	    .def("set",             [](Cls& inst,      const gpy::index_mapping_t& powers, const T& a, const T& b, const bool check_first, const py::kwargs &kwargs) {		                            const gpy::index_mapping_t t_powers = powers_from_type_and_dict(powers, kwargs);
+		                        set(inst, t_powers, a, b, *inst.getMapping().get(), check_first);
+                                    }, py::arg("dict of no zero order")=zero_powers, py::arg("scale") =1e0,  py::arg("constant") =0e0,  py::arg("check_index")=true)
 	    .def("set_variable",    [](Cls& inst, const T& v, const std::string& var_name, const T& s, const bool check_first) {
                                         set_variable(inst, v, var_name, s, *inst.getMapping().get(), check_first);
 	                            },
@@ -291,6 +327,12 @@ struct AddMethods
 	                            },
 		                        "set the knob to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
 		                         py::arg("value"), py::arg("variable_name"), py::arg("scale") = 0, py::arg("check_first") = true
+		                    )
+	    .def("set_knob",        [](Cls& inst, const T& v, const int index, const T& s, const bool check_first) {
+                                        set_knob(inst, v, index, s, check_first);
+	                            },
+		                        "set the knob to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
+		                         py::arg("value"), py::arg("index"), py::arg("scale") = 0, py::arg("check_first") = true
 		                    )
 	    .def("get_mapping",     &Cls::getMapping)
 	    ;
@@ -310,6 +352,7 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
 {
 
 
+    m.def("_powers_from_type_and_dict", &powers_from_type_and_dict);
 
     typedef gtpsa::TpsaWithOp<gtpsa::TpsaTypeInfo>   TpsaOp;
     typedef gtpsa::TpsaWithOp<gtpsa::CTpsaTypeInfo> CTpsaOp;
