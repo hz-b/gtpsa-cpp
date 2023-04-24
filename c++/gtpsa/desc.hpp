@@ -106,7 +106,7 @@ namespace gtpsa::mad {
 	    : dm( std::make_unique<desc_mgr>( mad_desc_newv  (nv,     mo    ) ) )
 	    {}
 	inline desc(int nv, ord_t mo, int np, ord_t po = 0 )
-	    : dm( std::make_unique<desc_mgr>( mad_desc_newvp (nv, np, mo, po) ) )
+	    : dm( std::make_unique<desc_mgr>( mad_desc_newvp (nv, mo, np, po) ) )
 	    {}
 	inline desc(int nv, ord_t mo, int np, ord_t po, const ord_t no[/*nv+np?*/] )
 	    : dm( std::make_unique<desc_mgr>( mad_desc_newvpo(nv, mo, np, po, no) ) )
