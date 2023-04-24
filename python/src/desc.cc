@@ -47,9 +47,9 @@ Args:\n\
 	.def("index"          , py::overload_cast<const std::vector<ord_t>&>( &gtpsa::mad::desc::idx,     py::const_ ))
 	.def(py::init<int, ord_t>(),             desc_newv_doc,
 	     py::arg("nv"), py::arg("mo") = 0)
-	.def(py::init<int, int, ord_t, ord_t>(), desc_newvp_doc,
-	     py::arg("nv"), py::arg("np") = 0, py::arg("mo") = 0, py::arg("po") = 0)
-	.def(py::init<int, int, std::vector<ord_t>, ord_t>(), desc_newvpo_doc,
-	     py::arg("nv"), py::arg("np") = 0, py::arg("mo") = 0, py::arg("po") = 0);
+	.def(py::init<int, ord_t, int, ord_t>(), desc_newvp_doc,
+	     py::arg("nv"), py::arg("mo"), py::arg("np"),  py::arg("po") = 0)
+	.def(py::init<int, ord_t, int, ord_t, std::vector<ord_t>>(), desc_newvpo_doc,
+         py::arg("nv"), py::arg("mo"), py::arg("np"), py::arg("po"), py::arg("ord_vec"));
 
 }

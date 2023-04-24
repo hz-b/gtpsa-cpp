@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
 
     auto d = std::make_shared<gtpsa::desc>(6, 4);
-    std::cout << "d   length=" << d->maxLen() << " coeffs" << std::endl;
+    std::cout << "d   length=" << d->maxLen(gtpsa::mad::default_) << " coeffs" << std::endl;
 
     auto t1 = gtpsa::tpsa(d,  gtpsa::init::default_);
 
