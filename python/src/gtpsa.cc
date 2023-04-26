@@ -247,10 +247,15 @@ struct AddMethods
                                   },
 		                  "set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
                                   py::arg("value"), py::arg("index_of_variable") = 0, py::arg("scale") = 0, py::arg("check_first") = true)
-	    .def("print",         [](const Cls& inst, std::string name, double eps, bool nohdr){
+            .def("deriv",          [](const Cls& inst, int iv){
+                                      Cls r = inst.newFromThis();
+				      r.rderiv(inst, iv);
+                                      return r;
+                                   })
+             .def("print",         [](const Cls& inst, std::string name, double eps, bool nohdr){
                                       FILE* f = stdout;
                                       inst.print(name.c_str(), eps, nohdr, f);
-	                          },
+	                           },
 		                  "print the cofficients to stdout using c's stdout",
 		                  py::arg("name") = "", py::arg("eps") = 0 , py::arg("nohdr") = false)
 	    .def_property("name",  &Cls::name, &Cls::setName)
@@ -334,7 +339,13 @@ struct AddMethods
 		                        "set the knob to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
 		                         py::arg("value"), py::arg("index"), py::arg("scale") = 0, py::arg("check_first") = true
 		                    )
+            .def("deriv",          [](const Cls& inst, const std::string name){
+                                         Cls r = BCls(inst.newFromThis(), inst.getMapping());
+                                         r.rderiv(inst, inst.getMapping()->index(name) + 1);
+                                         return r;
+                                    })
 	    .def("get_mapping",     &Cls::getMapping)
+	    .def("set_mapping",     &Cls::setMapping)
 	    ;
 
     }
@@ -347,6 +358,15 @@ struct AddMethods
 
 };
 
+
+static inline gpy::TpsaWithNamedIndex tpsa_func_eval(const gpy::TpsaWithNamedIndex& r, gtpsa::tpsa (*func)(const gtpsa::tpsa&))
+{
+    return gpy::TpsaWithNamedIndex(func(r), r.getMapping());
+}
+static inline gpy::CTpsaWithNamedIndex ctpsa_func_eval(const gpy::CTpsaWithNamedIndex& r, gtpsa::ctpsa (*func)(const gtpsa::ctpsa&))
+{
+    return gpy::CTpsaWithNamedIndex(func(r), r.getMapping());
+}
 
 void gpy::py_gtpsa_init_tpsa(py::module &m)
 {
@@ -389,11 +409,14 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
 	;
 
 #define GTPSA_FUNC_ARG1(func)                                                                     \
+    m.def(#func       , [](const gpy::TpsaWithNamedIndex& input){ return tpsa_func_eval(input, gtpsa:: func); }); \
     m.def(#func       , py::overload_cast<const gtpsa::tpsa&>              (&gtpsa:: func     )); \
     m.def(#func  "_"  , py::overload_cast<const gtpsa::tpsa&, gtpsa::tpsa*>(&gtpsa:: func ## _));
 #include <gtpsa/funcs.h>
-
 #undef GTPSA_FUNC_ARG1
+
+
+
 
 
 
@@ -478,9 +501,10 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
 	;
 
 /* function without return argument should not require cast */
-*
+
+
 #define GTPSA_FUNC_ARG1(func)                                                                                          \
-    m.def(#func,       py::overload_cast<const gpy::TpsaWithNamedIndex&                          >(&gpy:: func     )); \
+    m.def(#func,       [](const gpy::TpsaWithNamedIndex& input){ return tpsa_func_eval(input, gtpsa:: func);}); \
     m.def(#func  "_",  py::overload_cast<const gpy::TpsaWithNamedIndex&, gpy::TpsaWithNamedIndex*>(&gpy:: func ## _));
 #include <gtpsa/funcs.h>
 #undef GTPSA_FUNC_ARG1
@@ -499,8 +523,8 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
 	;
 
 
-#define GTPSA_FUNC_ARG1(func)                                                                                          \
-    m.def(#func,       py::overload_cast<const gpy::CTpsaWithNamedIndex&                           >(&gpy:: func     )); \
+#define GTPSA_FUNC_ARG1(func)   \
+    m.def(#func,       [](const gpy::CTpsaWithNamedIndex& input){ return ctpsa_func_eval(input, gtpsa:: func);}); \
     m.def(#func  "_",  py::overload_cast<const gpy::CTpsaWithNamedIndex&, gpy::CTpsaWithNamedIndex*>(&gpy:: func ## _));
 #include <gtpsa/funcs.h>
 #undef GTPSA_FUNC_ARG1
