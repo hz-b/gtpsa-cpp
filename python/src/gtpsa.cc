@@ -318,7 +318,7 @@ struct AddMethods
 		                    "get coefficient at given powers, specify powers in the dictionary",
                                     py::arg("dict of no zero order")=zero_powers, py::arg("check_index")=true
 	                            )
-	    .def("set",             [](Cls& inst,      const gpy::index_mapping_t& powers, const T& a, const T& b, const bool check_first, const py::kwargs &kwargs) {		                            const gpy::index_mapping_t t_powers = powers_from_type_and_dict(powers, kwargs);
+	    .def("set",             [](Cls& inst,      const gpy::index_mapping_t& powers, const T& a, const T& b, const bool check_first, const py::kwargs &kwargs) {		                                                     const gpy::index_mapping_t t_powers = powers_from_type_and_dict(powers, kwargs);
 		                        set(inst, t_powers, a, b, *inst.getMapping().get(), check_first);
                                     }, py::arg("dict of no zero order")=zero_powers, py::arg("scale") =1e0,  py::arg("constant") =0e0,  py::arg("check_index")=true)
 	    .def("set_variable",    [](Cls& inst, const T& v, const std::string& var_name, const T& s, const bool check_first) {
@@ -327,12 +327,14 @@ struct AddMethods
 		                        "set the variable to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
 		                         py::arg("value"), py::arg("variable_name"), py::arg("scale") = 0, py::arg("check_first") = true
 		                    )
+/*
 	    .def("set_knob",        [](Cls& inst, const T& v, const std::string& var_name, const T& s, const bool check_first) {
                                         set_knob(inst, v, var_name, s, *inst.getMapping().get(), check_first);
 	                            },
 		                        "set the knob to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
 		                         py::arg("value"), py::arg("variable_name"), py::arg("scale") = 0, py::arg("check_first") = true
 		                    )
+*/
 	    .def("set_knob",        [](Cls& inst, const T& v, const int index, const T& s, const bool check_first) {
                                         set_knob(inst, v, index, s, check_first);
 	                            },

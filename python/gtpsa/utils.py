@@ -46,7 +46,6 @@ def mapping_sorted(mapping: IndexMapping) -> Dict:
 
     Won't bet that they stay that way
     """
-
     class SortItem:
         def __init__(self, name):
             self.name = name
@@ -60,12 +59,10 @@ def mapping_sorted(mapping: IndexMapping) -> Dict:
 
         def __eq__(self, other):
             return self.index == other.index
-
     tmp = [SortItem(name) for name in dir(mapping)]
     tmp.sort()
 
     return [o.name for o in tmp]
-
 
 def tpsa_extract_coefficients_to_nrec(t: tpsa | ctpsa) -> np.recarray:
     """extract coefficents from a tpsa object"""
@@ -75,4 +72,4 @@ def tpsa_extract_coefficients_to_nrec(t: tpsa | ctpsa) -> np.recarray:
     return tpsa_coefficients_to_nrec(coeffs, names)
 
 
-__all__ = ["tpsa_extract_coefficients_to_nrec", "tpsa_coefficients_to_nrec"]
+__all__ = ["tpsa_coefficients_to_nrec"]
