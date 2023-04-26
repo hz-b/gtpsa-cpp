@@ -278,6 +278,20 @@ def test70_sst_hessian():
     assert np.sum(hes).all() == 0
 
 
+named_index_d = dict(x=0, px=1, y=2, py=3, delta=4, ct=5, K=6, dx=7, dy=8)
+named_index = gtpsa.IndexMapping(named_index_d)
+def test100_named_access():
+    nv = 6
+    desc = gtpsa.desc(6, 2, 3, 1)
+    ps = gtpsa.ss_vect_tpsa(desc, 2, index_mapping=named_index)
+    t = ps.loc["px"]
+    # Check that K can be accessed
+    t.get(K=1)
+
+    td = t.deriv("x")
+    print(type(td))
+    td.get(K=1)
+
 if __name__ == "__main__":
     test70_sst_hessian()
 

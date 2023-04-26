@@ -88,8 +88,53 @@ namespace gtpsa::python{
 	    {}
 
 	inline auto getVector(void) {return ss_vect;}
+	inline const auto getVector(void) const {return ss_vect;}
     };
 
+    // support loc
+    template<typename T>
+    class ss_vect_list_access_loc : public ss_vect_list_access<T> {
+        /* just for pybind type system */
+    public:
+	inline ss_vect_list_access_loc(gpy::StateSpaceWithNamedIndex<T>* p_inst)
+	    : ss_vect_list_access<T>(p_inst)
+	    {}
+    };
+
+    // support iloc
+    template<typename T>
+    class ss_vect_list_access_iloc : public ss_vect_list_access<T> {
+        /* just for pybind type system */
+    public:
+	inline ss_vect_list_access_iloc(gpy::StateSpaceWithNamedIndex<T>* p_inst)
+	    : ss_vect_list_access<T>(p_inst)
+	    {}
+    };
+
+    template<class WrappedClass, class P_MGR, typename T>
+    static void add_methods_list_access_loc_getitem(pybind11::class_<WrappedClass, P_MGR>& inst)
+    {
+	inst
+                .def("__getitem__",  [](const WrappedClass &self, const std::string name){
+                    auto idx = self.getVector()->getMapping()->index(name);
+                    return self.getVector()->at(idx);
+                })
+	    ;
+    }
+
+    template<class WrappedClass, class P_MGR, typename T>
+    static void add_methods_list_access_loc(pybind11::class_<WrappedClass, P_MGR>& inst)
+    {
+        inst
+                .def("__len__",      [](const WrappedClass &self){
+                    return self.getVector()->size();
+                })
+                .def("__setitem__",  [](const WrappedClass &self, const std::string name, const T& v){
+                    auto idx = self.getVector()->getMapping()->index(name);
+                    self.getVector()->at(idx) = v;
+                })
+                ;
+    }
     template<class WrappedClass, class P_MGR, typename T>
     static void add_methods_list_access(pybind11::class_<WrappedClass, P_MGR>& inst)
     {
@@ -221,19 +266,40 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 	typedef gtpsa::python::StateSpaceWithNamedIndex<double> ss_vect_dbl_py_t;
 	typedef gtpsa::python::StateSpaceWithNamedIndex<gtpsa::tpsa> ss_vect_tpsa_py_t;
 
-	/* python buffer protocol using array method */
-	typedef gtpsa::python::ss_vect_list_access<double>      ss_vect_dbl_list_access_t;
-	typedef gtpsa::python::ss_vect_list_access<gtpsa::tpsa> ss_vect_tpsa_list_access_t;
+    /* .loc like access ... typing */
+    typedef gtpsa::python::ss_vect_list_access_loc<double>      ss_vect_dbl_list_access_loc_t;
+    typedef gtpsa::python::ss_vect_list_access_loc<gtpsa::tpsa> ss_vect_tpsa_list_access_loc_t;
 
-	py::class_<ss_vect_dbl_list_access_t, std::shared_ptr<ss_vect_dbl_list_access_t>> ss_vect_double_list_access (m, "_ss_vect_double_list_access");
+    /* .iloc, would then autmatically use python buffer protocol using array method*/
+    typedef gtpsa::python::ss_vect_list_access_iloc<double>      ss_vect_dbl_list_access_iloc_t;
+    typedef gtpsa::python::ss_vect_list_access_iloc<gtpsa::tpsa> ss_vect_tpsa_list_access_iloc_t;
 
-	add_methods_list_access<ss_vect_dbl_list_access_t, std::shared_ptr<ss_vect_dbl_list_access_t>, double>(ss_vect_double_list_access);
+    /* pandas .iloc like access */
+    py::class_<ss_vect_dbl_list_access_iloc_t, std::shared_ptr<ss_vect_dbl_list_access_iloc_t>> ss_vect_double_list_access_iloc (m, "_ss_vect_double_list_access_iloc");
+    add_methods_list_access<ss_vect_dbl_list_access_iloc_t, std::shared_ptr<ss_vect_dbl_list_access_iloc_t>, double>(ss_vect_double_list_access_iloc);
 
-	py::class_<ss_vect_tpsa_list_access_t, std::shared_ptr<ss_vect_tpsa_list_access_t>> ss_vect_tpsa_list_access (m, "_ss_vect_tpsa_list_access");
-	add_methods_list_access<ss_vect_tpsa_list_access_t, std::shared_ptr<ss_vect_tpsa_list_access_t>, gtpsa::tpsa>(ss_vect_tpsa_list_access);
+    /* pandas .iloc like access */
+    py::class_<ss_vect_tpsa_list_access_iloc_t, std::shared_ptr<ss_vect_tpsa_list_access_iloc_t>> ss_vect_tpsa_list_access_iloc (m, "_ss_vect_tpsa_list_access_iloc");
+    add_methods_list_access<ss_vect_tpsa_list_access_iloc_t, std::shared_ptr<ss_vect_tpsa_list_access_iloc_t>, gtpsa::tpsa>(ss_vect_tpsa_list_access_iloc);
 
-	/**
-	 */
+    /* pandas .loc like access */
+    py::class_<ss_vect_dbl_list_access_loc_t, std::shared_ptr<ss_vect_dbl_list_access_loc_t>> ss_vect_double_list_access_loc (m, "_ss_vect_double_list_access_loc");
+    add_methods_list_access_loc<ss_vect_dbl_list_access_loc_t, std::shared_ptr<ss_vect_dbl_list_access_loc_t>, double>(ss_vect_double_list_access_loc);
+    add_methods_list_access_loc_getitem<ss_vect_dbl_list_access_loc_t, std::shared_ptr<ss_vect_dbl_list_access_loc_t>, double>(ss_vect_double_list_access_loc);
+
+    /* pandas .loc like access */
+    py::class_<ss_vect_tpsa_list_access_loc_t, std::shared_ptr<ss_vect_tpsa_list_access_loc_t>> ss_vect_tpsa_list_access_loc (m, "_ss_vect_tpsa_list_access_loc");
+    add_methods_list_access_loc<ss_vect_tpsa_list_access_loc_t, std::shared_ptr<ss_vect_tpsa_list_access_loc_t>, gpy::TpsaWithNamedIndex>(ss_vect_tpsa_list_access_loc);
+    ss_vect_tpsa_list_access_loc
+	.def("__getitem__",  [](const ss_vect_tpsa_list_access_loc_t &self, const std::string name){
+                    // std::cerr << "__getitem__ returning TpsaWithNamedIndex " << std::endl;
+                    auto idx = self.getVector()->getMapping()->index(name);
+                    return  gpy::TpsaWithNamedIndex(self.getVector()->at(idx), self.getVector()->getMapping());
+	})
+	;
+
+    /**
+     */
 	py::class_<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> ss_vect_double_intern (m, "_ss_vect_double");
 	AddMethods<ss_vect_dbl_t, std::shared_ptr<ss_vect_dbl_t>> double_cls;
 	double_cls.add_methods<double>(ss_vect_double_intern);
@@ -259,11 +325,12 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 		 py::arg("place_holder"), py::arg("state_space_size") = gtpsa::ss_vect_n_dim,
 		 py::arg("index_mapping") =  gpy::default_index_mapping_ptr
 		)
-	    /*
 	    .def("loc",          [](ss_vect_dbl_py_t &self) {
-		return ss_vect_dbl_list_access_t(&self);
+		return ss_vect_dbl_list_access_loc_t(&self);
 	    }, py::keep_alive<0, 1>())
-	    */
+	    .def("iloc",          [](ss_vect_dbl_py_t &self) {
+		return ss_vect_dbl_list_access_iloc_t(&self);
+	    }, py::keep_alive<0, 1>())
 	    ;
 
 	py::class_<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>> ss_vect_tpsa (m, "ss_vect_tpsa", ss_vect_tpsa_intern);
@@ -284,9 +351,12 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 		// misses index mapping
 		return gpy::TpsaWithNamedIndex(t, self.getMapping());
 	    })
-	    .def_property_readonly("loc",          [](ss_vect_tpsa_py_t &self) {
-		return ss_vect_tpsa_list_access_t(&self);
-	    }, py::keep_alive<1, 0>())
+            .def_property_readonly("iloc",          [](ss_vect_tpsa_py_t &self) {
+                return ss_vect_tpsa_list_access_iloc_t(&self);
+            }, py::keep_alive<1, 0>())
+            .def_property_readonly("loc",          [](ss_vect_tpsa_py_t &self) {
+                return ss_vect_tpsa_list_access_loc_t(&self);
+            }, py::keep_alive<1, 0>())
 	    ;
 
 	// add_methods_named_index<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>, gtpsa::tpsa>(ss_vect_tpsa);
