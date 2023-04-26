@@ -326,15 +326,13 @@ struct AddMethods
 	                            },
 		                        "set the variable to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
 		                         py::arg("value"), py::arg("variable_name"), py::arg("scale") = 0, py::arg("check_first") = true
-		                    )
-/*
+		)
 	    .def("set_knob",        [](Cls& inst, const T& v, const std::string& var_name, const T& s, const bool check_first) {
                                         set_knob(inst, v, var_name, s, *inst.getMapping().get(), check_first);
 	                            },
 		                        "set the knob to value and gradient at index of variable_name to 1. . v:= scale * this->v + value",
 		                         py::arg("value"), py::arg("variable_name"), py::arg("scale") = 0, py::arg("check_first") = true
 		                    )
-*/
 	    .def("set_knob",        [](Cls& inst, const T& v, const int index, const T& s, const bool check_first) {
                                         set_knob(inst, v, index, s, check_first);
 	                            },
