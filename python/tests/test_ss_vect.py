@@ -18,7 +18,7 @@ def test_01_init_tpsa():
     ss.set_identity()
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_02_set_tpsa_cst():
     """Set constant part of a space state containing tpsa
 
@@ -32,11 +32,17 @@ def test_02_set_tpsa_cst():
     desc = gtpsa.desc(6, 2)
     ss1 = gtpsa.ss_vect_tpsa(desc, 1)
 
-    ss1[1].set(0, 2)
-    assert ss1[1].get() == 2
-    assert ss1.cst()[1] == 2
+    py = ss1.py
+    py.set(0, 2)
+    assert py.get() == 2
+    assert ss1.py.get() == 2
+
+    ss1.iloc[1].set(0, 2)
+    assert ss1.iloc[1].get() == 2
+    assert ss1.cst().iloc[1] == 2
 
 
+# @pytest.mark.skip
 def test_03_set_tpsa_cst_object():
     """Set constant part of a space state containing tpsa
 
@@ -50,38 +56,51 @@ def test_03_set_tpsa_cst_object():
         Do not expect that the returned object will continue to be a new one
         Work in progress
     """
+    import sys
 
     desc = gtpsa.desc(6, 2)
     ss1 = gtpsa.ss_vect_tpsa(desc, 1)
-
+    print("ss1")
+    sys.stdout.write("ss1\n")
+    sys.stdout.flush()
     a_tpsa_obj = ss1[1]
     a_tpsa_obj.set(0, 2)
-    ss1[1] = a_tpsa_obj
+    ss1.iloc[1] = a_tpsa_obj
     del a_tpsa_obj
 
-    assert ss1[1].get() == 2
-    assert ss1.cst()[1] == 2
+    assert ss1.iloc[1].get() == 2
+    sys.stdout.write("ss1 got\n")
+    sys.stdout.flush()
+
+    t_cst = ss1.cst()
+    sys.stdout.write("cst got\n")
+    sys.stdout.flush()
+    tmp = t_cst.iloc[1]
+    assert tmp == 2
+    sys.stdout.write("cst iloc got\n")
+    sys.stdout.flush()
+    assert ss1.cst().iloc[1] == 2
 
 
 def test_09_ss_vect_from_double_vect():
     vec = np.array([1, 2, 3, 4, 5, 6], np.double)
     ss_vect = gtpsa.ss_vect_double(vec)
 
-    assert ss_vect[0] == 1
-    assert ss_vect[1] == 2
-    assert ss_vect[2] == 3
-    assert ss_vect[3] == 4
-    assert ss_vect[4] == 5
-    assert ss_vect[5] == 6
+    assert ss_vect.iloc[0] == 1
+    assert ss_vect.iloc[1] == 2
+    assert ss_vect.iloc[2] == 3
+    assert ss_vect.iloc[3] == 4
+    assert ss_vect.iloc[4] == 5
+    assert ss_vect.iloc[5] == 6
 
 
 def test_10_index():
     d = 0.0
     ss = gtpsa.ss_vect_double(d)
 
-    ss[0] = 2
-    ss[2] = 4
-    ss[4] = 6
+    ss.iloc[0] = 2
+    ss.iloc[2] = 4
+    ss.iloc[4] = 6
 
     print(ss.cst() + 1)
 
@@ -93,7 +112,7 @@ def test_11_index_off_range():
     ss = gtpsa.ss_vect_double(d)
 
     with pytest.raises(IndexError):
-        ss[len(ss)] = 2
+        ss.iloc[len(ss)] = 2
 
 
 def test_12_radd_double():
@@ -106,12 +125,14 @@ def test_12_radd_double():
     ss1.name = "test_12_radd_double"
 
     ss1.set_zero()
+    print("type ss1", type(ss1), ss1)
     ss1 += 2.0
+    print("type ss1 (after adding float)", type(ss1), ss1)
 
     assert ss1 is not None
 
-    assert ss1[1] == 2
-    assert ss1[3] == 2
+    assert ss1.iloc[1] == 2
+    assert ss1.iloc[3] == 2
 
 
 def test_20_add_double():
@@ -119,16 +140,17 @@ def test_20_add_double():
     ss1 = gtpsa.ss_vect_double(d)
     ss1.set_zero()
 
-    ss1[1] = 2
+    ss1.iloc[1] = 2
 
     ss2 = gtpsa.ss_vect_double(d)
     ss2.set_zero()
 
-    ss2[3] = 5
+    ss2.iloc[3] = 5
     ss3 = ss1 + ss2
-
-    assert ss3[1] == 2
-    assert ss3[3] == 5
+    print("type ss1", type(ss1))
+    print("type ss3", type(ss3))
+    assert ss3.iloc[1] == 2
+    assert ss3.iloc[3] == 5
 
 
 def test_21_radd_double():
@@ -136,16 +158,19 @@ def test_21_radd_double():
     ss1 = gtpsa.ss_vect_double(d)
     ss1.set_zero()
 
-    ss1[1] = 2
+    ss1.iloc[1] = 2
+    assert ss1.iloc[1] == 2
 
     ss2 = gtpsa.ss_vect_double(d)
     ss2.set_zero()
 
-    ss2[3] = 5
+    ss2.iloc[3] = 5
+    assert ss2.iloc[3] == 5
+    print("type ss2", type(ss2), ss2)
     ss1 += ss2
-
-    assert ss1[1] == 2
-    assert ss1[3] == 5
+    print("type ss1", type(ss1), ss1)
+    assert ss1.iloc[1] == 2
+    assert ss1.iloc[3] == 5
 
 
 def test_22_sub_double():
@@ -156,13 +181,13 @@ def test_22_sub_double():
     ss2 = gtpsa.ss_vect_double(d)
     ss2.set_zero()
 
-    ss1[1] = 2
-    ss2[3] = 5
+    ss1.iloc[1] = 2
+    ss2.iloc[3] = 5
 
     ss3 = ss1 - ss2
 
-    assert ss3[1] == 2
-    assert ss3[3] == -5
+    assert ss3.iloc[1] == 2
+    assert ss3.iloc[3] == -5
 
 
 def test_23_rsub_double():
@@ -173,16 +198,16 @@ def test_23_rsub_double():
     ss2 = gtpsa.ss_vect_double(d)
     ss2.set_zero()
 
-    ss1[1] = 2
-    ss2[3] = 5
+    ss1.iloc[1] = 2
+    ss2.iloc[3] = 5
 
     ss1 -= ss2
 
-    assert ss1[1] == 2
-    assert ss1[3] == -5
+    assert ss1.iloc[1] == 2
+    assert ss1.iloc[3] == -5
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_30_tpsa_radd_double():
 
     desc = gtpsa.desc(6, 1)
@@ -205,12 +230,12 @@ def test_30_tpsa_radd_double():
     # ss1[1] = 2
     # ss2[3] = 5
     # Equivalent form below
-    ss1[1].set(0, 2)
+    ss1.iloc[1].set(0, 2)
 
-    ss2[3] = 5
+    ss2.iloc[3] = 5
 
-    assert ss1[1].get() == 2
-    assert ss2[3] == 5
+    assert ss1.iloc[1].get() == 2
+    assert ss2.iloc[3] == 5
 
     print("Adding values")
     ss1 += ss2
@@ -219,8 +244,8 @@ def test_30_tpsa_radd_double():
     assert ss1 is not None
 
     print(ss1.cst())
-    assert ss1[1] == 2
-    assert ss1[3] == 5
+    assert ss1.iloc[1] == 2
+    assert ss1.iloc[3] == 5
 
 
 def test_50_compose():
@@ -246,16 +271,18 @@ def test70_sst_hessian():
     ss_vect = gtpsa.ss_vect_tpsa(desc, 2)
     ss_vect.set_identity()
     for i, val in enumerate([1, 2, 3, 5, 7, 11]):
-        ss_vect[i] += val
+        ss_vect.iloc[i] += val
 
+    print("type ss_vec", type(ss_vect))
     vec = ss_vect.copy()
+    print("type vec", type(vec))
     # fmt: off
-    vec[0] =  1 * ss_vect[0] * ss_vect[0];
-    vec[1] =  2 * ss_vect[1] * ss_vect[1];
-    vec[2] =  3 * ss_vect[2] * ss_vect[2];
-    vec[3] =  5 * ss_vect[3] * ss_vect[3];
-    vec[4] =  7 * ss_vect[4] * ss_vect[4];
-    vec[5] = 11 * ss_vect[5] * ss_vect[5];
+    vec.iloc[0] =  1 * ss_vect.iloc[0] * ss_vect.iloc[0];
+    vec.iloc[1] =  2 * ss_vect.iloc[1] * ss_vect.iloc[1];
+    vec.iloc[2] =  3 * ss_vect.iloc[2] * ss_vect.iloc[2];
+    vec.iloc[3] =  5 * ss_vect.iloc[3] * ss_vect.iloc[3];
+    vec.iloc[4] =  7 * ss_vect.iloc[4] * ss_vect.iloc[4];
+    vec.iloc[5] = 11 * ss_vect.iloc[5] * ss_vect.iloc[5];
     # fmt: on
 
     hes = vec.hessian()
@@ -292,27 +319,28 @@ def test100_named_access():
     print(type(td))
     td.get(K=1)
 
-if __name__ == "__main__":
-    test70_sst_hessian()
 
-if __name__ == "__main__":
-    test_50_compose()
-
-if __name__ == "__main__":
-    test_09_ss_vect_from_double_vect()
-
-
-if __name__ == "__main__":
-    test_12_radd_double()
-
-
+## if __name__ == "__main__":
+##     test70_sst_hessian()
+##
+## if __name__ == "__main__":
+##     test_50_compose()
+##
+## if __name__ == "__main__":
+##     test_09_ss_vect_from_double_vect()
+##
+##
+## if __name__ == "__main__":
+##     test_12_radd_double()
+##
+##
 if __name__ == "__main__":
     test_03_set_tpsa_cst_object()
 
 
-if __name__ == "__main__":
-    test_02_set_tpsa_cst()
-
-
-if __name__ == "__main__":
-    test_30_tpsa_radd_double()
+## if __name__ == "__main__":
+##     test_02_set_tpsa_cst()
+##
+##
+## if __name__ == "__main__":
+##     test_30_tpsa_radd_double()

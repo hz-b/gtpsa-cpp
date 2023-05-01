@@ -7,6 +7,7 @@
 #include <gtpsa/python/name_index.h>
 //#include "named_index.h"
 
+
 namespace gtpsa::python {
     class TpsaWithNamedIndex : public gtpsa::tpsa {
 	std::shared_ptr<gtpsa::python::IndexMapping> m_mapping;
@@ -167,7 +168,7 @@ namespace gtpsa::python {
     class StateSpaceWithNamedIndex : public gtpsa::ss_vect<T> {
 	std::shared_ptr<gtpsa::python::IndexMapping> m_mapping;
 
-	using base = gtpsa::ss_vect<T>;
+	using base = typename gtpsa::ss_vect<T>;
 
     public:
 	StateSpaceWithNamedIndex(const std::shared_ptr<gtpsa::mad::desc> desc, const ord_t mo, const size_t n = ss_vect_n_dim,
@@ -199,6 +200,24 @@ namespace gtpsa::python {
 	inline auto getMapping(void) const {
 	    return this->m_mapping;
 	}
+
+        inline StateSpaceWithNamedIndex clone(void) const { return StateSpaceWithNamedIndex(base::clone(), this->getMapping());  }
+        inline StateSpaceWithNamedIndex<double> cst(void) const { return StateSpaceWithNamedIndex<double>(base::cst(), this->getMapping()); }
+
+        inline StateSpaceWithNamedIndex& operator += (const StateSpaceWithNamedIndex& o) { base::operator += (o); return *this; }
+        inline StateSpaceWithNamedIndex& operator -= (const StateSpaceWithNamedIndex& o) { base::operator -= (o); return *this; }
+
+        inline StateSpaceWithNamedIndex& operator += (const double o) { base::operator +=(o); return *this; }
+        inline StateSpaceWithNamedIndex& operator -= (const double o) { base::operator -=(o); return *this; }
+
+        inline StateSpaceWithNamedIndex  operator - (void) const { return StateSpaceWithNamedIndex( base::operator- (), this->getMapping()); }
+        inline StateSpaceWithNamedIndex  operator + (const StateSpaceWithNamedIndex& o) const { return StateSpaceWithNamedIndex( base::operator+ (o) , this->getMapping()); }
+        inline StateSpaceWithNamedIndex  operator - (const StateSpaceWithNamedIndex& o) const { return StateSpaceWithNamedIndex( base::operator- (o) , this->getMapping()); }
+        // inline StateSpaceWithNamedIndex operator * (const StateSpaceWithNamedIndex& o) const { return StateSpaceWithNamedIndex(base(*this) * base(o), this->getMapping());}
+        // inline StateSpaceWithNamedIndex operator / (const StateSpaceWithNamedIndex& o) const { return StateSpaceWithNamedIndex(base(*this) / base(o), this->getMapping());}
+
+        inline StateSpaceWithNamedIndex  operator + (const double o) const { return StateSpaceWithNamedIndex(base::operator+ (o), this->getMapping()); }
+        inline StateSpaceWithNamedIndex  operator - (const double o) const { return StateSpaceWithNamedIndex(base::operator- (o), this->getMapping()); }
     };
 } // namespace gtpsa::python
 

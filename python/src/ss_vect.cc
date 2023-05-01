@@ -177,15 +177,19 @@ struct AddMethods
 	    .def("__str__",      &WrappedClass::pstr)
 	    .def("__repr__",     &WrappedClass::repr)
 	    .def("__len__",      &WrappedClass::size)
+/*
+ * do not activate before proper check ... the methods are added to classes
+ * without able to manage their index mapping
 	    .def("__dir__",      [](const WrappedClass& self){
-		                    return gpy::DefaultIndexMapping.pdir();
+		                        return self.getMapping().pdir();
 	                         })
-            .def("__getattr__",  [](const WrappedClass& self, const std::string& key){
+        .def("__getattr__",  [](const WrappedClass& self, const std::string& key){
 		                    return self.at(gpy::mapping_index(gpy::DefaultIndexMapping, key));
 	                         })
 	    .def("__setattr__",  [](      WrappedClass& self, const std::string& key, T& v){
 		                    self.at(gpy::mapping_index(gpy::DefaultIndexMapping, key)) = v;
 	                         })
+*/
 	    .def("cst_as_array", [](const WrappedClass& self) {
 				    return py::array(py::cast(self.cst()));
 				 })
@@ -320,18 +324,46 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 	py::class_<ss_vect_dbl_py_t, std::shared_ptr<ss_vect_dbl_py_t>> ss_vect_double (m, "ss_vect_double", ss_vect_double_intern);
 	// add_methods_named_index<ss_vect_dbl_py_t, std::shared_ptr<ss_vect_dbl_py_t>, double>(ss_vect_double);
 	ss_vect_double
-	    .def(py::init<const double&, const size_t, std::shared_ptr<gpy::IndexMapping>>(),
-		 "init state space",
-		 py::arg("place_holder"), py::arg("state_space_size") = gtpsa::ss_vect_n_dim,
-		 py::arg("index_mapping") =  gpy::default_index_mapping_ptr
-		)
-	    .def("loc",          [](ss_vect_dbl_py_t &self) {
+        .def(py::init<const double&, const size_t, std::shared_ptr<gpy::IndexMapping>>(),
+                 "init state space",
+                 py::arg("place_holder"), py::arg("state_space_size") = gtpsa::ss_vect_n_dim,
+                 py::arg("index_mapping") =  gpy::default_index_mapping_ptr
+	    )
+
+        .def(py::init<const std::vector<double>&, std::shared_ptr<gpy::IndexMapping>>(),
+                  "init state space",
+                  py::arg("place_holder"),
+                  py::arg("index_mapping") =  gpy::default_index_mapping_ptr
+            )
+	.def_property_readonly("loc",          [](ss_vect_dbl_py_t &self) {
 		return ss_vect_dbl_list_access_loc_t(&self);
 	    }, py::keep_alive<0, 1>())
-	    .def("iloc",          [](ss_vect_dbl_py_t &self) {
+	.def_property_readonly("iloc",          [](ss_vect_dbl_py_t &self) {
 		return ss_vect_dbl_list_access_iloc_t(&self);
-	    }, py::keep_alive<0, 1>())
-	    ;
+	     }, py::keep_alive<0, 1>()
+	    )
+	.def("cst", &ss_vect_dbl_py_t::cst,  py::keep_alive<0, 1>())
+        .def("__dir__",      [](const ss_vect_dbl_py_t& self){
+		                        return self.getMapping()->pdir();
+	                         })
+	.def("__getattr__",  [](const ss_vect_dbl_py_t&  self, const std::string& key){
+		auto t = self.at(self.getMapping()->index(key));
+		// misses index mapping
+		return t;
+	    })
+	.def("__setattr__",  [](ss_vect_dbl_py_t&  self, const std::string& key, const double val){
+		self.at(self.getMapping()->index(key)) = val;
+	})
+        .def(py::self + py::self)
+        .def(py::self - py::self)
+        .def(py::self += py::self)
+        .def(py::self -= py::self)
+        .def(py::self += double())
+        .def(py::self -= double())
+	.def("__copy__",  &ss_vect_dbl_py_t::clone)
+	.def("copy",      &ss_vect_dbl_py_t::clone)
+
+       ;
 
 	py::class_<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>> ss_vect_tpsa (m, "ss_vect_tpsa", ss_vect_tpsa_intern);
 	// these functions have to be here before the ones defined by the classes
@@ -341,15 +373,27 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 		 py::arg("desc"), py::arg("maximum_order"), py::arg("state_space_size") = gtpsa::ss_vect_n_dim,
 		 py::arg("index_mapping") =  gpy::default_index_mapping_ptr
 		)
+            .def(py::init<const gtpsa::tpsa&, const size_t, std::shared_ptr<gpy::IndexMapping>>(),
+                 "init state space",
+                 py::arg("truncated power series object (as reference to description)"),
+		 py::arg("state_space_size") = gtpsa::ss_vect_n_dim,
+		 py::arg("index_mapping") =  gpy::default_index_mapping_ptr
+             )
 	    .def("__getitem__",  [](const ss_vect_tpsa_py_t& self, const long int idx){
 		auto t =  self.at(idx);
 		// misses index mapping
 		return gpy::TpsaWithNamedIndex(t, self.getMapping());
 	    })
+	    .def("__dir__",      [](const ss_vect_tpsa_py_t& self){
+		                        return self.getMapping()->pdir();
+	                         })
 	    .def("__getattr__",  [](const ss_vect_tpsa_py_t&  self, const std::string& key){
 		auto t = self.at(self.getMapping()->index(key));
 		// misses index mapping
 		return gpy::TpsaWithNamedIndex(t, self.getMapping());
+	    })
+	    .def("__setattr__",  [](ss_vect_tpsa_py_t&  self, const std::string& key, const gtpsa::tpsa& val){
+		self.at(self.getMapping()->index(key)) = val;
 	    })
             .def_property_readonly("iloc",          [](ss_vect_tpsa_py_t &self) {
                 return ss_vect_tpsa_list_access_iloc_t(&self);
@@ -357,6 +401,13 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
             .def_property_readonly("loc",          [](ss_vect_tpsa_py_t &self) {
                 return ss_vect_tpsa_list_access_loc_t(&self);
             }, py::keep_alive<1, 0>())
+            .def("cst", &ss_vect_tpsa_py_t::cst, py::keep_alive<1, 0>())
+            .def(py::self + py::self)
+            .def(py::self - py::self)
+            .def(py::self += py::self)
+            .def(py::self -= py::self)
+	    .def("__copy__",  &ss_vect_tpsa_py_t::clone)
+	    .def("copy",      &ss_vect_tpsa_py_t::clone)
 	    ;
 
 	// add_methods_named_index<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>, gtpsa::tpsa>(ss_vect_tpsa);
