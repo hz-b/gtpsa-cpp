@@ -1020,3 +1020,41 @@ BOOST_AUTO_TEST_CASE(test140_inverse)
     }
 
 }
+
+
+// as required by standard observer
+BOOST_AUTO_TEST_CASE(test160_copy_inplace)
+{
+    auto desc = std::make_shared<gtpsa::desc>(6,2);
+    gtpsa::ss_vect<gtpsa::tpsa> vec(desc, 1);
+    vec.set_identity();
+    vec[2].set(0, 2);
+    BOOST_CHECK_CLOSE(vec[2].get(), 2, 1e-12);
+
+    gtpsa::ss_vect<gtpsa::tpsa> vec2(desc, 1);
+    vec2._copyInPlace(vec);
+
+    arma::mat eye(6, 6, arma::fill::eye);
+    {
+        arma::mat chk = arma::abs(eye - vec2.jacobian());
+        arma::vec vchk = arma::sum(chk, 1);
+        BOOST_CHECK_SMALL(arma::sum(vchk), 1e-12);
+
+        // constant part copied ?
+        BOOST_CHECK_CLOSE(vec2[2].get(), 2, 1e-12);
+    }
+
+    // and if I modify the original vector
+    vec.set_zero();
+    vec[2].set(0, 0);
+    vec[4].set(0, 4);
+
+    {
+        arma::mat chk = arma::abs(eye - vec2.jacobian());
+        arma::vec vchk = arma::sum(chk, 1);
+        BOOST_CHECK_SMALL(arma::sum(vchk), 1e-12);
+
+        // constant part copied ?
+        BOOST_CHECK_CLOSE(vec2[2].get(), 2, 1e-12);
+    }
+}

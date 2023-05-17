@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(test33_desc_info)
 {
     // currently fails for 144 on my machine
     const int nv = 3, no =7, np=62, po=1;
-    auto a_desc = gtpsa::desc(nv, np, no, po);
+    auto a_desc = gtpsa::desc(nv, no, np, po);
     a_desc.info();
     auto info = a_desc.getInfo();
     std::cout << " info: " << info << std::endl;

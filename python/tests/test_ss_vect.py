@@ -134,6 +134,16 @@ def test_12_radd_double():
     assert ss1.iloc[1] == 2
     assert ss1.iloc[3] == 2
 
+def test_15_tpsa_copy():
+    desc = gtpsa.desc(6, 2)
+    ps1 = gtpsa.ss_vect_tpsa(desc, 1)
+    ps1.set_identity()
+    ps2 = ps1.copy()
+    ps1.set_zero()
+
+    print(ps1)
+    print(ps2)
+    assert True == False
 
 def test_20_add_double():
     d = 0.0
