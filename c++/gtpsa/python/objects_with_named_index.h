@@ -118,8 +118,8 @@ namespace gtpsa::python {
 
 	/* not accepting solely base object ... if mapping is lost, it is lost ...*/
 
-	inline CTpsaWithNamedIndex  clone(void) const { return CTpsaWithNamedIndex( base::clone() ); }
-	inline CTpsaWithNamedIndex  newFromThis(void) const { return CTpsaWithNamedIndex( base::newFromThis() ); }
+	inline CTpsaWithNamedIndex  clone(void) const { return CTpsaWithNamedIndex( base::clone(), this->getMapping()  ); }
+	inline CTpsaWithNamedIndex  newFromThis(void) const { return CTpsaWithNamedIndex( base::newFromThis(), this->getMapping()  ); }
 
 	inline CTpsaWithNamedIndex  operator  - ( void         ) const { return CTpsaWithNamedIndex( base::operator-(*this) ); }
 
