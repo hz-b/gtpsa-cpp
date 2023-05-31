@@ -187,6 +187,8 @@ namespace gtpsa {
     inline TpsaWithOp<T>  operator *  (const typename T::base_type a, const TpsaWithOp<T>& b)  { return b * a; }
     template<class T, typename = typename T::base_type>
     inline TpsaWithOp<T>  operator /  (const typename T::base_type a, const TpsaWithOp<T>& b)  { auto t = b.newFromThis(); t.set(0, a    ); return t / b; }
+    template<class T, typename = typename T::base_type>
+    inline TpsaWithOp<T>  deriv  (const TpsaWithOp<T>& o, const int iv)  { auto t = o.newFromThis(); t.rderiv(o, iv); return t; }
 #endif
 
 } //namespace gtpsa

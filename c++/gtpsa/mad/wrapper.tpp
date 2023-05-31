@@ -146,7 +146,7 @@ namespace gtpsa::mad {
         inline void _copyInPlace(const GTPSA_CLASS(Wrapper) &o) { GTPSA_METH(copy)(o.getPtr(), this->getPtr()); }
 
         inline GTPSA_CLASS(Wrapper) clone(void) const {
-            GTPSA_CLASS(Wrapper) res(*this, init::same);
+            GTPSA_CLASS(Wrapper) res(*this, this->ord());
             res._copyInPlace(*this);
             return res;
         }
@@ -174,7 +174,7 @@ namespace gtpsa::mad {
         /**
          * @todo: rename to order ?
          */
-        inline auto ord(void) const { return GTPSA_METH(ord)(this->getPtr()); }
+        inline ord_t ord(void) const { return GTPSA_METH(ord)(this->getPtr()); }
 
         // initialization
         inline void clear(void) { GTPSA_METH(clear)(this->getPtr()); }

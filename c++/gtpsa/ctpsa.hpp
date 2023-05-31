@@ -342,6 +342,7 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
     inline ctpsa pow (const ctpsa& a,  const ctpsa&               b){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), static_cast<const ctpsa::base&>(b) ) ); }
     inline ctpsa pow (const ctpsa& a,  const int                  i){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), i) ); }
     inline ctpsa pow (const ctpsa& a,  const std::complex<double> v){ return ctpsa( pow(static_cast<const ctpsa::base&>(a), std_complex_double_to_cpx_t(v) )); }
+    inline ctpsa deriv (const ctpsa& a,  const int iv){ return ctpsa( deriv(static_cast<const ctpsa::base&>(a), iv  )); }
 
     inline std::ostream& operator<<(std::ostream& strm, const ctpsa& a)
     {

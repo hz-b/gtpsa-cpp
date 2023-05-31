@@ -16,6 +16,8 @@
 #include <cassert>
 #include <iomanip>
 #include <ostream>
+// todo: delete me
+#include <iostream>
 
 #include <gtpsa/mad/tpsa_wrapper.hpp>
 #include <gtpsa/intern/templated_funcs.hpp>
@@ -92,9 +94,9 @@ namespace gtpsa {
     typedef TpsaWithOp<TpsaTypeInfo> tpsa_with_op ;
 
     class tpsa : public tpsa_with_op {
-
-    public:
+    protected:
 	using base = tpsa_with_op;
+    public:
 
 	inline tpsa(std::shared_ptr<mad::desc> desc, const ord_t mo)
 	    : base(desc, mo)
@@ -175,6 +177,17 @@ namespace gtpsa {
 
 	friend inline auto ordn (const std::vector<const tpsa&> objs);
 
+	friend inline tpsa pow (const tpsa& a,  const tpsa& b);
+	friend inline tpsa pow (const tpsa& a,  const int   i);
+	friend inline tpsa pow (const tpsa& a,  const num_t v);
+
+	friend inline tpsa operator +  (const num_t a, const tpsa& b);
+	friend inline tpsa operator -  (const num_t a, const tpsa& b);
+	friend inline tpsa operator *  (const num_t a, const tpsa& b);
+	friend inline tpsa operator /  (const num_t a, const tpsa& b);
+
+	friend inline tpsa deriv (const tpsa& a,  const int v);
+
     // required to implement real, imag etc..
     friend class ctpsa;
     }; // class tpsa
@@ -211,6 +224,10 @@ namespace gtpsa {
 	return strm;
     }
 
+    inline tpsa deriv (const tpsa& a,  const int v){
+	std::cerr << "deriv of a_"<< v <<": " ;
+	return tpsa( deriv(static_cast<const tpsa::base&>(a), v  ));
+    }
 /*
  * Trigonometric and similar functions ...
  */

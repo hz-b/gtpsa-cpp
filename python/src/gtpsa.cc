@@ -10,6 +10,7 @@
 
 #include <gtpsa/python/objects_with_named_index.h>
 #include "gtpsa_module.h"
+#include "gtpsa_wrapper.h"
 
 namespace py = pybind11;
 namespace gpy = gtpsa::python;
@@ -21,6 +22,18 @@ static const char tpsa_init_desc_doc[] = "Create a new (c)tpsa object using the 
  will be used if none is speficied\n\
 Use clone to create a copy of the content too. \n";
 
+
+namespace gtpsa::python {
+
+    template<class T> auto operator+ (const typename T::base_type a, const ss_vect_element_access<T>& b) {return b.radd(a); }
+    template<class T> auto operator- (const typename T::base_type a, const ss_vect_element_access<T>& b) {return b.rsub(a); }
+    template<class T> auto operator* (const typename T::base_type a, const ss_vect_element_access<T>& b) {return b.rmul(a); }
+    template<class T> auto operator/ (const typename T::base_type a, const ss_vect_element_access<T>& b) {return b.rdiv(a); }
+
+    template<class T>
+    typename T::tpsa_type pow(ss_vect_element_access<T> &inst, const int n) { return inst.pow(n); }
+
+} // namespace gtpsa::python
 
 template<class Cls, typename T>
 static void set_variable(Cls& inst, const T& v, idx_t i, const T& s, const bool check_first)
@@ -220,7 +233,7 @@ struct AddMethods
 	    .def("get_coefficients", &Cls::getCoefficients)
 	    .def("set",             [](Cls& inst,      const std::vector<ord_t>& m, const T& a, const T& b){
 	      const bool check_first = true;
-		if(check_first) {
+	         if(check_first) {
 		    check_index(inst, m);
 		}
 		inst.set(m, a, b);
@@ -247,10 +260,11 @@ struct AddMethods
                                   },
 		                  "set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
                                   py::arg("value"), py::arg("index_of_variable") = 0, py::arg("scale") = 0, py::arg("check_first") = true)
+
             .def("deriv",          [](const Cls& inst, int iv){
-                                      Cls r = inst.newFromThis();
-				      r.rderiv(inst, iv);
-                                      return r;
+		using namespace gtpsa::python;
+		using namespace gtpsa;
+		                       return deriv(inst, iv);
                                    })
              .def("print",         [](const Cls& inst, std::string name, double eps, bool nohdr){
                                       FILE* f = stdout;
@@ -274,6 +288,7 @@ struct AddMethods
 		 py::arg("tpsa"), py::arg("order") = int(gtpsa::mad::init::same))
 	    ;
     }
+
     template<typename BCls, typename T>
     void add_methods_ops(py::class_<BCls> a_cls) {
 	a_cls
@@ -286,7 +301,7 @@ struct AddMethods
 	    .def(py::self *= py::self)
 	    .def(py::self /= py::self)
 
-	    .def(-py::self )
+	    // .def(-py::self )
 	    .def(py::self +  py::self)
 	    .def(py::self -  py::self)
 	    .def(py::self *  py::self)
@@ -340,10 +355,15 @@ struct AddMethods
 		                         py::arg("value"), py::arg("index"), py::arg("scale") = 0, py::arg("check_first") = true
 		                    )
             .def("deriv",          [](const Cls& inst, const std::string name){
-                                         Cls r = BCls(inst.newFromThis(), inst.getMapping());
-                                         r.rderiv(inst, inst.getMapping()->index(name) + 1);
-                                         return r;
-                                    })
+		                        using gtpsa::deriv;
+		                        using gtpsa::python::deriv;
+					std::cerr << "evaluating deriv... ";
+					const int idx = inst.getMapping()->index(name) + 1;
+					std::cerr << "using index idx " << idx;
+					auto r = deriv(inst, idx);
+					std::cerr << "done" << std::endl;
+					return r;
+	                            })
 	    .def("get_mapping",     &Cls::getMapping)
 	    .def("set_mapping",     &Cls::setMapping)
 	    ;
@@ -367,6 +387,22 @@ static inline gpy::CTpsaWithNamedIndex ctpsa_func_eval(const gpy::CTpsaWithNamed
 {
     return gpy::CTpsaWithNamedIndex(func(r), r.getMapping());
 }
+
+
+
+#if 0
+namespace gtpsa::python {
+// define trignometric functions etc to be used on the ss_vect access: towards a fully transparent gtpsa (c)tpsa like object
+#define GTPSA_FUNC_ARG1(fname)						                                                                   \
+    void fname ## _ (const gpy::ss_vect_tpsa_elem_access_t& r, gtpsa::tpsa *o){ r.apply_with_return_object(o, gtpsa::fname ## _);  } \
+    void fname ## _ (const gtpsa::tpsa& o, gpy::ss_vect_tpsa_elem_access_t* r){ r->rapply_object(o, gtpsa::fname ## _);  }                 \
+    void fname ## _ (const gpy::ss_vect_tpsa_elem_access_t& o, gpy::ss_vect_tpsa_elem_access_t* r){ r->rapply_ss_vect_access(o, gtpsa::fname ## _);  } \
+    void fname      (const gpy::ss_vect_tpsa_elem_access_t& o){ o.apply(gtpsa::fname);  }
+#include <gtpsa/funcs.h>
+#undef GTPSA_FUNC_ARG1
+}
+#endif
+
 
 void gpy::py_gtpsa_init_tpsa(py::module &m)
 {
@@ -538,6 +574,65 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
     .def("set",            py::overload_cast<cpx_t, cpx_t>( &gtpsa::tpsa::set))
     ;
     */
+
+
+    // required to init gtpsa objects ... init a standard one
+    // needs to deriv the type
+    auto desc = std::make_shared<gtpsa::desc>(6, 1);
+    /* supporting access to tpsa  elements of a tpsa object */
+    py::class_<ss_vect_tpsa_elem_access_t, std::shared_ptr<ss_vect_tpsa_elem_access_t>> ss_vect_tpsa_elem_access(m, "_ss_vect_elem_access");
+    AddMethods<ss_vect_tpsa_elem_access_t> ss_vect_tpsa_elem_access_methods;
+    ss_vect_tpsa_elem_access_methods.add_methods<ss_vect_tpsa_elem_access_t, num_t>(ss_vect_tpsa_elem_access);
+    ss_vect_tpsa_elem_access_methods.add_methods_with_named_index<ss_vect_tpsa_elem_access_t, num_t>(ss_vect_tpsa_elem_access);
+    ss_vect_tpsa_elem_access
+	.def("to_tpsa", &ss_vect_tpsa_elem_access_t::to_tpsa)
+	.def(py::init<std::shared_ptr<gpy::StateSpaceWithNamedIndex<gtpsa::tpsa>>, size_t>(), "initialise with vector and index",
+	     py::arg("vec"), py::arg("index"))
+	.def(py::self += py::self)
+	.def(py::self -= py::self)
+	.def(py::self *= py::self)
+	.def(py::self /= py::self)
+	.def(py::self += double())
+	.def(py::self -= double())
+	.def(py::self *= double())
+	.def(py::self /= double())
+	.def(py::self += gtpsa::tpsa(desc,1))
+	.def(py::self -= gtpsa::tpsa(desc,1))
+	.def(py::self *= gtpsa::tpsa(desc,1))
+	.def(py::self /= gtpsa::tpsa(desc,1))
+
+	.def(py::self + py::self)
+	.def(py::self - py::self)
+	.def(py::self * py::self)
+	.def(py::self / py::self)
+	.def(py::self + double())
+	.def(py::self - double())
+	.def(py::self * double())
+	.def(py::self / double())
+	.def(py::self + gtpsa::tpsa(desc,1))
+	.def(py::self - gtpsa::tpsa(desc,1))
+	.def(py::self * gtpsa::tpsa(desc,1))
+	.def(py::self / gtpsa::tpsa(desc,1))
+
+	.def(double() + py::self)
+	.def(double() - py::self)
+	.def(double() * py::self)
+	.def(double() / py::self)
+
+	.def(gtpsa::tpsa(desc,1)  + py::self)
+	.def(gtpsa::tpsa(desc,1)  - py::self)
+	.def(gtpsa::tpsa(desc,1)  * py::self)
+	.def(gtpsa::tpsa(desc,1)  / py::self)
+	;
+
+
+#define GTPSA_FUNC_ARG1(fname)   \
+    m.def(#fname "_" , [](const gpy::ss_vect_tpsa_elem_access_t& r, gtpsa::tpsa *o){ r.apply_with_return_object(o, gtpsa::fname ## _);  }); \
+    m.def(#fname "_" , [](const gtpsa::tpsa& o, gpy::ss_vect_tpsa_elem_access_t* r){ r->rapply_object(o, gtpsa::fname ## _);  }); \
+    m.def(#fname "_" , [](const gpy::ss_vect_tpsa_elem_access_t& o, gpy::ss_vect_tpsa_elem_access_t* r){ r->rapply_ss_vect_access(o, gtpsa::fname ## _);  }); \
+    m.def(#fname     , [](const gpy::ss_vect_tpsa_elem_access_t& o){ o.apply(gtpsa::fname);  });
+#include <gtpsa/funcs.h>
+#undef GTPSA_FUNC_ARG1
 
 
 }

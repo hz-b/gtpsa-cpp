@@ -95,7 +95,7 @@ namespace gtpsa {
 	    return std::pair<idx_t, base_type>(r, v);
 	}
 	inline void clear()  { this->m_impl.clear(); }
-	inline void isNull() { this->m_impl.isNull(); }
+	inline void isNull() const { this->m_impl.isNull(); }
 
 	/**
 	 * @brief indexing / monomials (return idx_t = -1 if invalid)

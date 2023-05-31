@@ -17,7 +17,7 @@ namespace gtpsa::python {
 	using base = gtpsa::tpsa;
 
 	inline TpsaWithNamedIndex(std::shared_ptr<mad::desc> desc, const ord_t mo,
-			   std::shared_ptr<gtpsa::python::IndexMapping> mapping = gtpsa::python::default_index_mapping_ptr)
+				  std::shared_ptr<gtpsa::python::IndexMapping> mapping = gtpsa::python::default_index_mapping_ptr)
 	    : base(desc, mo)
 	    , m_mapping(mapping)
 	    {}
@@ -163,25 +163,36 @@ namespace gtpsa::python {
 #undef GTPSA_FUNC_ARG1
 
 
-
+    /**
+     * State space with indices that can be used as attributed
+     *
+     * Note:
+     *    Enable shared is required as the python wrappers need to provide .loc and .iloc
+     *    These return new objects that need to take a shared pointer to this object.
+     *    See :meth:`getPtr`
+     */
     template<typename T>
-    class StateSpaceWithNamedIndex : public gtpsa::ss_vect<T> {
+    class StateSpaceWithNamedIndex :  public gtpsa::ss_vect<T>, public std::enable_shared_from_this<StateSpaceWithNamedIndex<T>> {
 	std::shared_ptr<gtpsa::python::IndexMapping> m_mapping;
 
 	using base = typename gtpsa::ss_vect<T>;
 
     public:
+	~StateSpaceWithNamedIndex() {
+	    // std::cerr << "deleting StateSpaceWithNamedIndex: "  << this << std::endl;
+	    // std::cerr.flush();
+	}
 	StateSpaceWithNamedIndex(const std::shared_ptr<gtpsa::mad::desc> desc, const ord_t mo, const size_t n = ss_vect_n_dim,
 				 std::shared_ptr<gtpsa::python::IndexMapping> mapping = gtpsa::python::default_index_mapping_ptr)
 	    : base(desc, mo, n)
 	    , m_mapping(mapping)
-	    {}
+	    {	/*    std::cerr << "allocating StateSpaceWithNamedIndex: "  << this << std::endl; */ }
 
 	StateSpaceWithNamedIndex(const T& t, const size_t n = ss_vect_n_dim,
 				 std::shared_ptr<gtpsa::python::IndexMapping> mapping = gtpsa::python::default_index_mapping_ptr)
 	    : base(t, n)
 	    , m_mapping(mapping)
-	    {}
+	    { /* std::cerr << "allocating StateSpaceWithNamedIndex: "  << this << std::endl; */ }
 
 
 	StateSpaceWithNamedIndex(const base& vec,
@@ -197,8 +208,16 @@ namespace gtpsa::python {
 	    , m_mapping(mapping)
 	    {}
 	*/
+
+
+	inline auto getPtr(void) {
+	    return std::enable_shared_from_this<StateSpaceWithNamedIndex<T>>::shared_from_this();
+	}
 	inline auto getMapping(void) const {
 	    return this->m_mapping;
+	}
+	inline void setMapping(std::shared_ptr<gtpsa::python::IndexMapping> mapping) {
+	    this->m_mapping = mapping;
 	}
 
         inline StateSpaceWithNamedIndex clone(void) const { return StateSpaceWithNamedIndex(base::clone(), this->getMapping());  }
@@ -219,6 +238,9 @@ namespace gtpsa::python {
         inline StateSpaceWithNamedIndex  operator + (const double o) const { return StateSpaceWithNamedIndex(base::operator+ (o), this->getMapping()); }
         inline StateSpaceWithNamedIndex  operator - (const double o) const { return StateSpaceWithNamedIndex(base::operator- (o), this->getMapping()); }
     };
+
+    inline StateSpaceWithNamedIndex<gtpsa::tpsa>& operator += (StateSpaceWithNamedIndex<gtpsa::tpsa>& a, const StateSpaceWithNamedIndex<double>& b) {(ss_vect<gtpsa::tpsa>&)(a) += (b);	return a;  }
+    inline StateSpaceWithNamedIndex<gtpsa::tpsa>& operator -= (StateSpaceWithNamedIndex<gtpsa::tpsa>& a, const StateSpaceWithNamedIndex<double>& b) {(ss_vect<gtpsa::tpsa>&)(a) -= (b);	return a;  }
 } // namespace gtpsa::python
 
 #endif /* _GTPSA_PYTHON_OBJECTS_WITH_NAMED_INDEX_H_ */

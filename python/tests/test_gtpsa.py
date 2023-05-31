@@ -34,7 +34,8 @@ def test_set_knob_as_var():
     val = 42
     var_index = nv + 2
     t = gtpsa.tpsa(desc, 1)
-    t.set_variable(val, var_index, check_first=False)
+    # check first will
+    t.set_variable(val, var_index, check_first=True)
     print("t\n", t)
     assert t.get() == pytest.approx(val, 1e-12)
     derivs = t.getv(1)
@@ -77,8 +78,7 @@ def test_powers_dict_not_overlapping():
 
 
 def test_powers_dict_illegal_arguments():
-    """test if one keyword is a string
-    """
+    """test if one keyword is a string"""
     f = gtpsa._gtpsa._powers_from_type_and_dict
     d = dict(x=2, y=3)
     with pytest.raises(RuntimeError):
@@ -86,8 +86,7 @@ def test_powers_dict_illegal_arguments():
 
 
 def test_powers_dict_argument_overlapping():
-    """argument provided by dict and keyword
-    """
+    """argument provided by dict and keyword"""
     f = gtpsa._gtpsa._powers_from_type_and_dict
     d = dict(x=2, y=3)
     d2 = f(d, x=5)
@@ -106,6 +105,99 @@ def test_set_with_kwarg():
     desc = gtpsa.desc(6, 2)
     t = gtpsa.tpsa(desc, 2)
     t.set(constant=3, x=2)
+
+
+def test_add():
+    a = 3
+    b = 5
+    desc = gtpsa.desc(6, 2)
+    t = gtpsa.tpsa(desc, 2)
+    t2 = gtpsa.tpsa(desc, 2)
+
+    t.set(0, a)
+    assert t.get() == pytest.approx(a, 1e-12)
+    t2.set(0, b)
+    assert t2.get() == pytest.approx(b, 1e-12)
+
+    t3 = t + t2
+    assert t3.get() == pytest.approx(a + b, 1e-12)
+
+
+def test_basis_operation():
+    a = 3
+    b = 5
+    desc = gtpsa.desc(6, 2)
+    t = gtpsa.tpsa(desc, 2)
+    t2 = gtpsa.tpsa(desc, 2)
+
+    t.set(0, a)
+    assert t.get() == pytest.approx(a, 1e-12)
+    t2.set(0, b)
+    assert t2.get() == pytest.approx(b, 1e-12)
+
+    t3 = t + t2
+    assert t3.get() == pytest.approx(a + b, 1e-12)
+
+    sample = t - t2
+    assert sample.get() == pytest.approx(a - b, 1e-12)
+
+    sample = t * t2
+    assert sample.get() == pytest.approx(a * b, 1e-12)
+
+    sample = t / t2
+    assert sample.get() == pytest.approx(a / b, 1e-12)
+    sample.get(x=2)
+
+    sample = t2.copy()
+    assert sample.get() == pytest.approx(b, 1e-12)
+
+    sample += t
+    assert sample.get() == pytest.approx(b + a, 1e-12)
+
+    sample = t.copy()
+    sample -= t2
+    assert sample.get() == pytest.approx(a - b, 1e-12)
+
+    sample = t.copy()
+    sample *= t2
+    assert sample.get() == pytest.approx(a * b, 1e-12)
+
+    sample = t.copy()
+    sample /= t2
+    assert sample.get() == pytest.approx(a / b, 1e-12)
+
+    sample = t.copy()
+    sample += b
+    assert sample.get() == pytest.approx(a + b, 1e-12)
+
+    sample = t.copy()
+    sample -= b
+    assert sample.get() == pytest.approx(a - b, 1e-12)
+
+    sample = t.copy()
+    sample *= b
+    assert sample.get() == pytest.approx(a * b, 1e-12)
+
+    sample = t.copy()
+    sample /= b
+    assert sample.get() == pytest.approx(a / b, 1e-12)
+
+    sample = t + b
+    assert sample.get() == pytest.approx(a + b, 1e-12)
+    sample.get(x=1)
+
+    sample = t - b
+    assert sample.get() == pytest.approx(a - b, 1e-12)
+    sample.get(px=1)
+
+    sample = t * b
+    assert sample.get() == pytest.approx(a * b, 1e-12)
+    sample.get(y=1)
+
+    sample = t / b
+    assert sample.get() == pytest.approx(a / b, 1e-12)
+    sample.get(py=1)
+
 
 if __name__ == "__main__":
     test_set_knob_as_var()

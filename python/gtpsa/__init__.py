@@ -4,6 +4,14 @@ This wrapper covers
 """
 from ._gtpsa import *
 
+# Formerly wrapped in C++ ...
+# now much simpler code in python
+# del tpsa, ctpsa, ss_vect_double, ss_vect_tpsa
+
+# a better name for wrapper
+# from .gtpsa_delegator import tpsa, ctpsa
+# from .phase_space_delegator import ss_vect_tpsa, ss_vect_double
+
 __all__ = [
     "acos",
     "acos_",
