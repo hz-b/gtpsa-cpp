@@ -357,16 +357,16 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
     double_cls.add_methods<double>(ss_vect_double_intern);
 
 
-    py::class_<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>>  ss_vect_tpsa_intern (m, "_ss_vect_tpsa");
-    AddMethods<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>> tpsa_cls;
-    tpsa_cls.add_methods<gtpsa::tpsa>(ss_vect_tpsa_intern);
-    tpsa_cls.add_methods_tpsa<gtpsa::tpsa>(ss_vect_tpsa_intern);
-    ss_vect_tpsa_intern
-	.def(py::self += gtpsa::ss_vect<double>(0e0))
-	.def(py::self -= gtpsa::ss_vect<double>(0e0))
-	.def(py::self +  gtpsa::ss_vect<double>(0e0))
-	.def(py::self -  gtpsa::ss_vect<double>(0e0))
-	;
+	py::class_<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>>  ss_vect_tpsa_intern (m, "_ss_vect_tpsa");
+	AddMethods<ss_vect_tpsa_t, std::shared_ptr<ss_vect_tpsa_t>> tpsa_cls;
+	tpsa_cls.add_methods<gtpsa::tpsa>(ss_vect_tpsa_intern);
+	tpsa_cls.add_methods_tpsa<gtpsa::tpsa>(ss_vect_tpsa_intern);
+	ss_vect_tpsa_intern
+            .def(py::self += gtpsa::ss_vect<double>(0e0))
+            .def(py::self -= gtpsa::ss_vect<double>(0e0))
+            .def(py::self +  gtpsa::ss_vect<double>(0e0))
+            .def(py::self -  gtpsa::ss_vect<double>(0e0))
+            ;
 
 
 	py::class_<ss_vect_dbl_py_t, std::shared_ptr<ss_vect_dbl_py_t>> ss_vect_double (m, "ss_vect_double", ss_vect_double_intern);
@@ -468,9 +468,11 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
             .def(py::self -= py::self)
             .def(py::self += ss_vect_dbl_py_t(0e0))
             .def(py::self -= ss_vect_dbl_py_t(0e0))
-            .def("__copy__",  &ss_vect_tpsa_py_t::clone)
-            .def("copy",      &ss_vect_tpsa_py_t::clone)
-            ;
+            .def(py::self +  ss_vect_dbl_py_t(0e0))
+            .def(py::self -  ss_vect_dbl_py_t(0e0))
+	    .def("__copy__",  &ss_vect_tpsa_py_t::clone)
+	    .def("copy",      &ss_vect_tpsa_py_t::clone)
+	    ;
 
         // add_methods_named_index<ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>, gtpsa::tpsa>(ss_vect_tpsa);
         // adding functions

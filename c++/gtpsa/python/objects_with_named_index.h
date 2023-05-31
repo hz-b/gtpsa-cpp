@@ -226,6 +226,11 @@ namespace gtpsa::python {
         inline StateSpaceWithNamedIndex& operator += (const StateSpaceWithNamedIndex& o) { base::operator += (o); return *this; }
         inline StateSpaceWithNamedIndex& operator -= (const StateSpaceWithNamedIndex& o) { base::operator -= (o); return *this; }
 
+        template<typename U>
+        inline StateSpaceWithNamedIndex<T>& operator += (const StateSpaceWithNamedIndex<U>& o) { base::operator += (o); return *this; }
+        template<typename U>
+        inline StateSpaceWithNamedIndex<T>& operator -= (const StateSpaceWithNamedIndex<U>& o) { base::operator -= (o); return *this; }
+
         inline StateSpaceWithNamedIndex& operator += (const double o) { base::operator +=(o); return *this; }
         inline StateSpaceWithNamedIndex& operator -= (const double o) { base::operator -=(o); return *this; }
 
@@ -239,8 +244,24 @@ namespace gtpsa::python {
         inline StateSpaceWithNamedIndex  operator - (const double o) const { return StateSpaceWithNamedIndex(base::operator- (o), this->getMapping()); }
     };
 
+    /*
+      still required ?
     inline StateSpaceWithNamedIndex<gtpsa::tpsa>& operator += (StateSpaceWithNamedIndex<gtpsa::tpsa>& a, const StateSpaceWithNamedIndex<double>& b) {(ss_vect<gtpsa::tpsa>&)(a) += (b);	return a;  }
     inline StateSpaceWithNamedIndex<gtpsa::tpsa>& operator -= (StateSpaceWithNamedIndex<gtpsa::tpsa>& a, const StateSpaceWithNamedIndex<double>& b) {(ss_vect<gtpsa::tpsa>&)(a) -= (b);	return a;  }
+    */
+    inline StateSpaceWithNamedIndex<gtpsa::tpsa> operator+(const StateSpaceWithNamedIndex<gtpsa::tpsa> &v1, const StateSpaceWithNamedIndex<double> &v2) {
+        auto r = v1.clone();
+        r += v2;
+        return r;
+    }
+
+    inline StateSpaceWithNamedIndex<gtpsa::tpsa> operator-(const StateSpaceWithNamedIndex<gtpsa::tpsa> &v1, const StateSpaceWithNamedIndex<double> &v2) {
+        auto r = v1.clone();
+        r -= v2;
+        return r;
+    }
+
+
 } // namespace gtpsa::python
 
 #endif /* _GTPSA_PYTHON_OBJECTS_WITH_NAMED_INDEX_H_ */
