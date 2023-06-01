@@ -199,5 +199,15 @@ def test_basis_operation():
     sample.get(py=1)
 
 
+def test_default_mapping():
+    index_map = gtpsa.default_mapping()
+    assert index_map.x == 0
+    assert index_map.px == 1
+    assert index_map.y == 2
+    assert index_map.py == 3
+    assert index_map.delta == 4
+    assert index_map.ct == 5
+
+
 if __name__ == "__main__":
     test_set_knob_as_var()

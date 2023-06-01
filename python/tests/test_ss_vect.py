@@ -427,6 +427,86 @@ def test101_named_access_dir():
     tmp = dir(ps)
     assert len(tmp) > 6
 
+def test110_named_access_add():
+    nv = 6
+    desc = gtpsa.desc(6, 2, 3, 1)
+
+    x = 3.0; y = 5; px=7; py=13; delta=11; ct=13
+
+
+    ps = gtpsa.ss_vect_tpsa(desc, 2, index_mapping=named_index)
+    ps.x = x
+    ps.px = px
+    ps.y= y
+    ps.py= py
+    ps.delta = delta
+    ps.ct = ct
+
+    ps_ref = ps.copy()
+
+    assert ps.x.get() == pytest.approx(x, 1e-12)
+    assert ps.px.get() == pytest.approx(px, 1e-12)
+    assert ps.y.get() == pytest.approx(y, 1e-12)
+    assert ps.py.get() == pytest.approx(py, 1e-12)
+    assert ps.delta.get() == pytest.approx(delta, 1e-12)
+    assert ps.ct.get() == pytest.approx(ct, 1e-12)
+
+    def test_ps_ref():
+        assert ps_ref.x.get() == pytest.approx(x, 1e-12)
+        assert ps_ref.px.get() == pytest.approx(px, 1e-12)
+        assert ps_ref.y.get() == pytest.approx(y, 1e-12)
+        assert ps_ref.py.get() == pytest.approx(py, 1e-12)
+        assert ps_ref.delta.get() == pytest.approx(delta, 1e-12)
+        assert ps_ref.ct.get() == pytest.approx(ct, 1e-12)
+
+    test_ps_ref()
+
+    delta2_ref=17
+    delta2 = gtpsa.tpsa(desc, 1)
+    delta2.set(0, delta2_ref)
+
+    ps.delta += delta2
+
+    test_ps_ref()
+
+    assert ps.delta.get() == pytest.approx(delta + delta2_ref, 1e-12)
+    assert ps.x.get() == pytest.approx(x, 1e-12)
+    assert ps.px.get() == pytest.approx(px, 1e-12)
+    assert ps.y.get() == pytest.approx(y, 1e-12)
+    assert ps.py.get() == pytest.approx(py, 1e-12)
+    assert ps.ct.get() == pytest.approx(ct, 1e-12)
+
+    ps = ps_ref.copy()
+    x2 = 23
+    ps.x -= x2
+
+    test_ps_ref()
+
+    assert ps.x.get() == pytest.approx(x - x2, 1e-12)
+    assert ps.px.get() == pytest.approx(px, 1e-12)
+    assert ps.y.get() == pytest.approx(y, 1e-12)
+    assert ps.py.get() == pytest.approx(py, 1e-12)
+    assert ps.ct.get() == pytest.approx(ct, 1e-12)
+
+    ps = ps_ref.copy()
+    px2 = 29
+    ps.px *= px2
+
+    assert ps.x.get() == pytest.approx(x, 1e-12)
+    assert ps.px.get() == pytest.approx(px * px2, 1e-12)
+    assert ps.y.get() == pytest.approx(y, 1e-12)
+    assert ps.py.get() == pytest.approx(py, 1e-12)
+    assert ps.ct.get() == pytest.approx(ct, 1e-12)
+
+    ps = ps_ref.copy()
+    ct2 = 31
+    ps.ct /= ct2
+
+    assert ps.x.get() == pytest.approx(x, 1e-12)
+    assert ps.px.get() == pytest.approx(px, 1e-12)
+    assert ps.y.get() == pytest.approx(y, 1e-12)
+    assert ps.py.get() == pytest.approx(py, 1e-12)
+    assert ps.ct.get() == pytest.approx(ct / ct2, 1e-12)
 
 ## if __name__ == "__main__":
 ##     test70_sst_hessian()

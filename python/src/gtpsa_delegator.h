@@ -1,15 +1,7 @@
-#ifndef _GTPSA_WRAPPER_H_
-#define _GTPSA_WRAPPER_H_ 1
+#ifndef _GTPSA_PYTHON_GTPSA_DELEGATOR_H_
+#define _GTPSA_PYTHON_GTPSA_DELEGATOR_H_ 1
 
 #include <gtpsa/python/objects_with_named_index.h>
-#include <cassert>
-
-namespace function_display{
-    template<class Ret, class... Args>
-    std::ostream& operator <<(std::ostream& os, Ret(*p)(Args...) ){ // star * is optional
-	return os << "funptr " << (void*)p;
-    }
-}
 
 namespace gtpsa::python {
     /**
@@ -26,12 +18,17 @@ namespace gtpsa::python {
         ss_vect_list_access(capsule_ptr p_inst)
 	    : p_ss_vect(p_inst)
 	    {}
+	inline void checkVectorPtr() const {
+	    if(!this->p_ss_vect){
+		throw std::runtime_error("No shared pointer to ss_vect!");
+	    }
+	}
         inline capsule_ptr getVectorPtr(void) {
-	    assert(p_ss_vect);
+	    this->checkVectorPtr();
 	    return p_ss_vect;
 	}
         inline const capsule_ptr getVectorPtr(void) const {
-	    assert(p_ss_vect);
+	    this->checkVectorPtr();
 	    return p_ss_vect;
 	}
     };
@@ -59,6 +56,7 @@ namespace gtpsa::python {
 	inline const tpsa_type& getTpsaObjectIntern(void) const {
 	    return this->getVectorPtr()->at(this->m_index);
 	}
+
 	/**
 	 * @brief convert to tpsa object that is expected to be returned to Python
 	 */
@@ -79,8 +77,12 @@ namespace gtpsa::python {
 	    , m_index(index)
 	    {
 		size_t n = this->getVectorPtr()->size();
-		assert(index >= 0);
-		assert(index < n);
+		if (index < 0){
+		    throw std::runtime_error("index < 0");
+		}
+		if (index >= n){
+		    throw std::runtime_error("index >= n");
+		}
 	    }
 
 	/**
@@ -111,12 +113,12 @@ namespace gtpsa::python {
 	auto getCoefficients ( void ) const   { return this->getTpsaObjectIntern().getCoefficients(); }
 
 
-	auto newFromThis     ( void ) const   { return this->getTpsaObject().newFromThis()    ; }
-	auto clone           ( void ) const   { return this->getTpsaObject().clone      ()    ; }
-	auto cst             ( void ) const   { return this->getTpsaObject().cst()            ; }
+	auto newFromThis     ( void ) const   { return this->getTpsaObject().newFromThis()          ; }
+	auto clone           ( void ) const   { return this->getTpsaObject().clone      ()          ; }
+	auto cst             ( void ) const   { return this->getTpsaObject().cst()                  ; }
 
-        auto get ( void )                        const { return this->getTpsaObjectIntern().get()  ;}
-	auto get ( const std::vector<ord_t>& m ) const { return this->getTpsaObjectIntern().get(m) ;}
+        auto get ( void )                        const { return this->getTpsaObjectIntern().get()   ; }
+	auto get ( const std::vector<ord_t>& m ) const { return this->getTpsaObjectIntern().get(m)  ; }
 
         void set ( const base_type a, const base_type b) {
 	    tpsa_type& tmp = this->getTpsaObjectIntern();
@@ -217,37 +219,16 @@ namespace gtpsa::python {
 	}
 
 	inline auto apply_with_int(const int iv, tpsa_type (f)(const tpsa_type& a, const int iv)) const {
-	    std::cerr << "evaluating apply with int: iv = " << iv;
-	    const auto& obj = this->getTpsaObjectIntern();
-	    std::cerr << " tpsa obj " << obj << "\n";
-	    {
-		using namespace function_display;
-		std::cerr << " f " << f << ", ";
-	    }
-	    std::cerr.flush();
-	    ///> todo: should be f
-	    tpsa_type tmp = f(obj, iv);
-	    auto r = TpsaWithNamedIndex(tmp, this->getMapping());
-	    std::cerr << " done" << std::endl;
-	    return r;
+	       return TpsaWithNamedIndex(this->getTpsaObjectIntern(), this->getMapping());
 	}
-
-
     };
 
     typedef ss_vect_element_access<gtpsa::TpsaTypeInfo> ss_vect_tpsa_elem_access_t;
 
     // overloading functions so that templated wrappers can be reused
     template<class C>
-    inline auto deriv(const gtpsa::python::ss_vect_element_access<C>&o, int iv){
-	std::cerr << "evaluating deriv with iv,  " << iv;
-	auto f = static_cast<typename C::tpsa_type(*)(const typename C::tpsa_type&, const int)>(gtpsa::deriv);
-	{
-	    using namespace function_display;
-	    std::cerr << " casted f " << f << ", ";
-	}
-	return o.apply_with_int(iv, gtpsa::deriv);
-    }
+    inline auto deriv(const gtpsa::python::ss_vect_element_access<C>&o, int iv){ return o.apply_with_int(iv, gtpsa::deriv); }
+
     // operators for right side
     template<class C>
     auto operator+  (const typename C::tpsa_type& a,  const gtpsa::python::ss_vect_element_access<C>& b)  { return b.radd(a); }
@@ -259,9 +240,21 @@ namespace gtpsa::python {
     auto operator/  (const typename C::tpsa_type& a,  const gtpsa::python::ss_vect_element_access<C>& b)  { return b.rdiv(a); }
 
 
+    template<class C>
+    auto operator+ (const typename C::base_type a, const ss_vect_element_access<C>& b) {return b.radd(a); }
+    template<class C>
+    auto operator- (const typename C::base_type a, const ss_vect_element_access<C>& b) {return b.rsub(a); }
+    template<class C>
+    auto operator* (const typename C::base_type a, const ss_vect_element_access<C>& b) {return b.rmul(a); }
+    template<class C>
+    auto operator/ (const typename C::base_type a, const ss_vect_element_access<C>& b) {return b.rdiv(a); }
+
+    template<class C>
+    typename C::tpsa_type pow(ss_vect_element_access<C> &inst, const int n) { return inst.pow(n); }
+
 
     // auto deriv =  gtpsa::deriv;
 } // namespace gtpsa::python
 
 
-#endif /* _GTPSA_WRAPPER_H_ */
+#endif /* _GTPSA_PYTHON_GTPSA_DELEGATOR_H_ */

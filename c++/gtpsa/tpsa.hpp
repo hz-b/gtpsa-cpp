@@ -16,8 +16,6 @@
 #include <cassert>
 #include <iomanip>
 #include <ostream>
-// todo: delete me
-#include <iostream>
 
 #include <gtpsa/mad/tpsa_wrapper.hpp>
 #include <gtpsa/intern/templated_funcs.hpp>
@@ -225,7 +223,6 @@ namespace gtpsa {
     }
 
     inline tpsa deriv (const tpsa& a,  const int v){
-	std::cerr << "deriv of a_"<< v <<": " ;
 	return tpsa( deriv(static_cast<const tpsa::base&>(a), v  ));
     }
 /*

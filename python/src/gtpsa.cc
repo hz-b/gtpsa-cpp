@@ -9,8 +9,8 @@
 #include <vector>
 
 #include <gtpsa/python/objects_with_named_index.h>
+#include "gtpsa_delegator.h"
 #include "gtpsa_module.h"
-#include "gtpsa_wrapper.h"
 
 namespace py = pybind11;
 namespace gpy = gtpsa::python;
@@ -22,18 +22,6 @@ static const char tpsa_init_desc_doc[] = "Create a new (c)tpsa object using the 
  will be used if none is speficied\n\
 Use clone to create a copy of the content too. \n";
 
-
-namespace gtpsa::python {
-
-    template<class T> auto operator+ (const typename T::base_type a, const ss_vect_element_access<T>& b) {return b.radd(a); }
-    template<class T> auto operator- (const typename T::base_type a, const ss_vect_element_access<T>& b) {return b.rsub(a); }
-    template<class T> auto operator* (const typename T::base_type a, const ss_vect_element_access<T>& b) {return b.rmul(a); }
-    template<class T> auto operator/ (const typename T::base_type a, const ss_vect_element_access<T>& b) {return b.rdiv(a); }
-
-    template<class T>
-    typename T::tpsa_type pow(ss_vect_element_access<T> &inst, const int n) { return inst.pow(n); }
-
-} // namespace gtpsa::python
 
 template<class Cls, typename T>
 static void set_variable(Cls& inst, const T& v, idx_t i, const T& s, const bool check_first)
@@ -232,13 +220,13 @@ struct AddMethods
 	    }, "get coefficient at given powers", py::arg("vector of orders"), py::arg("check_index")=true)
 	    .def("get_coefficients", &Cls::getCoefficients)
 	    .def("set",             [](Cls& inst,      const std::vector<ord_t>& m, const T& a, const T& b){
-	      const bool check_first = true;
-	         if(check_first) {
+		const bool check_first = true;
+		if(check_first) {
 		    check_index(inst, m);
 		}
 		inst.set(m, a, b);
 	    })
-	  /*
+	    /*
 	    .def("set",             [](Cls& inst,      const gpy::index_mapping& p, const T& a, const T& b, const bool check_first){
 		set(inst, p, a, b, gpy::DefaultIndexMapping, check_first);
 	    })
@@ -249,23 +237,23 @@ struct AddMethods
 	    .def("index",          [](const Cls& inst, const std::vector<ord_t>& m){ return inst.index(m);})
 	    // make it more pythonic!
 	    .def("getv",           [](const Cls& inst, idx_t i){
-				       std::vector<T> tmp(inst.length()); inst.getv(i, &tmp);
-				       return py::array(py::cast(tmp));
-				   })
+		std::vector<T> tmp(inst.length()); inst.getv(i, &tmp);
+		return py::array(py::cast(tmp));
+	    })
 	    .def("setv",           &Cls::setv)
 	    .def("getsm",          &Cls::getsm)
 	    //.def("get_coefficients", [](const Cls& inst) {})
 	    .def("set_variable",  [](Cls& inst, const T& v, idx_t i, const T& s, const bool check_first){
-		                      set_variable(inst, v, i, s, check_first);
-                                  },
-		                  "set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
-                                  py::arg("value"), py::arg("index_of_variable") = 0, py::arg("scale") = 0, py::arg("check_first") = true)
-
+		set_variable(inst, v, i, s, check_first);
+	    },
+		"set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
+		py::arg("value"), py::arg("index_of_variable") = 0, py::arg("scale") = 0, py::arg("check_first") = true
+		)
             .def("deriv",          [](const Cls& inst, int iv){
 		using namespace gtpsa::python;
 		using namespace gtpsa;
-		                       return deriv(inst, iv);
-                                   })
+		return deriv(inst, iv);
+	    })
              .def("print",         [](const Cls& inst, std::string name, double eps, bool nohdr){
                                       FILE* f = stdout;
                                       inst.print(name.c_str(), eps, nohdr, f);
@@ -516,6 +504,9 @@ void gpy::py_gtpsa_init_tpsa(py::module &m)
    m.def(#func  "_",  py::overload_cast<const gtpsa::ctpsa&, gtpsa::ctpsa*>(&gtpsa:: func ## _));
 #include <gtpsa/funcs.h>
 #undef GTPSA_FUNC_ARG1
+
+    // default maping
+    m.def("default_mapping", [](void){ return gpy::default_index_mapping_ptr;});
 
     py::class_<gpy::TpsaWithNamedIndex, std::shared_ptr<gpy::TpsaWithNamedIndex>>   tpsa (m, "tpsa",  tpsa_intern);
     AddMethods<gpy::TpsaWithNamedIndex> tpsa_methods;

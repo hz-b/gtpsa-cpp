@@ -3,8 +3,6 @@
 #define _GTPSA_TPSA_WITH_OPERATORS_FUNCS_H_ 1
 #include <algorithm>
 #include <vector>
-// delete me
-#include <iostream>
 
 namespace gtpsa {
     // ------------------------------------------------------------------------------
@@ -73,14 +71,7 @@ namespace gtpsa {
     inline TpsaWithOp<T> pow (const TpsaWithOp<T>& a, typename T::base_type v){ auto r = a.newFromThis(); pow(a, v, &r); return r; }
 
     template<class C>
-    inline TpsaWithOp<T> deriv(const TpsaWithOp<C>& o, const int iv) {
-	std::cerr << "deriv ...: allocating return ... ";
-	auto n = o.newFromThis();
-	std::cerr << " calling rderiv ... ";
-	n.rderiv(o, iv);
-	std::cerr << " done." << std::endl;
-	return n;
-    };
+    inline TpsaWithOp<T> deriv(const TpsaWithOp<C>& o, const int iv) {	auto n = o.newFromThis(); n.rderiv(o, iv); return n; };
 
 } // namespace gtpsa
 
