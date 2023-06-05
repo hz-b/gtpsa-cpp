@@ -139,41 +139,6 @@ namespace gtpsa::mad {
 
     };
 
-    inline void add (const CTpsaWrapper& a, const CTpsaWrapper& b,  CTpsaWrapper* r ){ add_(static_cast<const _CTpsaWrapper &>(a), static_cast<const _CTpsaWrapper &>(b), static_cast<_CTpsaWrapper*>(r)); }
-/**
- * @brief  (a_i-b_i)/max(|a_i|,1)
- */
-    inline void dif (const CTpsaWrapper& a, const CTpsaWrapper& b,  CTpsaWrapper* r ){ dif_(static_cast<const _CTpsaWrapper &>(a), static_cast<const _CTpsaWrapper &>(b), static_cast<_CTpsaWrapper*>(r)); }
-    inline void sub (const CTpsaWrapper& a, const CTpsaWrapper& b,  CTpsaWrapper* r ){ sub_(static_cast<const _CTpsaWrapper &>(a), static_cast<const _CTpsaWrapper &>(b), static_cast<_CTpsaWrapper*>(r)); }
-    inline void mul (const CTpsaWrapper& a, const CTpsaWrapper& b,  CTpsaWrapper* r ){ mul_(static_cast<const _CTpsaWrapper &>(a), static_cast<const _CTpsaWrapper &>(b), static_cast<_CTpsaWrapper*>(r)); }
-    inline void div (const CTpsaWrapper& a, const CTpsaWrapper& b,  CTpsaWrapper* r ){ div_(static_cast<const _CTpsaWrapper &>(a), static_cast<const _CTpsaWrapper &>(b), static_cast<_CTpsaWrapper*>(r)); }
-
-    inline void acc  (const CTpsaWrapper& a, const cpx_t & b,  CTpsaWrapper* r ){
-	acc_(static_cast<const _CTpsaWrapper &>(a), b, static_cast<_CTpsaWrapper*>(r) );
-    }
-    inline void scl  (const CTpsaWrapper& a, const cpx_t & b,  CTpsaWrapper* r ){
-	scl_(static_cast<const _CTpsaWrapper &>(a), b, static_cast<_CTpsaWrapper*>(r) );
-    }
-    inline void inv  (const CTpsaWrapper& a, const cpx_t & b,  CTpsaWrapper* r ){
-	inv_(static_cast<const _CTpsaWrapper &>(a), b, static_cast<_CTpsaWrapper*>(r) );
-    }
-    inline void invsqrt (const CTpsaWrapper& a, const cpx_t & b,  CTpsaWrapper* r ){
-	invsqrt_(static_cast<const _CTpsaWrapper &>(a), b, static_cast<_CTpsaWrapper*>(r) );
-    }
-
-    inline void pow   (const CTpsaWrapper& a, const CTpsaWrapper& b,  CTpsaWrapper* r ){
-	pow_(
-	    static_cast<const _CTpsaWrapper &>(a),
-	    static_cast<const _CTpsaWrapper &>(b),
-	    static_cast<_CTpsaWrapper*>(r)
-	    );
-    }
-    inline void pow   (const CTpsaWrapper& a, const cpx_t & b,  CTpsaWrapper* r ){
-	pow_(static_cast<const _CTpsaWrapper &>(a), b, static_cast<_CTpsaWrapper*>(r) );
-    }
-    inline void pow   (const CTpsaWrapper& a, const  int  & i,  CTpsaWrapper* r ){
-	pow_(static_cast<const _CTpsaWrapper &>(a), i, static_cast<_CTpsaWrapper*>(r) );
-    }
 
 #ifdef GTPSA_FUNC_ARG1
 #undef GTPSA_FUNC_ARG1

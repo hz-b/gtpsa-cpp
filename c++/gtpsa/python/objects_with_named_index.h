@@ -9,22 +9,12 @@
 
 
 namespace gtpsa::python {
-    class TpsaWithNamedIndex : public gtpsa::tpsa {
+    class ObjectWithNamedIndex {
 	std::shared_ptr<gtpsa::python::IndexMapping> m_mapping;
 
-
     public:
-	using base = gtpsa::tpsa;
-
-	inline TpsaWithNamedIndex(std::shared_ptr<mad::desc> desc, const ord_t mo,
-				  std::shared_ptr<gtpsa::python::IndexMapping> mapping = gtpsa::python::default_index_mapping_ptr)
-	    : base(desc, mo)
-	    , m_mapping(mapping)
-	    {}
-
-	inline TpsaWithNamedIndex(const base& t,  std::shared_ptr<gtpsa::python::IndexMapping> mapping = gtpsa::python::default_index_mapping_ptr)
-	    : base(t)
-	    , m_mapping(mapping)
+	inline ObjectWithNamedIndex(std::shared_ptr<gtpsa::python::IndexMapping> mapping)
+	    : m_mapping(mapping)
 	    {}
 
 	inline auto getMapping(void) const {
@@ -33,12 +23,31 @@ namespace gtpsa::python {
 	inline void setMapping(std::shared_ptr<gtpsa::python::IndexMapping> mapping) {
 	    this->m_mapping = mapping;
 	}
+    };
+
+    class TpsaWithNamedIndex : public gtpsa::tpsa, public ObjectWithNamedIndex {
+
+
+    public:
+	using base = gtpsa::tpsa;
+
+	inline TpsaWithNamedIndex(std::shared_ptr<mad::desc> desc, const ord_t mo,
+				  std::shared_ptr<gtpsa::python::IndexMapping> mapping = gtpsa::python::default_index_mapping_ptr)
+	    : base(desc, mo)
+	    , ObjectWithNamedIndex(mapping)
+	    {}
+
+	inline TpsaWithNamedIndex(const base& t,  std::shared_ptr<gtpsa::python::IndexMapping> mapping = gtpsa::python::default_index_mapping_ptr)
+	    : base(t)
+	    , ObjectWithNamedIndex(mapping)
+	    {}
+
 
 	/* not accepting solely base object ... if mapping is lost, it is lost ...*/
 
 	inline TpsaWithNamedIndex  clone(void) const { return TpsaWithNamedIndex( base::clone() ); }
 
-	inline TpsaWithNamedIndex  operator  - ( void         ) const { return TpsaWithNamedIndex( base::operator-(*this), this->getMapping() ); }
+	inline TpsaWithNamedIndex  operator  - ( void         ) const { return TpsaWithNamedIndex( base::operator-(), this->getMapping() ); }
 
 	inline TpsaWithNamedIndex& operator += (const TpsaWithNamedIndex& o ) { base::operator += (o) ; return *this; }
 	inline TpsaWithNamedIndex& operator -= (const TpsaWithNamedIndex& o ) { base::operator -= (o) ; return *this; }
@@ -51,17 +60,22 @@ namespace gtpsa::python {
 	inline TpsaWithNamedIndex& operator /= (const double o ) { base::operator /= (o) ; return *this; }
 
 
-	inline TpsaWithNamedIndex  operator +  ( const TpsaWithNamedIndex&  o ) const { return TpsaWithNamedIndex( base::operator+ (o), this->getMapping()  ) ; }
-	inline TpsaWithNamedIndex  operator -  ( const TpsaWithNamedIndex&  o ) const { return TpsaWithNamedIndex( base::operator- (o), this->getMapping()  ) ; }
-	inline TpsaWithNamedIndex  operator *  ( const TpsaWithNamedIndex&  o ) const { return TpsaWithNamedIndex( base::operator* (o), this->getMapping()  ) ; }
-	inline TpsaWithNamedIndex  operator /  ( const TpsaWithNamedIndex&  o ) const { return TpsaWithNamedIndex( base::operator/ (o), this->getMapping()  ) ; }
-
 	inline TpsaWithNamedIndex  operator +  ( const double o ) const { return TpsaWithNamedIndex( base::operator+ (o), this->getMapping()  ) ; }
 	inline TpsaWithNamedIndex  operator -  ( const double o ) const { return TpsaWithNamedIndex( base::operator- (o), this->getMapping()  ) ; }
 	inline TpsaWithNamedIndex  operator *  ( const double o ) const { return TpsaWithNamedIndex( base::operator* (o), this->getMapping()  ) ; }
 	inline TpsaWithNamedIndex  operator /  ( const double o ) const { return TpsaWithNamedIndex( base::operator/ (o), this->getMapping()  ) ; }
 
+	inline TpsaWithNamedIndex  operator+ ( const TpsaWithNamedIndex& o ) const { return TpsaWithNamedIndex( static_cast<const gtpsa::tpsa&>(*this) + static_cast<const gtpsa::tpsa&>(o), this->getMapping()  ) ; }
+	inline TpsaWithNamedIndex  operator- ( const TpsaWithNamedIndex& o ) const { return TpsaWithNamedIndex( static_cast<const gtpsa::tpsa&>(*this) - static_cast<const gtpsa::tpsa&>(o), this->getMapping()  ) ; }
+	inline TpsaWithNamedIndex  operator* ( const TpsaWithNamedIndex& o ) const { return TpsaWithNamedIndex( static_cast<const gtpsa::tpsa&>(*this) * static_cast<const gtpsa::tpsa&>(o), this->getMapping()  ) ; }
+	inline TpsaWithNamedIndex  operator/ ( const TpsaWithNamedIndex& o ) const { return TpsaWithNamedIndex( static_cast<const gtpsa::tpsa&>(*this) / static_cast<const gtpsa::tpsa&>(o), this->getMapping()  ) ; }
 
+#if 0
+	friend inline TpsaWithNamedIndex  operator +  ( const TpsaWithNamedIndex&  a,  const TpsaWithNamedIndex&  b );
+	friend inline TpsaWithNamedIndex  operator -  ( const TpsaWithNamedIndex&  a,  const TpsaWithNamedIndex&  b );
+	friend inline TpsaWithNamedIndex  operator *  ( const TpsaWithNamedIndex&  a,  const TpsaWithNamedIndex&  b );
+	friend inline TpsaWithNamedIndex  operator /  ( const TpsaWithNamedIndex&  a,  const TpsaWithNamedIndex&  b );
+#endif
     };
 
     inline TpsaWithNamedIndex  operator + ( const double a,  const TpsaWithNamedIndex&  b)  { return TpsaWithNamedIndex( a + gtpsa::tpsa(b), b.getMapping()  ) ; }
@@ -121,7 +135,7 @@ namespace gtpsa::python {
 	inline CTpsaWithNamedIndex  clone(void) const { return CTpsaWithNamedIndex( base::clone(), this->getMapping()  ); }
 	inline CTpsaWithNamedIndex  newFromThis(void) const { return CTpsaWithNamedIndex( base::newFromThis(), this->getMapping()  ); }
 
-	inline CTpsaWithNamedIndex  operator  - ( void         ) const { return CTpsaWithNamedIndex( base::operator-(*this) ); }
+	inline CTpsaWithNamedIndex  operator  - ( void         ) const { return CTpsaWithNamedIndex( base::operator-() ); }
 
 	inline CTpsaWithNamedIndex& operator += (const CTpsaWithNamedIndex& o ) { base::operator += (o) ; return *this; }
 	inline CTpsaWithNamedIndex& operator -= (const CTpsaWithNamedIndex& o ) { base::operator -= (o) ; return *this; }
@@ -134,11 +148,6 @@ namespace gtpsa::python {
 	inline CTpsaWithNamedIndex& operator /= (const std::complex<double> o ) { base::operator /= (o) ; return *this; }
 
 
-	inline CTpsaWithNamedIndex  operator +  ( const CTpsaWithNamedIndex& o ) const { return CTpsaWithNamedIndex( base::operator+ (o), this->getMapping()  ) ; }
-	inline CTpsaWithNamedIndex  operator -  ( const CTpsaWithNamedIndex& o ) const { return CTpsaWithNamedIndex( base::operator- (o), this->getMapping()  ) ; }
-	inline CTpsaWithNamedIndex  operator *  ( const CTpsaWithNamedIndex& o ) const { return CTpsaWithNamedIndex( base::operator* (o), this->getMapping()  ) ; }
-	inline CTpsaWithNamedIndex  operator /  ( const CTpsaWithNamedIndex& o ) const { return CTpsaWithNamedIndex( base::operator/ (o), this->getMapping()  ) ; }
-
 	inline CTpsaWithNamedIndex  operator +  ( const std::complex<double> o ) const { return CTpsaWithNamedIndex( base::operator+ (o), this->getMapping()  ) ; }
 	inline CTpsaWithNamedIndex  operator -  ( const std::complex<double> o ) const { return CTpsaWithNamedIndex( base::operator- (o), this->getMapping()  ) ; }
 	inline CTpsaWithNamedIndex  operator *  ( const std::complex<double> o ) const { return CTpsaWithNamedIndex( base::operator* (o), this->getMapping()  ) ; }
@@ -146,6 +155,10 @@ namespace gtpsa::python {
 
     };
 
+    inline CTpsaWithNamedIndex  operator+ ( const CTpsaWithNamedIndex& a, const CTpsaWithNamedIndex& b ) { return CTpsaWithNamedIndex( static_cast<const gtpsa::ctpsa&>(a) + static_cast<const gtpsa::ctpsa&>(b), a.getMapping()  ) ; }
+    inline CTpsaWithNamedIndex  operator- ( const CTpsaWithNamedIndex& a, const CTpsaWithNamedIndex& b ) { return CTpsaWithNamedIndex( static_cast<const gtpsa::ctpsa&>(a) - static_cast<const gtpsa::ctpsa&>(b), a.getMapping()  ) ; }
+    inline CTpsaWithNamedIndex  operator* ( const CTpsaWithNamedIndex& a, const CTpsaWithNamedIndex& b ) { return CTpsaWithNamedIndex( static_cast<const gtpsa::ctpsa&>(a) * static_cast<const gtpsa::ctpsa&>(b), a.getMapping()  ) ; }
+    inline CTpsaWithNamedIndex  operator/ ( const CTpsaWithNamedIndex& a, const CTpsaWithNamedIndex& b ) { return CTpsaWithNamedIndex( static_cast<const gtpsa::ctpsa&>(a) / static_cast<const gtpsa::ctpsa&>(b), a.getMapping()  ) ; }
 
     inline CTpsaWithNamedIndex pow (const CTpsaWithNamedIndex& a,  const CTpsaWithNamedIndex& b){ return CTpsaWithNamedIndex( gtpsa::pow(static_cast<const CTpsaWithNamedIndex::base&>(a), static_cast<const CTpsaWithNamedIndex::base&>(b) ) ); }
     inline CTpsaWithNamedIndex pow (const CTpsaWithNamedIndex& a,  const int   i){ return CTpsaWithNamedIndex( gtpsa::pow(static_cast<const CTpsaWithNamedIndex::base&>(a), i) ); }

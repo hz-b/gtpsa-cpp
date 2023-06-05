@@ -141,3 +141,19 @@ BOOST_AUTO_TEST_CASE(test11_double_radd)
     BOOST_CHECK_CLOSE(r, a + b, 1e-12);
 
 }
+
+
+
+/* required e.g. for transform ... TPSA object bud double used for ss_vect */
+BOOST_AUTO_TEST_CASE(test50_double_atan2)
+{
+    const double x = -1, y =-1;
+    const auto tx = gtpsa::TpsaOrDouble(x);
+    const auto ty = gtpsa::TpsaOrDouble(y);
+
+
+    double ref = std::atan2(y, x);
+    const auto r = gtpsa::atan2(y, x);
+    BOOST_CHECK_CLOSE(gtpsa::cst(r), gtpsa::cst(ref), 1e-12);
+
+}

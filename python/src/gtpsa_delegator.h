@@ -57,6 +57,8 @@ namespace gtpsa::python {
 	    return this->getVectorPtr()->at(this->m_index);
 	}
 
+    public:
+
 	/**
 	 * @brief convert to tpsa object that is expected to be returned to Python
 	 */
@@ -71,7 +73,6 @@ namespace gtpsa::python {
 	    return TpsaWithNamedIndex(this->getTpsaObjectIntern(), this->getVectorPtr()->getMapping());
 	}
 
-    public:
 	ss_vect_element_access(capsule_ptr p_inst, size_t index)
 	    : ss_vect_list_access<tpsa_type>(p_inst)
 	    , m_index(index)
@@ -169,21 +170,15 @@ namespace gtpsa::python {
         auto& operator *= (const ss_vect_element_access& o ) { this->getTpsaObjectIntern() *= o.getTpsaObjectIntern(); return *this; }
         auto& operator /= (const ss_vect_element_access& o ) { this->getTpsaObjectIntern() /= o.getTpsaObjectIntern(); return *this; }
 
-
-	auto  operator +  (const base_type  o ) const { return this->getTpsaObject() +  o; }
+	auto  operator +  (const base_type  o ) const { return this->getTpsaObject() + (o); }
         auto  operator -  (const base_type  o ) const { return this->getTpsaObject() -  o; }
         auto  operator *  (const base_type  o ) const { return this->getTpsaObject() *  o; }
         auto  operator /  (const base_type  o ) const { return this->getTpsaObject() /  o; }
 
-        auto  operator +  (const tpsa_type& o ) const { return this->getTpsaObject() +  o; }
-        auto  operator -  (const tpsa_type& o ) const { return this->getTpsaObject() -  o; }
-        auto  operator *  (const tpsa_type& o ) const { return this->getTpsaObject() *  o; }
-        auto  operator /  (const tpsa_type& o ) const { return this->getTpsaObject() /  o; }
-
-        auto  operator +  (const ss_vect_element_access& o ) const { return this->getTpsaObject() + o.getTpsaObject(); }
-        auto  operator -  (const ss_vect_element_access& o ) const { return this->getTpsaObject() - o.getTpsaObject(); }
-        auto  operator *  (const ss_vect_element_access& o ) const { return this->getTpsaObject() * o.getTpsaObject(); }
-        auto  operator /  (const ss_vect_element_access& o ) const { return this->getTpsaObject() / o.getTpsaObject(); }
+	auto  operator +  (const tpsa_type  o ) const { return this->getTpsaObject().operator+(o); }
+        auto  operator -  (const tpsa_type  o ) const { return this->getTpsaObject().operator-(o); }
+        auto  operator *  (const tpsa_type  o ) const { return this->getTpsaObject().operator*(o); }
+        auto  operator /  (const tpsa_type  o ) const { return this->getTpsaObject().operator/(o); }
 
 	auto  radd  (const base_type o ) const { return  o  + this->getTpsaObject(); }
         auto  rsub  (const base_type o ) const { return  o  - this->getTpsaObject(); }
@@ -238,6 +233,26 @@ namespace gtpsa::python {
     auto operator*  (const typename C::tpsa_type& a,  const gtpsa::python::ss_vect_element_access<C>& b)  { return b.rmul(a); }
     template<class C>
     auto operator/  (const typename C::tpsa_type& a,  const gtpsa::python::ss_vect_element_access<C>& b)  { return b.rdiv(a); }
+
+    #if 0
+    template<class C>
+    auto  operator +  (const ss_vect_element_access<C>& a, const gtpsa::tpsa& b ) { return a.getTpsaObject() +  b; }
+    template<class C>
+    auto  operator -  (const ss_vect_element_access<C>& a, const gtpsa::tpsa& b ) { return a.getTpsaObject() -  b; }
+    template<class C>
+    auto  operator *  (const ss_vect_element_access<C>& a, const gtpsa::tpsa& b ) { return a.getTpsaObject() *  b; }
+    template<class C>
+    auto  operator /  (const ss_vect_element_access<C>& a, const gtpsa::tpsa& b ) { return a.getTpsaObject() /  b; }
+    #endif
+
+    template<class C>
+    auto  operator +  (const ss_vect_element_access<C>& a, const ss_vect_element_access<C>& b ) { return a.getTpsaObject() + b.getTpsaObject(); }
+    template<class C>
+    auto  operator -  (const ss_vect_element_access<C>& a, const ss_vect_element_access<C>& b ) { return a.getTpsaObject() - b.getTpsaObject(); }
+    template<class C>
+    auto  operator *  (const ss_vect_element_access<C>& a, const ss_vect_element_access<C>& b ) { return a.getTpsaObject() * b.getTpsaObject(); }
+    template<class C>
+    auto  operator /  (const ss_vect_element_access<C>& a, const ss_vect_element_access<C>& b ) { return a.getTpsaObject() / b.getTpsaObject(); }
 
 
     template<class C>
