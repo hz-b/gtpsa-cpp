@@ -1,5 +1,8 @@
 
 add_compile_definitions(GTPSA_AS_LIB)
+include(CMakePackageConfigHelpers)
+
+set(mad_ng_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../mad-ng/src/)
 
 set(gtpsa_HEADERS
   ${mad_ng_SRC_DIR}/mad_bit.h
@@ -62,9 +65,24 @@ add_library(gtpsa SHARED
 )
 target_link_libraries(gtpsa lapack blas ${OpenMP_C_LIBRARIES})
 
+
+#-- .cmake ? --
+# should that not be in the .cmake file?
+set(mad_ng_build_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../mad-ng/src/)
+
+# need to check if required ...
+# mad include dirs installed in include/
+set(mad_ng_install_SRC_DIR ${CMAKE_INSTALL_INCLUDEDIR}../mad-ng/src/)
+#-- .cmake ? --
+
+message(STATUS "mad_ng_build_SRC_DIR ${mad_ng_build_SRC_DIR}")
+
+
 target_include_directories(gtpsa
                            PUBLIC
                            "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+                           "$<BUILD_INTERFACE:${mad_ng_build_SRC_DIR}>"
+                           "$<BUILD_INTERFACE:${mad_ng_build_SRC_DIR/gtpsa}>"
                            "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
 message(STATUS "Building gtpsa.cmake")
