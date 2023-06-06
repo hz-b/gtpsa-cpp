@@ -23,6 +23,12 @@ if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "Default to Release build")
 endif()
 
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+  set(gtpsa_DEBUG_BUILD ON)
+else()
+  set(gtpsa_DEBUG_BUILD OFF)
+endif()
+
 
 IF(USE_OpenMP)
     FIND_PACKAGE(OpenMP)
@@ -65,11 +71,6 @@ add_subdirectory(c++)
 IF(USE_pybind11)
   # used when building the pybind11 module
   # in the tree
-  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    set(gtpsa_DEBUG_BUILD ON)
-  else()
-    set(gtpsa_DEBUG_BUILD OFF)
-  endif()
   add_subdirectory(python)
 endif()
 add_subdirectory(examples)

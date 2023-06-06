@@ -10,8 +10,9 @@ extern "C" {
 #include <ostream>
 #include <sstream>
 #include <string>
+#ifdef gtpsa_DEBUG
 #include <iostream>
-
+#endif
 /**
  * gtpsa description object handling
  *
@@ -46,10 +47,14 @@ namespace gtpsa::mad {
 	inline desc_mgr(const desc_t *p) : ptr(p) { if (!p) { throw std::runtime_error("out of memory"); } }
 	inline ~desc_mgr(void)                    {
             if(!this->ptr){
+#ifdef gtpsa_DEBUG
                 std::cerr << "gtpsa::desc: would delete underlaying desc_t pointer a second time" << std::endl;
+#endif
                 return;
             }
+#ifdef gtpsa_DEBUG
 #warning "gtpsa::desc: not deleting underlying gtpsa desc_t object. see comment in <gtpsa/desc.hpp>"
+#endif
         //mad_desc_del(this->ptr);
         this->ptr=nullptr;
     }
