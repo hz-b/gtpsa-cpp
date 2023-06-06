@@ -25,7 +25,6 @@ def test_set_var():
     assert np.sum(np.absolute(derivs)) == pytest.approx(0, abs=1e-12)
 
 
-@pytest.mark.skip
 def test_set_knob_as_var():
     """Test setting a knob using variable interface
 
@@ -35,14 +34,8 @@ def test_set_knob_as_var():
     var_index = nv + 2
     t = gtpsa.tpsa(desc, 1)
     # check first will
-    t.set_variable(val, var_index, check_first=True)
-    print("t\n", t)
-    assert t.get() == pytest.approx(val, 1e-12)
-    derivs = t.getv(1)
-    print("1. derivatives", derivs)
-    assert derivs[var_index - 1] == pytest.approx(1, 1e-12)
-    derivs[var_index - 1] = 0
-    assert np.sum(np.absolute(derivs)) == pytest.approx(0, abs=1e-12)
+    with pytest.raises(RuntimeError) as exc_info:
+        t.set_variable(val, var_index, check_first=True)
 
 
 def test_knob():
