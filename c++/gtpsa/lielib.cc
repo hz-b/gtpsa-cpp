@@ -116,13 +116,11 @@ gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
    for (size_t k = 0; k < n_dim; ++k) {
     // Integrate monomials.
       f.clear();
-      // f.rinteg(t_map[2*k + 1], 2 *k) ;
-      f.rinteg(t_map[2*k + 1], 2 *k + 1) ;
+      f.rinteg(t_map[2*k + 1], 2 *k) ;
       // just increase the coefficient order for all
 
       f_p.clear();
-      // f_p.rinteg(t_map[2*k   ], 2 * k+1) ;
-      f_p.rinteg(t_map[2*k   ], 2 * k+1 + 1) ;
+      f_p.rinteg(t_map[2*k   ], 2 * k+1) ;
       h += f - f_p;
   }
   return h;
