@@ -5,7 +5,6 @@
 #include <gtpsa/tpsa.hpp>
 #include <array>
 #include <cmath>
-#include <iostream>
 
 BOOST_AUTO_TEST_CASE(test00_set)
 {

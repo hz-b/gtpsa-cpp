@@ -133,7 +133,7 @@ namespace gtpsa {
 	    int i = -1;
 	    while(true){
 		std::vector<ord_t> t_orders(n_max);
-		const auto r = this->cycle(i, &t_orders);
+		const auto r = this->cycle(&t_orders, i);
 		i = r.first;
 		if(i == -1){
 		    break;
