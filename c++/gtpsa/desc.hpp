@@ -10,8 +10,29 @@ extern "C" {
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <iostream>
 
-
+/**
+ * gtpsa description object handling
+ *
+ * Description object contains precomputed coefficients. gtpsa will only
+ * allocate a new object if its signature is different to the already known
+ * ones.
+ *
+ * Furthermore generating (and thus also deleteing) description objects is not
+ * thread safe. It is the user's responsibility that desc objects are created
+ * (and deleted) in a thread safe manner.
+ *
+ * Currently the desc objects will not be deleted. Roughly a hundred objects
+ * can be created.
+ *
+ *
+ * A good overview of gtpsa is given by the original authors at
+ * L. Deniau, C. I. Tomoiagă, "Generalised Truncated Power series algebra
+ * for fast particle accelerator transport maps", MOPJE039
+ * 6th International Particle Accelerator Conference IPAC2015,
+ * Richmond, VA, USA
+ */
 namespace gtpsa::mad {
 
 
@@ -23,7 +44,15 @@ namespace gtpsa::mad {
 	inline const desc_t *  getPtr(void) const { return this->ptr; }
 	friend class desc;
 	inline desc_mgr(const desc_t *p) : ptr(p) { if (!p) { throw std::runtime_error("out of memory"); } }
-	inline ~desc_mgr(void)                    { mad_desc_del(this->ptr); this->ptr=nullptr; }
+	inline ~desc_mgr(void)                    {
+            if(!this->ptr){
+                std::cerr << "gtpsa::desc: would delete underlaying desc_t pointer a second time" << std::endl;
+                return;
+            }
+#warning "gtpsa::desc: not deleting underlying gtpsa desc_t object. see comment in <gtpsa/desc.hpp>"
+        //mad_desc_del(this->ptr);
+        this->ptr=nullptr;
+    }
 
     private:
 	// inline desc_mgr(const desc& o)           = delete;
@@ -76,13 +105,13 @@ namespace gtpsa::mad {
 	inline desc(int nv,         ord_t mo                                  )
 	    : dm( std::make_unique<desc_mgr>( mad_desc_newv  (nv,     mo    ) ) )
 	    {}
-	inline desc(int nv, int np, ord_t mo,                    ord_t po = 0 )
-	    : dm( std::make_unique<desc_mgr>( mad_desc_newvp (nv, np, mo, po) ) )
+	inline desc(int nv, ord_t mo, int np, ord_t po = 0 )
+	    : dm( std::make_unique<desc_mgr>( mad_desc_newvp (nv, mo, np, po) ) )
 	    {}
-	inline desc(int nv, int np, const ord_t no[/*nv+np?*/],  ord_t po = 0 )
-	    : dm( std::make_unique<desc_mgr>( mad_desc_newvpo(nv, np, no, po) ) )
+	inline desc(int nv, ord_t mo, int np, ord_t po, const ord_t no[/*nv+np?*/] )
+	    : dm( std::make_unique<desc_mgr>( mad_desc_newvpo(nv, mo, np, po, no) ) )
 	    {}
-	inline desc(int nv, int np, const std::vector<ord_t> no, ord_t po = 0 )
+	inline desc(int nv, ord_t mo, int np, ord_t po, const std::vector<ord_t> no)
 	    : dm( nullptr )
 	    {
 		auto req_elem = nv+np;
@@ -91,7 +120,7 @@ namespace gtpsa::mad {
 		    strm << "nv= "<<nv<<"+ np="<<np <<"="<<req_elem<<"req. elem, got only "<<no.size()<<"elem";
 		    std::runtime_error(strm.str());
 		}
-		this->dm = std::make_unique<desc_mgr> (mad_desc_newvpo(nv, np, no.data(), po));
+		this->dm = std::make_unique<desc_mgr> (mad_desc_newvpo(nv, mo, np, po, no.data()));
 	    }
 	// inline desc(const desc_t* a_desc)                             { this->t_desc = a_desc;                            }
 	// inline desc(const desc&& o) : dm(std::move(o.dm))     {}
@@ -106,9 +135,9 @@ namespace gtpsa::mad {
     public:
 
 	inline int   getNv(ord_t *mo_=0, int *np_=0, ord_t *po_=0) const { return mad_desc_getnv (this->getPtr(), mo_, np_, po_); }
-	inline ord_t getNo(int nn, ord_t *no_)                     const { return mad_desc_getno (this->getPtr(), nn, no_);       }
-	inline ord_t maxOrd(void)                                  const { return mad_desc_maxord(this->getPtr());                }
-	inline ssz_t maxLen(void)                                  const { return mad_desc_maxlen(this->getPtr());                }
+	// inline ord_t getNo(int nn, ord_t *no_)                     const { return mad_desc_getno (this->getPtr(), nn, no_);       }
+	inline ord_t maxOrd(int nn=0, ord_t *no=nullptr)           const { return mad_desc_maxord(this->getPtr(), nn, nullptr);                }
+	inline ssz_t maxLen(ord_t mo)                              const { return mad_desc_maxlen(this->getPtr(), mo);                }
 	inline ssz_t ordLen(const ord_t mo)                        const { return mad_desc_ordlen(this->getPtr(), mo);            }
 	inline ssz_t trunc(const ord_t to)                         const { return mad_desc_gtrunc(this->getPtr(), to);            }
 
@@ -165,7 +194,7 @@ namespace gtpsa::mad {
 	inline idx_t nxtbyord  (std::vector<ord_t> m )          const { return mad_desc_nxtbyord  (this->getPtr(), m.size(), m.data() );  }
 	// inline idx_t nxtbyord  (ssz_t n,       ord_t *m )    const { return mad_desc_nxtbyord  (this->getPtr(), n, m );  }
 
-	inline ord_t mono      (std::vector<ord_t>* m, idx_t i) const { return mad_desc_mono      (this->getPtr(), m->size(), m->data(), i); }
+	inline ord_t mono      (const idx_t i, std::vector<ord_t>* m) const { return mad_desc_mono      (this->getPtr(), i, m->size(), m->data()); }
 
 
 	inline std::string repr(void)                           const { return this->info_s();	}

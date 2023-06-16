@@ -3,6 +3,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <gtpsa/desc.hpp>
+#include <iostream>
 
 // Simple check for some methods
 
@@ -138,14 +139,14 @@ BOOST_AUTO_TEST_CASE(test31_desc_info)
 BOOST_AUTO_TEST_CASE(test33_desc_info)
 {
     // currently fails for 144 on my machine
-    const int nv = 3, no =7, np=62, po=1;
-    auto a_desc = gtpsa::desc(nv, np, no, po);
+    const int nv = 3, mo =7, np=62, po=1;
+    auto a_desc = gtpsa::desc(nv, mo, np, po);
     a_desc.info();
     auto info = a_desc.getInfo();
     std::cout << " info: " << info << std::endl;
 
     BOOST_CHECK_EQUAL(nv, info.getNumberOfVariables());
-    BOOST_CHECK_EQUAL(no, info.getVariablesMaximumOrder());
+    BOOST_CHECK_EQUAL(mo, info.getVariablesMaximumOrder());
     BOOST_CHECK_EQUAL(np, info.getNumberOfParameters());
     BOOST_CHECK_EQUAL(po, info.getParametersMaximumOrder());
 }

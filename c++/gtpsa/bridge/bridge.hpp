@@ -89,9 +89,9 @@ namespace gtpsa {
 	inline auto name()                   const { return this->m_impl.nam();     }
 	inline auto setName(std::string s)         {        this->m_impl.setnam(s); }
 
-	inline std::pair<idx_t,base_type> cycle(std::vector<ord_t>* m, const idx_t i) const {
+	inline std::pair<idx_t,base_type> cycle(const idx_t i, std::vector<ord_t>* m) const {
 	    base_type v = NAN;
-	    idx_t r = this->m_impl.cycle(m, i, &v);
+	    idx_t r = this->m_impl.cycle(i, m, &v);
 	    return std::pair<idx_t, base_type>(r, v);
 	}
 	inline void clear()  { this->m_impl.clear(); }
