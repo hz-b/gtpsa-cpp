@@ -645,17 +645,26 @@ BOOST_AUTO_TEST_CASE(test60_deriv)
 BOOST_AUTO_TEST_CASE(test70_integ)
 {
     auto d = std::make_shared<gtpsa::desc>(6, 3);
-    auto t1 = gtpsa::tpsa(d, 2);
-    auto t2 = t1.newFromThis();
-
+    auto t1 = gtpsa::tpsa(d, 3);
+    auto t2 = gtpsa::tpsa(d, 3);
+ 
     t1.set(0, 20);
     t1.setv(0, {-1, 1, 2, 3, 4, 5, 6});
     t1.setv(1 + 6, {7, 11, 13, 17, 19, 23, 29, 31, 37, 41});
-    // t1.print("start");
+    t1.print("start");
 
     t1.rinteg(t1, 3);
-    // t1.print("integrated");
+    t1.print("integrated");
 
+    t2.setv(0, {0, 0, 0, -1, 0, 0, 0});
+    t2.setv
+      (1 + 6,
+       {0, 0, 0, 1, 2, 3.0/2.0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 0, 6, 0, 0, 0,
+	0, 0, 0, 0, 7, 11, 13, 17.0/2.0, 19.0/2.0, 23.0/3.0, 0, 0, 0, 29, 31,
+	37.0/2.0, 0, 0, 41});
+    t2.print("result");
+
+    BOOST_CHECK(t1 == t2);
 }
 
 BOOST_AUTO_TEST_CASE(test60_compare){
