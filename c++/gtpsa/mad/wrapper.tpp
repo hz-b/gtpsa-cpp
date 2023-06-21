@@ -157,15 +157,6 @@ namespace gtpsa::mad {
         void rderiv    (const GTPSA_CLASS(Wrapper)& src, const int iv   )  { return GTPSA_METH(deriv)(src.getPtr(), this->getPtr(), iv);}
         void rinteg    (const GTPSA_CLASS(Wrapper)& src, const int iv   )  { return GTPSA_METH(integ)(src.getPtr(), this->getPtr(), iv);}
 
-	void fld2vec
-	  (const int n,
-	   const GTPSA_CLASS(Wrapper)& map0, const GTPSA_CLASS(Wrapper)& map1, const GTPSA_CLASS(Wrapper)& map2,
-	   const GTPSA_CLASS(Wrapper)& map3, const GTPSA_CLASS(Wrapper)& map4, const GTPSA_CLASS(Wrapper)& map5){
-	  tpsa_t *t_map[n];
-	  printf("\nI see skies of blue and clouds of white.");
-	  // GTPSA_CLASS(Wrapper)(*this, fld2vec);
-	}
-
 	/**
          * @short set uid if != 0
          *

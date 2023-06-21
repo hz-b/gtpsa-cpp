@@ -174,15 +174,6 @@ namespace gtpsa {
     inline void rinteg(const TpsaBridge& src, const int iv)
     { this->m_impl.rinteg(src.m_impl, iv); };
 
-    inline void fld2vec
-    (const int n,
-     const TpsaBridge& t_map0, const TpsaBridge& t_map1, const TpsaBridge& t_map2,
-     const TpsaBridge& t_map3, const TpsaBridge& t_map4, const TpsaBridge& t_map5){
-      tpsa_t *t_map[n];
-      printf("\nWhat a wonderful world.");
-      this->m_impl.fld2vec(n, t_map0.m_impl, t_map1.m_impl, t_map2.m_impl, t_map3.m_impl, t_map4.m_impl, t_map5.m_impl);
-    }
-
     inline void setVariable(const typename T::base_type v, const idx_t iv= 0, const typename T::base_type scale = 0)
     { this->m_impl.setvar(v, iv, scale); }
 

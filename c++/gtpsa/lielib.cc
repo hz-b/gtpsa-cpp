@@ -1,6 +1,4 @@
 #include <stdbool.h>
-#include <gtpsa/mad/tpsa_wrapper.hpp>
-#include <gtpsa/bridge/bridge.hpp>
 #include <gtpsa/lielib.hpp>
 
 
@@ -114,25 +112,23 @@ gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
   //   Eqs. (34)-(37).
   // Integrate monomials:
   //   M -> exp(:h:)
-  const int n_dof = 3;
   auto max_ord = t_map.getMaximumOrder();
   auto desc = t_map[0].getDescription();
   auto h = gtpsa::tpsa(desc, max_ord);
   h.clear();
 
-  h.fld2vec
-    (2*n_dof, t_map[0], t_map[1], t_map[2], t_map[3], t_map[4], t_map[5]);
+  t_map.fld2vec(&h);
 
   return h;
 }
 
 
-namespace gtpsa {
-  tpsa M_to_h_DF(const ss_vect<tpsa> &t_map)
-  {
-    auto tmp = M_to_M_fact(t_map);
-    // fld2vec: Intd in Forest's F77 LieLib.
-    auto res = M_to_h(tmp);
-    return res;
-  }
+gtpsa::tpsa gtpsa::M_to_h_DF(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
+{
+  // Liefact in Forest's F77 LieLib.
+  // A. Dragt, J. Finn "Lie Series and Invariant Functions for Analytic
+  // Symplectic maps" J. Math. Phys. 17, 2215-2227 (1976).
+  // Dragt-Finn factorization:
+  //   M ->  M_lin * exp(:h_3:) * exp(:h_4:) ...  * exp(:h_n:)
+  return M_to_h(M_to_M_fact(t_map));
 }
