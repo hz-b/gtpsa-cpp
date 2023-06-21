@@ -50,120 +50,123 @@ extern "C" {
 
 
 namespace gtpsa::mad {
-    class TpsaWrapper: public _TpsaWrapper {
-    public:
-	inline TpsaWrapper(std::shared_ptr<desc> desc, const ord_t mo)
-	    :  _TpsaWrapper(desc, mo)
-	    {}
+  class TpsaWrapper: public _TpsaWrapper {
+  public:
+    inline TpsaWrapper(std::shared_ptr<desc> desc, const ord_t mo)
+      :  _TpsaWrapper(desc, mo)
+    {}
 
-	inline TpsaWrapper(const TpsaWrapper& t, const ord_t mo)
-	    :  _TpsaWrapper(t,  mo)
-	    {}
+    inline TpsaWrapper(const TpsaWrapper& t, const ord_t mo)
+      :  _TpsaWrapper(t,  mo)
+    {}
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
-	inline TpsaWrapper(const TpsaWrapper& t)
-	    :  _TpsaWrapper(t)
-	    {}
+    inline TpsaWrapper(const TpsaWrapper& t)
+      :  _TpsaWrapper(t)
+    {}
 
 #endif  //GTSPA_ONLY_OPTIMISED_OPS
     friend class CTpsaWrapper;
 
-	friend inline auto norm  (const TpsaWrapper& a);
-	friend inline auto equ   (const TpsaWrapper& a, const TpsaWrapper& b, num_t tol);
-    };
+    friend inline auto norm  (const TpsaWrapper& a);
+    friend inline auto equ   (const TpsaWrapper& a, const TpsaWrapper& b, num_t tol);
+  };
 
-    /*o---------------------------------------------------------------------o
-      |                                                                     |
-      | Functions below are given here as these only exist for the normal   |
-      | "tpsa" part                                                         |
-     */
+  /*o---------------------------------------------------------------------o
+    |                                                                     |
+    | Functions below are given here as these only exist for the normal   |
+    | "tpsa" part                                                         |
+  */
 
-     /*
-     *
-     */
-    inline auto norm (const TpsaWrapper& a) {
-	return mad_tpsa_nrm (a.getPtr());
-    }
+  /*
+   *
+   */
+  inline auto norm (const TpsaWrapper& a) {
+    return mad_tpsa_nrm (a.getPtr());
+  }
 
-    inline auto equ (const TpsaWrapper& a, const TpsaWrapper& b, num_t tol) {
-	return mad_tpsa_equ (a.getPtr(), b.getPtr(), tol);
-    }
+  inline auto equ (const TpsaWrapper& a, const TpsaWrapper& b, num_t tol) {
+    return mad_tpsa_equ (a.getPtr(), b.getPtr(), tol);
+  }
 
-    /*|                                                                     |
-      o---------------------------------------------------------------------o */
+  /*|                                                                     |
+    o---------------------------------------------------------------------o */
 
-    /*o---------------------------------------------------------------------o
-      |                                                                     |
-      | Functions below implement the "operator functions" that return an   |
-      | object, requires casting                                            |
-      | are these really requried                                           |
-     */
-    inline void add  (const TpsaWrapper& a, const TpsaWrapper& b,  TpsaWrapper* r ){
-	add_(
-	    static_cast<const _TpsaWrapper &>(a),
-	    static_cast<const _TpsaWrapper &>(b),
-	    static_cast<_TpsaWrapper*>(r)
-	    );
-    }
-    /**
-     * @brief  (a_i-b_i)/max(|a_i|,1)
-     */
-    inline void dif   (const TpsaWrapper& a, const TpsaWrapper& b,  TpsaWrapper* r ){
-	dif_(
-	    static_cast<const _TpsaWrapper &>(a),
-	    static_cast<const _TpsaWrapper &>(b),
-	    static_cast<_TpsaWrapper*>(r)
-	    );
-    }
-    inline void sub   (const TpsaWrapper& a, const TpsaWrapper& b,  TpsaWrapper* r ){
-	sub_(
-	    static_cast<const _TpsaWrapper &>(a),
-	    static_cast<const _TpsaWrapper &>(b),
-	    static_cast<_TpsaWrapper*>(r)
-	    );
-    }
-    inline void mul   (const TpsaWrapper& a, const TpsaWrapper& b,  TpsaWrapper* r ){
-	mul_(
-	    static_cast<const _TpsaWrapper &>(a),
-	    static_cast<const _TpsaWrapper &>(b),
-	    static_cast<_TpsaWrapper*>(r))
-	    ;
-    }
-    inline void div   (const TpsaWrapper& a, const TpsaWrapper& b,  TpsaWrapper* r ){
-	div_(
-	    static_cast<const _TpsaWrapper &>(a),
-	    static_cast<const _TpsaWrapper &>(b),
-	    static_cast<_TpsaWrapper*>(r)
-	    );
-    }
-    inline void acc  (const TpsaWrapper& a, const num_t & b,  TpsaWrapper* r ){
-	acc_(static_cast<const _TpsaWrapper &>(a), b, static_cast<_TpsaWrapper*>(r) );
-    }
-    inline void scl  (const TpsaWrapper& a, const num_t & b,  TpsaWrapper* r ){
-	scl_(static_cast<const _TpsaWrapper &>(a), b, static_cast<_TpsaWrapper*>(r) );
-    }
-    inline void inv  (const TpsaWrapper& a, const num_t & b,  TpsaWrapper* r ){
-	inv_(static_cast<const _TpsaWrapper &>(a), b, static_cast<_TpsaWrapper*>(r) );
-    }
-    inline void invsqrt (const TpsaWrapper& a, const num_t & b,  TpsaWrapper* r ){
-	invsqrt_(static_cast<const _TpsaWrapper &>(a), b, static_cast<_TpsaWrapper*>(r) );
-    }
+  /*o---------------------------------------------------------------------o
+    |                                                                     |
+    | Functions below implement the "operator functions" that return an   |
+    | object, requires casting                                            |
+    | are these really requried                                           |
+  */
+  inline void add  (const TpsaWrapper& a, const TpsaWrapper& b,  TpsaWrapper* r ){
+    add_(
+	 static_cast<const _TpsaWrapper &>(a),
+	 static_cast<const _TpsaWrapper &>(b),
+	 static_cast<_TpsaWrapper*>(r)
+	 );
+  }
+  /**
+   * @brief  (a_i-b_i)/max(|a_i|,1)
+   */
+  inline void dif   (const TpsaWrapper& a, const TpsaWrapper& b,  TpsaWrapper* r ){
+    dif_(
+	 static_cast<const _TpsaWrapper &>(a),
+	 static_cast<const _TpsaWrapper &>(b),
+	 static_cast<_TpsaWrapper*>(r)
+	 );
+  }
+  inline void sub   (const TpsaWrapper& a, const TpsaWrapper& b,  TpsaWrapper* r ){
+    sub_(
+	 static_cast<const _TpsaWrapper &>(a),
+	 static_cast<const _TpsaWrapper &>(b),
+	 static_cast<_TpsaWrapper*>(r)
+	 );
+  }
+  inline void mul   (const TpsaWrapper& a, const TpsaWrapper& b,  TpsaWrapper* r ){
+    mul_(
+	 static_cast<const _TpsaWrapper &>(a),
+	 static_cast<const _TpsaWrapper &>(b),
+	 static_cast<_TpsaWrapper*>(r))
+      ;
+  }
+  inline void div   (const TpsaWrapper& a, const TpsaWrapper& b,  TpsaWrapper* r ){
+    div_(
+	 static_cast<const _TpsaWrapper &>(a),
+	 static_cast<const _TpsaWrapper &>(b),
+	 static_cast<_TpsaWrapper*>(r)
+	 );
+  }
+  inline void acc  (const TpsaWrapper& a, const num_t & b,  TpsaWrapper* r ){
+    acc_(static_cast<const _TpsaWrapper &>(a), b, static_cast<_TpsaWrapper*>(r) );
+  }
+  inline void scl  (const TpsaWrapper& a, const num_t & b,  TpsaWrapper* r ){
+    scl_(static_cast<const _TpsaWrapper &>(a), b, static_cast<_TpsaWrapper*>(r) );
+  }
+  inline void inv  (const TpsaWrapper& a, const num_t & b,  TpsaWrapper* r ){
+    inv_(static_cast<const _TpsaWrapper &>(a), b, static_cast<_TpsaWrapper*>(r) );
+  }
+  inline void invsqrt (const TpsaWrapper& a, const num_t & b,  TpsaWrapper* r ){
+    invsqrt_(static_cast<const _TpsaWrapper &>(a), b, static_cast<_TpsaWrapper*>(r) );
+  }
 
-    inline void pow   (const TpsaWrapper& a, const TpsaWrapper& b,  TpsaWrapper* r ){
-	pow_(
-	    static_cast<const _TpsaWrapper &>(a),
-	    static_cast<const _TpsaWrapper &>(b),
-	    static_cast<_TpsaWrapper*>(r)
-	    );
-    }
-    inline void pow   (const TpsaWrapper& a, const num_t & b,  TpsaWrapper* r ){
-	pow_(static_cast<const _TpsaWrapper &>(a), b, static_cast<_TpsaWrapper*>(r) );
-    }
-    inline void pow   (const TpsaWrapper& a, const  int  & i,  TpsaWrapper* r ){
-	pow_(static_cast<const _TpsaWrapper &>(a), i, static_cast<_TpsaWrapper*>(r) );
-    }
+  inline void pow   (const TpsaWrapper& a, const TpsaWrapper& b,  TpsaWrapper* r ){
+    pow_(
+	 static_cast<const _TpsaWrapper &>(a),
+	 static_cast<const _TpsaWrapper &>(b),
+	 static_cast<_TpsaWrapper*>(r)
+	 );
+  }
+  inline void pow   (const TpsaWrapper& a, const num_t & b,  TpsaWrapper* r ){
+    pow_(static_cast<const _TpsaWrapper &>(a), b, static_cast<_TpsaWrapper*>(r) );
+  }
+  inline void pow   (const TpsaWrapper& a, const  int  & i,  TpsaWrapper* r ){
+    pow_(static_cast<const _TpsaWrapper &>(a), i, static_cast<_TpsaWrapper*>(r) );
+  }
 
-    // inline void pow   (const TpsaWrapper& a, const int i ,  TpsaWrapper* r ){ div_(static_cast<const _TpsaWrapper &>(a), i, static_cast<_TpsaWrapper*>(r)); }
+  // inline void pow   (const TpsaWrapper& a, const int i ,  TpsaWrapper* r ){
+  //   div_(static_cast<const _TpsaWrapper &>(a), i, static_cast<_TpsaWrapper*>(r));
+  // }
+
 
 #ifdef GTPSA_FUNC_ARG1
 #undef GTPSA_FUNC_ARG1
@@ -172,7 +175,7 @@ namespace gtpsa::mad {
 #undef GTPSA_FUNC_ARG1_WITH_RET_ARG
 #endif
 #define GTPSA_FUNC_ARG1_WITH_RET_ARG(fname)				\
-    inline void fname (const TpsaWrapper& t, TpsaWrapper* r){ fname (static_cast<const _TpsaWrapper&>(t), static_cast<_TpsaWrapper*>(r)); }
+  inline void fname (const TpsaWrapper& t, TpsaWrapper* r){ fname (static_cast<const _TpsaWrapper&>(t), static_cast<_TpsaWrapper*>(r)); }
 #define GTPSA_FUNC_ARG1(fname) GTPSA_FUNC_ARG1_WITH_RET_ARG(fname)
 #include <gtpsa/funcs.h>
 #undef GTPSA_FUNC_ARG1_WITH_RET_ARG

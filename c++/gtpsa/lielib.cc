@@ -1,4 +1,8 @@
+#include <stdbool.h>
+#include <gtpsa/mad/tpsa_wrapper.hpp>
+#include <gtpsa/bridge/bridge.hpp>
 #include <gtpsa/lielib.hpp>
+
 
 /**
  *
@@ -22,6 +26,8 @@ gtpsa::tpsa exp_v_to_tps
 (const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa &x, const double eps,
  const int n_max)
 {
+  // Expflo in Forest's F77 LieLib:
+  //   y = exp(v*nabla) * x
   double eps1;
   int k = 0;
   //gtpsa::tpsa    y_k, y;
@@ -51,6 +57,7 @@ gtpsa::tpsa exp_v_to_tps
 }
 #endif
 
+
 /**
  * @brief   Factor map:
  * $[M = M_2 ... * M_n$]
@@ -61,8 +68,9 @@ gtpsa::tpsa exp_v_to_tps
 static gtpsa::ss_vect<gtpsa::tpsa>
 M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 {
-
-  // factor off the linear part
+  // Flofac in Forest's F77 LieLib.
+  // Factor map:
+  //   M = M_2 ... * M_n
   auto  map_lin_inv = t_map.allocateLikeMe();
   arma::mat jac = t_map.jacobian(), jac_inv = arma::inv(jac);
   map_lin_inv.setJacobian(jac_inv);
@@ -85,6 +93,7 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 }
 
 
+
 /**
  *
  * Integrate monomials:
@@ -98,31 +107,25 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
  */
 gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 {
-  auto max_ord =  t_map.getMaximumOrder();
+  // Intd in Forest's F77 LieLib.
+  // E. Forest, M. Berz, J. Irwin "Normal Form Methods for Complicated
+  // Periodic Systems: A Complete Solution Using Differential Algebra and Lie
+  // Operators" Part. Accel. 24, 91-107 (1989):
+  //   Eqs. (34)-(37).
+  // Integrate monomials:
+  //   M -> exp(:h:)
+  const int n_dof = 3;
+  auto max_ord = t_map.getMaximumOrder();
   auto desc = t_map[0].getDescription();
-  gtpsa::ss_vect<gtpsa::tpsa> Id(desc, max_ord);
-
-  Id.set_identity();
-
   auto h = gtpsa::tpsa(desc, max_ord);
   h.clear();
-  // h.reset();
 
-#warning "fix number of dimensions"
-  auto f = gtpsa::tpsa(desc, max_ord);
-  auto f_p = gtpsa::tpsa(desc, max_ord);
+  h.fld2vec
+    (2*n_dof, t_map[0], t_map[1], t_map[2], t_map[3], t_map[4], t_map[5]);
 
-  auto n_dim = t_map.size() / 2;
-  for (size_t k = 0; k < n_dim; ++k) {
-    // Integrate monomials.
-    f.clear();
-    f_p.clear();
-    f.rinteg(t_map[2*k + 1], 2 * k + 1) ;
-    f_p.rinteg(t_map[2*k], 2 * k + 2) ;
-    h += f - f_p;
-  }
   return h;
 }
+
 
 namespace gtpsa {
   tpsa M_to_h_DF(const ss_vect<tpsa> &t_map)
