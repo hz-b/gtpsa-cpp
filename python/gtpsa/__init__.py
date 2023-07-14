@@ -76,4 +76,6 @@ __all__ = [
     "utils",
 
     "IndexMapping",
+
+    "default_mapping"
 ]

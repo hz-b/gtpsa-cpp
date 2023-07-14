@@ -203,4 +203,5 @@ def test_default_mapping():
 
 
 if __name__ == "__main__":
-    test_set_knob_as_var()
+    # test_set_knob_as_var()
+    test_attribute_access()

@@ -362,12 +362,12 @@ def test70_sst_hessian():
     vec = ss_vect.copy()
     print("type vec", type(vec))
     # fmt: off
-    vec.iloc[0] =  1 * ss_vect.iloc[0] * ss_vect.iloc[0];
-    vec.iloc[1] =  2 * ss_vect.iloc[1] * ss_vect.iloc[1];
-    vec.iloc[2] =  3 * ss_vect.iloc[2] * ss_vect.iloc[2];
-    vec.iloc[3] =  5 * ss_vect.iloc[3] * ss_vect.iloc[3];
-    vec.iloc[4] =  7 * ss_vect.iloc[4] * ss_vect.iloc[4];
-    vec.iloc[5] = 11 * ss_vect.iloc[5] * ss_vect.iloc[5];
+    vec.iloc[0] =  1 * ss_vect.iloc[0] * ss_vect.iloc[0]
+    vec.iloc[1] =  2 * ss_vect.iloc[1] * ss_vect.iloc[1]
+    vec.iloc[2] =  3 * ss_vect.iloc[2] * ss_vect.iloc[2]
+    vec.iloc[3] =  5 * ss_vect.iloc[3] * ss_vect.iloc[3]
+    vec.iloc[4] =  7 * ss_vect.iloc[4] * ss_vect.iloc[4]
+    vec.iloc[5] = 11 * ss_vect.iloc[5] * ss_vect.iloc[5]
     # fmt: on
 
     hes = vec.hessian()
@@ -427,18 +427,20 @@ def test101_named_access_dir():
     tmp = dir(ps)
     assert len(tmp) > 6
 
+
 def test110_named_access_add():
     nv = 6
     desc = gtpsa.desc(6, 2, 3, 1)
 
+    # fmt:off
     x = 3.0; y = 5; px=7; py=13; delta=11; ct=13
-
+    # fmt:on
 
     ps = gtpsa.ss_vect_tpsa(desc, 2, index_mapping=named_index)
     ps.x = x
     ps.px = px
-    ps.y= y
-    ps.py= py
+    ps.y = y
+    ps.py = py
     ps.delta = delta
     ps.ct = ct
 
@@ -461,7 +463,7 @@ def test110_named_access_add():
 
     test_ps_ref()
 
-    delta2_ref=17
+    delta2_ref = 17
     delta2 = gtpsa.tpsa(desc, 1)
     delta2.set(0, delta2_ref)
 
@@ -508,6 +510,13 @@ def test110_named_access_add():
     assert ps.py.get() == pytest.approx(py, 1e-12)
     assert ps.ct.get() == pytest.approx(ct / ct2, 1e-12)
 
+
+def test120_attribute_access():
+    desc = gtpsa.desc(6, 2)
+    ps = gtpsa.ss_vect_tpsa(desc, 2, index_mapping=named_index)
+    print(dir(ps))
+
+
 ## if __name__ == "__main__":
 ##     test70_sst_hessian()
 ##
@@ -546,5 +555,8 @@ def test110_named_access_add():
 ## if __name__ == "__main__":
 ##     test_30_tpsa_radd_double()
 
+## if __name__ == "__main__":
+##    test100_named_access()
+
 if __name__ == "__main__":
-    test100_named_access()
+    test120_attribute_access()
