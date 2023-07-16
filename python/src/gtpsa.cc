@@ -259,7 +259,7 @@ struct AddMethods
                                       inst.print(name.c_str(), eps, nohdr, f);
 	                           },
 		                  "print the cofficients to stdout using c's stdout",
-		                  py::arg("name") = "", py::arg("eps") = 0 , py::arg("nohdr") = false)
+		                  py::arg("name") = "", py::arg("eps") = 1e-30 , py::arg("nohdr") = false)
 	    .def_property("name",  &Cls::name, &Cls::setName)
 	    .def_property("uid",   [](Cls& inst){ return inst.uid(0);}, &Cls::uid)
 	    .def_property_readonly("order", &Cls::order)
