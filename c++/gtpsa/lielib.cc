@@ -1,4 +1,6 @@
+#include <stdbool.h>
 #include <gtpsa/lielib.hpp>
+
 
 /**
  *
@@ -18,9 +20,12 @@
  */
 #if 0
 static
-gtpsa::tpsa exp_v_to_tps(const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa &x,
-			 const double eps, const int n_max)
+gtpsa::tpsa exp_v_to_tps
+(const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa &x, const double eps,
+ const int n_max)
 {
+  // Expflo in Forest's F77 LieLib:
+  //   y = exp(v*nabla) * x
   double eps1;
   int k = 0;
   //gtpsa::tpsa    y_k, y;
@@ -34,7 +39,7 @@ gtpsa::tpsa exp_v_to_tps(const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa
 #warning "is that only inspecting the constant part"
     eps1 = std::abs(y_k.cst());
     if (eps1 < eps) {
-        break;
+      break;
     }
   }
   // why not return above?
@@ -44,11 +49,12 @@ gtpsa::tpsa exp_v_to_tps(const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa
   }
 
   std::stringstream strm;
-  strm << "exp_v_to_tps: did not converge eps1 (term " << k << " )= " << eps1 << " tolerance (eps) " << eps << " n max "
-       << n_max;
+  strm << "exp_v_to_tps: did not converge eps1 (term " << k << " )= " << eps1
+       << " tolerance (eps) " << eps << " n max " << n_max;
   throw std::runtime_error(strm.str());
 }
 #endif
+
 
 /**
  * @brief   Factor map:
@@ -60,35 +66,36 @@ gtpsa::tpsa exp_v_to_tps(const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa
 static gtpsa::ss_vect<gtpsa::tpsa>
 M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 {
+  // Flofac in Forest's F77 LieLib.
+  // Factor map:
+  //   M = M_2 ... * M_n
+  auto  map_lin_inv = t_map.allocateLikeMe();
+  arma::mat jac = t_map.jacobian(), jac_inv = arma::inv(jac);
+  map_lin_inv.setJacobian(jac_inv);
+  auto map_res = gtpsa::compose(t_map, map_lin_inv);
 
-    // factor off the linear part
-    auto  map_lin_inv = t_map.allocateLikeMe();
-    arma::mat jac = t_map.jacobian(), jac_inv = arma::inv(jac);
-    map_lin_inv.setJacobian(jac_inv);
-    auto map_res = gtpsa::compose(t_map, map_lin_inv);
-
-    /*
-     * iterate over the higher orders
-     * work on it order by order
-     */
-    auto map_fact = t_map.allocateLikeMe();
-    auto map_single_order = t_map.allocateLikeMe();
-    map_fact.set_zero();
-    for(int k = 2; k < t_map.getMaximumOrder(); ++k){
-        map_single_order.rgetOrder(map_res, k);
-        map_fact += map_single_order;
-	map_fact *= -1.0;
-	map_res = gtpsa::exppb(map_fact, map_res);
-    }
-    return map_fact;
+  /*
+   * iterate over the higher orders
+   * work on it order by order
+   */
+  auto map_fact = t_map.allocateLikeMe();
+  auto map_single_order = t_map.allocateLikeMe();
+  map_fact.set_zero();
+  for(int k = 2; k < t_map.getMaximumOrder(); ++k) {
+    map_single_order.rgetOrder(map_res, k);
+    map_fact += map_single_order;
+    map_fact *= -1.0;
+    map_res = gtpsa::exppb(map_fact, map_res);
+  }
+  return map_fact;
 }
+
 
 
 /**
  *
  * Integrate monomials:
  *   M -> exp(:h:)
- * would be order 1 good enough
  * E. Forest, M. Berz, J. Irwin "Normal Form Methods for Complicated
  * Periodic Systems: A Complete Solution Using Differential Algebra and Lie
  * Operators" Part. Accel. 24, 91-107 (1989):
@@ -98,41 +105,30 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
  */
 gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 {
-  auto max_ord =  t_map.getMaximumOrder();
+  // Intd in Forest's F77 LieLib.
+  // E. Forest, M. Berz, J. Irwin "Normal Form Methods for Complicated
+  // Periodic Systems: A Complete Solution Using Differential Algebra and Lie
+  // Operators" Part. Accel. 24, 91-107 (1989):
+  //   Eqs. (34)-(37).
+  // Integrate monomials:
+  //   M -> exp(:h:)
+  auto max_ord = t_map.getMaximumOrder();
   auto desc = t_map[0].getDescription();
-  gtpsa::ss_vect<gtpsa::tpsa> Id(desc, max_ord);
-
-  Id.set_identity();
-
   auto h = gtpsa::tpsa(desc, max_ord);
   h.clear();
-  // h.reset();
 
-#warning "fix number of dimensions"
-   auto f = gtpsa::tpsa(desc, max_ord);
-   auto f_p = gtpsa::tpsa(desc, max_ord);
+  t_map.fld2vec(&h);
 
-   auto n_dim = t_map.size() / 2;
-   for (size_t k = 0; k < n_dim; ++k) {
-    // Integrate monomials.
-      f.clear();
-      f.rinteg(t_map[2*k + 1], 2 *k) ;
-      // just increase the coefficient order for all
-
-      f_p.clear();
-      f_p.rinteg(t_map[2*k   ], 2 * k+1) ;
-      h += f - f_p;
-  }
   return h;
 }
 
-//tpsa M_to_h_DF(const ss_vect<tpsa> &t_map);
-namespace gtpsa {
-    tpsa M_to_h_DF(const ss_vect<tpsa> &t_map)
-    {
-	auto tmp = M_to_M_fact(t_map);
-	// fld2vec: Intd in Forest's F77 LieLib.
-	auto res =  M_to_h(tmp);
-	return res;
-    }
+
+gtpsa::tpsa gtpsa::M_to_h_DF(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
+{
+  // Liefact in Forest's F77 LieLib.
+  // A. Dragt, J. Finn "Lie Series and Invariant Functions for Analytic
+  // Symplectic maps" J. Math. Phys. 17, 2215-2227 (1976).
+  // Dragt-Finn factorization:
+  //   M ->  M_lin * exp(:h_3:) * exp(:h_4:) ...  * exp(:h_n:)
+  return M_to_h(M_to_M_fact(t_map));
 }

@@ -15,8 +15,6 @@ namespace gtpsa {
    *   M ->  M_lin * exp(:h_3:) * exp(:h_4:) ...  * exp(:h_n:)
    */
   tpsa M_to_h_DF(const ss_vect<tpsa> &t_map);
-
-
 } // namespace gtpsa
 
 #endif //_GTPSA_LIELIB_H_
