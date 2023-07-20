@@ -79,10 +79,10 @@ namespace gtpsa::python {
 	    {
 		size_t n = this->getVectorPtr()->size();
 		if (index < 0){
-		    throw std::runtime_error("index < 0");
+		    throw std::out_of_range("index < 0");
 		}
 		if (index >= n){
-		    throw std::runtime_error("index >= n");
+		    throw std::out_of_range("index >= n");
 		}
 	    }
 
