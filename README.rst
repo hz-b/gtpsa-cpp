@@ -105,7 +105,7 @@ The *gtpsa* print functions are in:
 
 		print_damap
 
-*gtpsa* C -> C++ Interface
+*Gtpsa* C -> C++ Interface
 ------------------------
 The general *gtpsa* C -> C++ interface is in:
 
