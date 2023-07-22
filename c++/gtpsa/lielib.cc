@@ -2,6 +2,8 @@
 #include <gtpsa/lielib.hpp>
 #include <assert.h>
 
+// Gtpsa map operations are in:
+//   ..gtpsa/mad-ng/src]/mad_tpsa_mops.c
 
 /**
  *
@@ -85,6 +87,9 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
     map_res = gtpsa::exppb(map_fact, map_res);
   }
 
+  std::cout << std::scientific << std::setprecision(3) << "\nM_to_M_fact:\n";
+  for (auto k = 0; k < 6; k++)
+    map_fact[k].print("", 1e-30, 0, stdout);
   return map_fact;
 }
 

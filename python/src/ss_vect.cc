@@ -240,6 +240,7 @@ struct AddMethods
        self.at(gpy::mapping_index(gpy::DefaultIndexMapping, key)) = v;
        })
       */
+
       .def("cst_as_array", [](const WrappedClass& self) {
 	return py::array(py::cast(self.cst()));
       })
@@ -254,10 +255,12 @@ struct AddMethods
       })
       .def("set_constant",  &WrappedClass::setConstant)
       .def_property("name", &WrappedClass::name, &WrappedClass::setName)
+
       .def(py::self += py::self)
       .def(py::self -= py::self)
       .def(py::self + py::self)
       .def(py::self - py::self)
+
       .def(py::init<const T&, const size_t> (), init_ss_vect_doc, py::arg("T"),
 	   py::arg("dim") = gtpsa::ss_vect_n_dim)
       .def(py::init<const std::vector<T>&> (), init_ss_vect_from_vec_doc)
@@ -267,6 +270,7 @@ struct AddMethods
 	   py::arg("desc"), py::arg("ord"),
 	   py::arg("dim") = gtpsa::ss_vect_n_dim
 	   )
+
       .def(py::self += double())
       .def(py::self -= double())
       .def(py::self *= double())
@@ -278,6 +282,8 @@ struct AddMethods
       .def(py::self  / double())
 
       .def("rcompose", &WrappedClass::rcompose)
+      .def("getOrder", &WrappedClass::rgetOrder)
+
       //.def(double()  + py::self)
       //.def(double()  - py::self)
       //.def(double()  * py::self)
@@ -290,7 +296,7 @@ struct AddMethods
   void add_methods_tpsa(py::class_<WrappedClass, P_MGR> &a_cls){
     a_cls
       .def("set_identity", &WrappedClass::set_identity)
-      .def("jacobian",     [](const WrappedClass& self) {
+      .def("jacobian", [](const WrappedClass& self) {
 	arma::mat res = self.jacobian();
 	return py::array( py::cast( res ) );
       })
@@ -300,10 +306,8 @@ struct AddMethods
 	arma::mat mat = from_np_array(buffer);
 	self.setJacobian(mat);
       })
-      .def("hessian",     [](const WrappedClass& self) {
-	return py::array(
-			 py::cast( self.hessian() )
-			 );
+      .def("hessian",  [](const WrappedClass& self) {
+	return py::array(py::cast(self.hessian()));
       })
       ;
   }
@@ -345,7 +349,10 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 
   /*- wrapping accessing a single double within a state space vector of
       doubles  */
-  py::class_<ss_vect_dbl_list_access_iloc_t, std::shared_ptr<ss_vect_dbl_list_access_iloc_t>> ss_vect_double_list_access_iloc
+  py::class_
+    <ss_vect_dbl_list_access_iloc_t,
+     std::shared_ptr<ss_vect_dbl_list_access_iloc_t>>
+    ss_vect_double_list_access_iloc
     (m, "_ss_vect_double_list_access_iloc");
   /* pandas .iloc like access for ss_vect of doubles */
   add_methods_list_access

@@ -14,11 +14,12 @@
 
 
 /*
-  The gtpsa C <-> C++ <-> Python Pybind11 interfaces were implemented by
+  The gtpsa C -> C++ -> Python Pybind11 interfaces were implemented by
   Pierre Schnizer.
 
-  The gtpsa C++ <-> Python Pybind11 part is in:
+  The gtpsa C++ -> Python Pybind11 part is in:
     ../src/gtpsa/python/src/gtpsa.cc
+    ../src/gtpsa/python/src/ss_vect.cc
 
   which also sets eps for the gtpsa print function; see below.
   (Set to e.g. 1e-30 to supress printing of zeroes)
@@ -27,13 +28,30 @@
     ../src/gtpsa/c++/gtpsa/mad/wrapper.tpp
       print()
       print("", 1e-30, 0, stdout)
+      rgetOrder
+      rderiv
+      rinteg
+    ../src/gtpsa/c++/gtpsa/mad/tpsa_wrapper.hpp
+      norm
+      equ
+    ../src/gtpsa/c++/gtpsa/mad/container_wrapper.tpp
+      getMaximumOrder
+      computeNorm
+      rvec2fld
+      fld2vec
+      fgrad
+      rliebra
+      rexppb
+      rlogpb
+      rcompose
+      rminv
+      rpminv
 
   and in:
     ../src/gtpsa/c++/gtpsa/intern/with_operators.hpp
      show()
      show(stdout, level)
     Remark: Only prints leading order; level parameter not implemented.
-
 
   The gtpsa print functions are in:
     ../src/gtpsa/mad-ng/src]/mad_tpsa_io.c
@@ -65,6 +83,11 @@
 	rexppb
 	rlogpb
 	rderiv
+
+    ..//src/gtpsa/c++/gtpsa/lielib.cc
+      inv
+      pinv
+      M_to_h_DF
 
   TPSA vector operations are in:
     ../src/gtpsa/mad-ng/src/mad_tpsa.h

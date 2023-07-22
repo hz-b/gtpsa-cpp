@@ -69,8 +69,9 @@ namespace gtpsa::mad {
 	inline auto equ (const TpsaWrapper& o, num_t tol) {
 	    return mad_tpsa_equ (this->getPtr(), o.getPtr(), tol);
     }
-	friend inline auto norm  (const TpsaWrapper& a);
-	friend inline auto equ   (const TpsaWrapper& a, const TpsaWrapper& b, num_t tol);
+	friend inline auto norm(const TpsaWrapper& a);
+	friend inline auto
+	equ(const TpsaWrapper& a, const TpsaWrapper& b, num_t tol);
     };
 };
 #ifndef GTPSA_KEEP_MACROS
@@ -101,7 +102,9 @@ namespace gtpsa::mad {
 #undef GTPSA_FUNC_ARG1_WITH_RET_ARG
 #endif
 #define GTPSA_FUNC_ARG1_WITH_RET_ARG(fname)				\
-    inline void fname (const TpsaWrapper& t, TpsaWrapper* r){ fname (static_cast<const _TpsaWrapper&>(t), static_cast<_TpsaWrapper*>(r)); }
+    inline void fname (const TpsaWrapper& t, TpsaWrapper* r) \
+    { fname (static_cast<const _TpsaWrapper&>(t), \
+	     static_cast<_TpsaWrapper*>(r)); }
 #define GTPSA_FUNC_ARG1(fname) GTPSA_FUNC_ARG1_WITH_RET_ARG(fname)
 #include <gtpsa/funcs.h>
 #undef GTPSA_FUNC_ARG1_WITH_RET_ARG
