@@ -1,4 +1,4 @@
-C++ Interface toTruncated Power Series Algebra module interface
+C++ Interface to Truncated Power Series Algebra Module Interface
 =================================================================
 
 This code base is providing a shallow c++ wrapper to the
@@ -12,12 +12,12 @@ For details see
 **NB**: this code base modifies the C function defintions of the original code.
 For serious work please checkout the original code, in particular if you are using the "C" language.
 
-=================================================================
+C++ and Python Pybind11 Interfaces
+==================================
 
 The gtpsa C -> C++ -> Python Pybind11 interfaces were implemented by Pierre Schnizer.
 
 References:
-
 	P\. Schnizer, W. Khail, J. Bengtsson *Small Talk on AT* IPAC 2022
 
 	https://accelconf.web.cern.ch/ipac2022/papers/tupost029.pdf
@@ -30,6 +30,8 @@ However, some of the key gtpsa map analysis functions are implemented in the Lua
 
 Hence, they have been re-implemented in C++.
 
+C++ -> Python Pybind11 Part
+---------------------------
 The gtpsa C++ -> Python Pybind11 part is in:
 
 	../src/gtpsa/python/src/gtpsa.cc
@@ -103,6 +105,8 @@ The gtpsa print functions are in:
 
 		print_damap
 
+Gtpsa C -> C++ Interface
+------------------------
 The general gtpsa C -> C++ interface is in:
 
 	../src/gtpsa/c++/gtpsa/ss_vect.h
@@ -264,7 +268,9 @@ Also, a few are in:
 
 		normal_c(Phasor basis)
 
-Lua (Portuguese: lua -> moon) was created by the Computer Graphics
+Lua Scripting Language
+----------------------
+The Lua scripting language (Portuguese: lua -> moon) was created by the Computer Graphics
 Technology Group (Tecgraf) at the PUC Uni, Rio de Janeiro, Brazil in 1993:
 
 	https://www.lua.org/about.html
