@@ -16,6 +16,16 @@ For serious work please checkout the original code, in particular if you are usi
 
 The gtpsa C -> C++ -> Python Pybind11 interfaces were implemented by Pierre Schnizer.
 
+References:
+
+	P. Schnizer, W. Khailm J. Bengtsson "Small Talk on AT" IPAC 2022
+
+	https://accelconf.web.cern.ch/ipac2022/papers/tupost029.pdf
+
+	L. Deniau, C. Tomoiagă "Generalised Truncated Power Series Algebra for Fast Particle Accelerator Transport Maps" IPAC 2015
+
+	https://accelconf.web.cern.ch/ipac2015/papers/mopje039.pdf
+
 However, some of the key gtpsa map analysis functions are implemented in the Lua scripting language; see below.
 
 Hence, they have been re-implemented in C++.
