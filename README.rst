@@ -15,7 +15,7 @@ For serious work please checkout the original code, in particular if you are usi
 C++ and Python Pybind11 Interfaces
 ==================================
 
-The gtpsa C -> C++ -> Python Pybind11 interfaces were implemented by Pierre Schnizer.
+The *gtpsa* C -> C++ -> Python Pybind11 interfaces were implemented by Pierre Schnizer.
 
 References:
 	P\. Schnizer, W. Khail, J. Bengtsson *Small Talk on AT* IPAC 2022
@@ -26,22 +26,22 @@ References:
 
 	https://accelconf.web.cern.ch/ipac2015/papers/mopje039.pdf
 
-However, some of the key gtpsa map analysis functions are implemented in the Lua scripting language; see below.
+However, some of the key *gtpsa* map analysis functions are implemented in the Lua scripting language; see below.
 
 Hence, they have been re-implemented in C++.
 
 C++ -> Python Pybind11 Part
 ---------------------------
-The gtpsa C++ -> Python Pybind11 part is in:
+The *gtpsa* C++ -> Python Pybind11 part is in:
 
 	../src/gtpsa/python/src/gtpsa.cc
 
 	../src/gtpsa/python/src/ss_vect.cc
 
-which also sets eps for the gtpsa print function; see below.
+which also sets eps for the *gtpsa* print function; see below.
 (Set to e.g. 1e-30 vs. 0 to supress printing of zeroes)
 
-The gtpsa I/O C -> C++ functions are in:
+The *gtpsa* I/O C -> C++ functions are in:
 
 	../src/gtpsa/c++/gtpsa/mad/wrapper.tpp
 
@@ -95,7 +95,7 @@ and in:
 
 		Remark: Only prints leading order; level parameter not implemented.
 
-The gtpsa print functions are in:
+The *gtpsa* print functions are in:
 
 	../src/gtpsa/mad-ng/src]/mad_tpsa_io.c
 
@@ -105,9 +105,9 @@ The gtpsa print functions are in:
 
 		print_damap
 
-Gtpsa C -> C++ Interface
+*gtpsa* C -> C++ Interface
 ------------------------
-The general gtpsa C -> C++ interface is in:
+The general *gtpsa* C -> C++ interface is in:
 
 	../src/gtpsa/c++/gtpsa/ss_vect.h
 
@@ -154,7 +154,7 @@ Not yet implemented:
 
 	rderiv
 
-	..//src/gtpsa/c++/gtpsa/lielib.cc
+	../src/gtpsa/c++/gtpsa/lielib.cc
 
 		inv
 
