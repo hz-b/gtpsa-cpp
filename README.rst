@@ -262,7 +262,7 @@ Also, a few are in:
 
 	../src/gtpsa/madl_gphys.mad
 
-		make_symp (Make map symplectic, thesis by Liam Healey)
+		make_symp (Make map symplectic, thesis by Liam Healy)
 
 			L\. Healy *Lie-Algebraic Methods for Treating Lattice Parameter Errors in Particle Accelerators* Thesis, Univ. of Maryland, 1986.
 
