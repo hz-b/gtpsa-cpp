@@ -12,6 +12,135 @@
 #include <complex>
 #include <armadillo>
 
+
+/*
+  The gtpsa C <-> C++ <-> Python Pybind11 interfaces were implemented by
+  Pierre Schnizer.
+
+  The gtpsa C++ <-> Python Pybind11 part is in:
+
+    ../src/gtpsa/python/src/gtpsa.cc
+
+  which also sets eps for the gtpsa print function; see below.
+  (Set to e.g. 1e-30 to supress printing of zeroes)
+
+  The gtpsa print C -> C++ function is in:
+
+    ../src/gtpsa/c++/gtpsa/mad/wrapper.tpp
+
+    print
+
+  and in:
+
+    ../src/gtpsa/c++/gtpsa/intern/with_operators.hpp
+
+    show(std::ostream &strm, int level)
+    Remark: Only prints leading order; level not implemented.
+
+
+  The gtpsa print functions are in:
+
+    ../src/gtpsa/mad-ng/src]/mad_tpsa_io.c
+    ../src/gtpsa/mad-ng/src]/mad_tpsa_comp.c
+
+    print
+    print_damap
+
+  The general gtpsa C -> C++ interface is in:
+
+    ../src/gtpsa/c++/gtpsa/ss_vect.h
+    ../src/gtpsa/c++/gtpsa/ss_vect.cc
+
+    show(std::ostream &strm, int level = 1, bool with_endl = true)
+
+    jacobian
+    hessian
+    set_zero
+    set_identity
+    setConstant
+    setJacobian
+    setHessian
+
+  Not yet implemented:
+  (For TPSA maps)
+
+    rminv      
+    rpminv
+    rcompose
+    rvec2fld
+    fld2vec
+    fgrad
+    rliebra
+    rexppb
+    rlogpb
+    rderiv
+
+  Basic TPSA operations are in:
+
+    ../src/gtpsa/mad-ng/src/mad_tpsa.h
+    ../src/gtpsa/mad-ng/src/mad_tpsa.c
+
+    mad_tpsa_add
+    mad_tpsa_sub
+    ...
+    mad_tpsa_integ
+    mad_tpsa_deriv
+    ...
+    mad_tpsa_print
+
+  General TPSA operations are in:
+
+    ../src/gtpsa/mad-ng/src]/mad_tpsa_mops.c
+
+    deriv
+    integ
+    poisbra
+    ...
+
+  Minv & pinv are in:
+
+    ../src/gtpsa/mad-ng/src]/mad_tpsa_minv.c
+  
+  and compose & eval in:
+
+    ../src/gtpsa/mad-ng/src]/mad_tpsa_comp.c
+
+    compose
+    eval
+
+  Basic TPSA map operations are in:
+
+    ../src/gtpsa/mad-ng/src]/mad_tpsa_mops.c
+
+    deriv
+    integ
+
+  General TPSA map operations are in:
+  (coded in LUA)
+
+    compose (r = x * y)
+    map_ctor
+    exppb
+    logpb
+    liebra
+    lieexppb
+    vec2fld
+    fld2vec
+    flofacg
+    factor_map
+    ...
+
+  Lua (Portuguese: lua -> moon) was Created by the Computer Graphics
+  Technology Group (Tecgraf) at the PUC Uni, Rio de Janeiro, Brazil in 1993:
+
+    https://www.lua.org/about.html
+
+  LuaJiT is a just-in-time compiler:
+
+    https://luajit.org/luajit.html
+                                                                              */
+
+
 namespace gtpsa {
 
   const int ss_vect_n_dim = 6;
@@ -228,10 +357,12 @@ namespace gtpsa {
     }
 
     /*
-      ss_vect(const ss_vect& o) {
+    ss_vect(const ss_vect& o) {
       this->state_space.reserve(o.state_space.size());
-      std::copy(o.state_space.begin(), o.state_space.end(), std::back_inserter(this->state_space));
-      }
+      std::copy
+	(o.state_space.begin(), o.state_space.end(),
+	 std::back_inserter(this->state_space));
+    }
     */
     ss_vect(const ss_vect &o) = default;
 
@@ -468,7 +599,8 @@ namespace gtpsa {
    * @brief special installation
    */
   template<>
-  inline ss_vect<double>::ss_vect(const std::shared_ptr<mad::desc> d, const ord_t m, const size_t n)
+  inline ss_vect<double>::ss_vect
+  (const std::shared_ptr<mad::desc> d, const ord_t m, const size_t n)
     : state_space(n)
   {}
 
