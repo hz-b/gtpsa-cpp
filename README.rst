@@ -38,7 +38,7 @@ The *gtpsa* C++ -> Python Pybind11 part is in:
 
 	../src/gtpsa/python/src/ss_vect.cc
 
-which also sets eps for the *gtpsa* print function; see below.
+which also sets *eps* for the *gtpsa* print function; see below.
 (Set to e.g. 1e-30 vs. 0 to supress printing of zeroes)
 
 The *gtpsa* I/O C -> C++ functions are in:
