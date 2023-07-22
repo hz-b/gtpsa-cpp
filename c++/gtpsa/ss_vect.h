@@ -18,117 +18,117 @@
   Pierre Schnizer.
 
   The gtpsa C++ <-> Python Pybind11 part is in:
-
     ../src/gtpsa/python/src/gtpsa.cc
 
   which also sets eps for the gtpsa print function; see below.
   (Set to e.g. 1e-30 to supress printing of zeroes)
 
-  The gtpsa print C -> C++ function is in:
-
+  The gtpsa I/O C -> C++ functions are in:
     ../src/gtpsa/c++/gtpsa/mad/wrapper.tpp
-
-    print
+      print()
+      print("", 1e-30, 0, stdout)
 
   and in:
-
     ../src/gtpsa/c++/gtpsa/intern/with_operators.hpp
-
-    show(std::ostream &strm, int level)
-    Remark: Only prints leading order; level not implemented.
+     show()
+     show(stdout, level)
+    Remark: Only prints leading order; level parameter not implemented.
 
 
   The gtpsa print functions are in:
-
     ../src/gtpsa/mad-ng/src]/mad_tpsa_io.c
     ../src/gtpsa/mad-ng/src]/mad_tpsa_comp.c
-
-    print
-    print_damap
+      print
+      print_damap
 
   The general gtpsa C -> C++ interface is in:
-
     ../src/gtpsa/c++/gtpsa/ss_vect.h
     ../src/gtpsa/c++/gtpsa/ss_vect.cc
+      show(std::ostream &strm, int level = 1, bool with_endl = true)
+      jacobian
+      hessian
+      set_zero
+      set_identity
+      setConstant
+      setJacobian
+      setHessian
 
-    show(std::ostream &strm, int level = 1, bool with_endl = true)
+      Not yet implemented:
+      (For TPSA maps)
+        rminv      
+	rpminv
+	rcompose
+	rvec2fld
+	fld2vec
+	fgrad
+	rliebra
+	rexppb
+	rlogpb
+	rderiv
 
-    jacobian
-    hessian
-    set_zero
-    set_identity
-    setConstant
-    setJacobian
-    setHessian
-
-  Not yet implemented:
-  (For TPSA maps)
-
-    rminv      
-    rpminv
-    rcompose
-    rvec2fld
-    fld2vec
-    fgrad
-    rliebra
-    rexppb
-    rlogpb
-    rderiv
-
-  Basic TPSA operations are in:
-
+  TPSA vector operations are in:
     ../src/gtpsa/mad-ng/src/mad_tpsa.h
-    ../src/gtpsa/mad-ng/src/mad_tpsa.c
+    ../src/gtpsa/mad-ng/src/mad_tpsa_ops.c
+      add
+      sub
+      ...
+      integ
+      deriv
+      poisbra
+      ...
+      print
+      ...
+      cutord
 
-    mad_tpsa_add
-    mad_tpsa_sub
-    ...
-    mad_tpsa_integ
-    mad_tpsa_deriv
-    ...
-    mad_tpsa_print
-
-  General TPSA operations are in:
-
-    ../src/gtpsa/mad-ng/src]/mad_tpsa_mops.c
-
-    deriv
-    integ
-    poisbra
-    ...
-
-  Minv & pinv are in:
-
+  TPSA map operations are in:
+    ../src/gtpsa/mad-ng/src/mad_tpsa_comp.c
+      Local
+        print_damap
+      Public
+        compose
+	translate
+	eval
     ../src/gtpsa/mad-ng/src]/mad_tpsa_minv.c
-  
-  and compose & eval in:
+      minv
+      pinv
+    ../src/gtpsa/mad-ng/src/mad_tpsa_mops.c
+      Local
+        print_damap
 
-    ../src/gtpsa/mad-ng/src]/mad_tpsa_comp.c
+      Public
+        exppb
+	logpb
+	liebra
+	fgrad
 
-    compose
-    eval
+	Compute (Eq. (34)):
+	  G(x;0) = -J grad.f(x;0)
+	vec2fld
 
-  Basic TPSA map operations are in:
+	Compute  (Eqs. (34)-(37)):
+	  f(x;0) = \int_0^x J G(x';0) dx' = x^t J phi G(x;0)
+	fld2vec
 
-    ../src/gtpsa/mad-ng/src]/mad_tpsa_mops.c
+	mnrm
 
-    deriv
-    integ
-
-  General TPSA map operations are in:
+  Also, a few are in:
   (coded in LUA)
 
-    compose (r = x * y)
-    map_ctor
-    exppb
-    logpb
-    liebra
-    lieexppb
-    vec2fld
-    fld2vec
-    flofacg
-    factor_map
-    ...
+    ../src/gtpsa/mad-ng/src/madl_damap.mad
+      map_ctor
+      factor_map
+
+      Factored Lie of exponential and poisson bracket:
+        r = exp(:y1:) exp(:y2:)... x
+      lieexppb
+
+      flofacg
+      ...
+
+    ../src/gtpsa/madl_gphys.mad
+      make_symp       (Make map symplectic, thesis by Liam Healey)
+      gphys.normal_ng (Map normal form)
+      normal_c        (Phasor basis)
 
   Lua (Portuguese: lua -> moon) was Created by the Computer Graphics
   Technology Group (Tecgraf) at the PUC Uni, Rio de Janeiro, Brazil in 1993:
@@ -139,7 +139,6 @@
 
     https://luajit.org/luajit.html
                                                                               */
-
 
 namespace gtpsa {
 
