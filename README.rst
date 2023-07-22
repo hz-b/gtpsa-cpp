@@ -18,11 +18,11 @@ The gtpsa C -> C++ -> Python Pybind11 interfaces were implemented by Pierre Schn
 
 References:
 
-	P. Schnizer, W. Khailm J. Bengtsson "Small Talk on AT" IPAC 2022
+	P\. Schnizer, W. Khail, J. Bengtsson *Small Talk on AT* IPAC 2022
 
 	https://accelconf.web.cern.ch/ipac2022/papers/tupost029.pdf
 
-	L. Deniau, C. Tomoiagă "Generalised Truncated Power Series Algebra for Fast Particle Accelerator Transport Maps" IPAC 2015
+	L\. Deniau, C. Tomoiagă *Generalised Truncated Power Series Algebra for Fast Particle Accelerator Transport Maps* IPAC 2015
 
 	https://accelconf.web.cern.ch/ipac2015/papers/mopje039.pdf
 
