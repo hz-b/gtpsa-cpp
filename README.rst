@@ -266,7 +266,7 @@ Also, a few are in:
 
 		gphys.normal_ng (Map normal form)
 
-		normal_c(Phasor basis)
+		normal_c (Phasor basis)
 
 Lua Scripting Language
 ----------------------
