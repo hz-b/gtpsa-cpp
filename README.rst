@@ -1,4 +1,4 @@
-C++ Interface to  Truncated Power Series Algebra module interface
+C++ Interface toTruncated Power Series Algebra module interface
 =================================================================
 
 This code base is providing a shallow c++ wrapper to the
@@ -14,4 +14,151 @@ https://github.com/MethodicalAcceleratorDesign/MAD/blob/dev/src/libgtpsa/README.
 The wrapper code should be currently seen as an experiment of
 how such a c++ style wrapper could be built.
 
-If interested, you are welcome to join.
+=================================================================
+
+The gtpsa C -> C++ -> Python Pybind11 interfaces were implemented by Pierre Schnizer.
+
+The gtpsa C++ -> Python Pybind11 part is in:
+  ../src/gtpsa/python/src/gtpsa.cc
+  ../src/gtpsa/python/src/ss_vect.cc
+
+which also sets eps for the gtpsa print function; see below.
+(Set to e.g. 1e-30 to supress printing of zeroes)
+
+The gtpsa I/O C -> C++ functions are in:
+  ../src/gtpsa/c++/gtpsa/mad/wrapper.tpp
+    print()
+    print("", 1e-30, 0, stdout)
+    rgetOrder
+    rderiv
+    rinteg
+  ../src/gtpsa/c++/gtpsa/mad/tpsa_wrapper.hpp
+    norm
+    equ
+  ../src/gtpsa/c++/gtpsa/mad/container_wrapper.tpp
+    getMaximumOrder
+    computeNorm
+    rvec2fld
+    fld2vec
+    fgrad
+    rliebra
+    rexppb
+    rlogpb
+    rcompose
+    rminv
+    rpminv
+
+and in:
+  ../src/gtpsa/c++/gtpsa/intern/with_operators.hpp
+    show()
+    show(stdout, level)
+    Remark: Only prints leading order; level parameter not implemented.
+
+The gtpsa print functions are in:
+  ../src/gtpsa/mad-ng/src]/mad_tpsa_io.c
+  ../src/gtpsa/mad-ng/src]/mad_tpsa_comp.c
+    print
+    print_damap
+
+The general gtpsa C -> C++ interface is in:
+  ../src/gtpsa/c++/gtpsa/ss_vect.h
+  ../src/gtpsa/c++/gtpsa/ss_vect.cc
+    show(std::ostream &strm, int level = 1, bool with_endl = true)
+    jacobian
+    hessian
+    set_zero
+    set_identity
+    setConstant
+    setJacobian
+    setHessian
+
+Not yet implemented:
+(For TPSA maps)
+  rminv
+  rpminv
+	rcompose
+	rvec2fld
+	fld2vec
+	fgrad
+	rliebra
+	rexppb
+	rlogpb
+	rderiv
+
+  ..//src/gtpsa/c++/gtpsa/lielib.cc
+    inv
+    pinv
+    M_to_h_DF
+
+TPSA vector operations are in:
+  ../src/gtpsa/mad-ng/src/mad_tpsa.h
+  ../src/gtpsa/mad-ng/src/mad_tpsa_ops.c
+    add
+    sub
+    ...
+    integ
+    deriv
+    poisbra
+    ...
+    print
+    ...
+    cutord
+
+TPSA map operations are in:
+  ../src/gtpsa/mad-ng/src/mad_tpsa_comp.c
+    Local
+    print_damap
+    Public
+    compose
+    translate
+  	eval
+  ../src/gtpsa/mad-ng/src]/mad_tpsa_minv.c
+    minv
+    pinv
+  ../src/gtpsa/mad-ng/src/mad_tpsa_mops.c
+    Local
+    print_damap
+
+    Public
+    exppb
+  	logpb
+    liebra
+    fgrad
+
+    Compute (Eq. (34)):
+      G(x;0) = -J grad.f(x;0)
+    vec2fld
+
+    Compute(Eqs. (34)-(37)):
+      f(x;0) = \int_0^x J G(x';0) dx' = x^t J phi G(x;0)
+    fld2vec
+
+    mnrm
+
+Also, a few are in:
+(coded in LUA)
+
+  ../src/gtpsa/mad-ng/src/madl_damap.mad
+    map_ctor
+    factor_map
+
+    Factored Lie of exponential and poisson bracket:
+      r = exp(:y1:) exp(:y2:)... x
+    lieexppb
+
+    flofacg
+    ...
+
+  ../src/gtpsa/madl_gphys.mad
+    make_symp (Make map symplectic, thesis by Liam Healey)
+    gphys.normal_ng (Map normal form)
+    normal_c(Phasor basis)
+
+Lua (Portuguese: lua -> moon) was Created by the Computer Graphics
+Technology Group (Tecgraf) at the PUC Uni, Rio de Janeiro, Brazil in 1993:
+
+  https://www.lua.org/about.html
+
+LuaJiT is a just-in-time compiler:
+
+  https://luajit.org/luajit.html
