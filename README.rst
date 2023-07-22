@@ -254,7 +254,7 @@ Also, a few are in:
 
 		normal_c(Phasor basis)
 
-Lua (Portuguese: lua -> moon) was Created by the Computer Graphics
+Lua (Portuguese: lua -> moon) was created by the Computer Graphics
 Technology Group (Tecgraf) at the PUC Uni, Rio de Janeiro, Brazil in 1993:
 
 	https://www.lua.org/about.html
