@@ -93,7 +93,7 @@ and in:
 
 		show(stdout, level)
 
-		Remark: Only prints leading order; level parameter not implemented.
+		Remark: It only prints leading order; *level* parameter not implemented.
 
 The *gtpsa* print functions are in:
 
