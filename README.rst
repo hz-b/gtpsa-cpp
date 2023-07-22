@@ -264,6 +264,8 @@ Also, a few are in:
 
 		make_symp (Make map symplectic, thesis by Liam Healey)
 
+			L\. Healy *Lie-Algebraic Methods for Treating Lattice Parameter Errors in Particle Accelerators* Thesis, Univ. of Maryland, 1986.
+
 		gphys.normal_ng (Map normal form)
 
 		normal_c (Phasor basis)
