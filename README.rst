@@ -8,22 +8,21 @@ For details see
 https://github.com/MethodicalAcceleratorDesign/MAD/blob/dev/src/libgtpsa/README.GTPSA.
 
 
-**NB**: this code base modifies the C function defintions of the original code. For serious work please checkout the original code, in particular if you are using the "C" language.
-
-
-The wrapper code should be currently seen as an experiment of
-how such a c++ style wrapper could be built.
+**NB**: this code base modifies the C function defintions of the original code.
+For serious work please checkout the original code, in particular if you are using the "C" language.
 
 =================================================================
 
 The gtpsa C -> C++ -> Python Pybind11 interfaces were implemented by Pierre Schnizer.
+However, some of the key gtpsa map analysis functions are implemented in the Lua scripting language – see below – so
+they have been re-implemented in C++.
 
 The gtpsa C++ -> Python Pybind11 part is in:
   ../src/gtpsa/python/src/gtpsa.cc
   ../src/gtpsa/python/src/ss_vect.cc
 
 which also sets eps for the gtpsa print function; see below.
-(Set to e.g. 1e-30 to supress printing of zeroes)
+(Set to e.g. 1e-30 vs. 0 to supress printing of zeroes)
 
 The gtpsa I/O C -> C++ functions are in:
   ../src/gtpsa/c++/gtpsa/mad/wrapper.tpp
