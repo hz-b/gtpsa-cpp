@@ -15,8 +15,10 @@ For serious work please checkout the original code, in particular if you are usi
 =================================================================
 
 The gtpsa C -> C++ -> Python Pybind11 interfaces were implemented by Pierre Schnizer.
-However, some of the key gtpsa map analysis functions are implemented in the Lua scripting language – see below – so
-they have been re-implemented in C++.
+
+However, some of the key gtpsa map analysis functions are implemented in the Lua scripting language; see below.
+
+Hence, they have been re-implemented in C++.
 
 The gtpsa C++ -> Python Pybind11 part is in:
 
