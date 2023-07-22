@@ -26,7 +26,7 @@ References:
 
 	https://accelconf.web.cern.ch/ipac2015/papers/mopje039.pdf
 
-However, some of the key *gtpsa* map analysis functions are implemented in the Lua scripting language; see below.
+However, some of the key *gtpsa* map analysis functions are implemented in the *Lua* scripting language; see below.
 
 Hence, they have been re-implemented in C++.
 
@@ -242,7 +242,7 @@ TPSA map operations are in:
 
 Also, a few are in:
 
-(coded in LUA)
+(coded in *Lua*)
 
 	../src/gtpsa/mad-ng/src/madl_damap.mad
 
@@ -270,9 +270,9 @@ Also, a few are in:
 
 		normal_c (Phasor basis)
 
-Lua Scripting Language
+*Lua* Scripting Language
 ----------------------
-The Lua scripting language (Portuguese: *lua* -> *moon*) was created by the Computer Graphics
+The *Lua* scripting language (Portuguese: *lua* -> *moon*) was created by the Computer Graphics
 Technology Group (Tecgraf) at the PUC Uni, Rio de Janeiro, Brazil in 1993:
 
 	https://www.lua.org/about.html
