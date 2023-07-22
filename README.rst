@@ -273,7 +273,7 @@ Also, a few are in:
 *Lua* Scripting Language
 ----------------------
 The *Lua* scripting language (Portuguese: *lua* -> *moon*) was created by the Computer Graphics
-Technology Group (Tecgraf) at the PUC Uni, Rio de Janeiro, Brazil in 1993:
+Technology Group (Tecgraf) at the PUC Univ., Rio de Janeiro, Brazil in 1993:
 
 	https://www.lua.org/about.html
 
