@@ -47,7 +47,7 @@ The *gtpsa* I/O C -> C++ functions are in:
 
 		print()
 
-		print("", 1e-30, 0, stdout)
+		print("", 1e-30, 0, stdout) (For TPSA vector; use cout << for map)
 
 		rgetOrder
 
@@ -91,7 +91,9 @@ and in:
 
 		show()
 
-		show(stdout, level)
+		show(stdout, level) (For TPSA vector)
+
+		operator<<
 
 		Remark: It only prints leading order; *level* parameter not implemented.
 
@@ -113,7 +115,7 @@ The general *gtpsa* C -> C++ interface is in:
 
 	../src/gtpsa/c++/gtpsa/ss_vect.cc
 
-		show(std::ostream &strm, int level = 1, bool with_endl = true)
+		show(std::ostream &strm, int level = 1, bool with_endl = true) (For TPSA map)
 
 		jacobian
 
@@ -203,6 +205,11 @@ TPSA map operations are in:
 		translate
 
 		eval
+
+
+	../src/gtpsa/mad-ng/src]/mad_tpsa_comp_s.tc
+
+		compose
 
 	../src/gtpsa/mad-ng/src]/mad_tpsa_minv.c
 
