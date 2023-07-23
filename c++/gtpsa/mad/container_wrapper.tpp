@@ -119,6 +119,30 @@ namespace gtpsa::mad {
 	(tmpa.size(), tmpa.data(), tmpb.size(), tmpb.data(), tmpc.data());
     }
 
+    inline void rcompose_jb
+      (const GTPSA_CLASS(ContainerWrapper) &ma,
+       const GTPSA_CLASS(ContainerWrapper) &mb) {
+      /*
+       * following mad gtpsa documentation.
+       *
+       * gtpsa checks that internally. Review if leave it here too.
+       * At time of implementation gtpsa's error handler was not properly
+       * implemented
+       */
+      if (ma.size() != this->size()) {
+	std::stringstream strm;
+	strm << "ma size" << ma.size() << " !=  mc size " << this->size();
+	throw std::runtime_error(strm.str());
+      }
+
+      auto tmpa = ma.getConstBufferPtrs();
+      auto tmpb = mb.getConstBufferPtrs();
+      auto tmpc = this->getBufferPtrs();
+
+      GTPSA_METH(compose_jb)
+	(tmpa.size(), tmpa.data(), tmpb.size(), tmpb.data(), tmpc.data());
+    }
+
     inline void rminv(const GTPSA_CLASS(ContainerWrapper) &ma) {
       /*
        * deduced from mad_tpsa.h

@@ -59,6 +59,13 @@ gtpsa::tpsa exp_v_to_tps
 #endif
 
 
+void print_map(const std::string &str, gtpsa::ss_vect<gtpsa::tpsa> &M)
+{
+  for (auto k = 0; k < 6; k++) 
+    M[k].print(str.c_str(), 1e-30, 0);
+}
+
+
 /**
  * @brief Factor map:
  *
@@ -72,24 +79,48 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
   auto map_lin     = t_map.allocateLikeMe();
   auto map_lin_inv = t_map.allocateLikeMe();
 
-  map_lin.rgetOrder(t_map, 1);
-  map_lin_inv = gtpsa::minv(map_lin);
+  t_map[0].print("\nM_to_M_fact:\n1", 1e-30, 0, 0);
 
-  auto map_res          = gtpsa::compose(t_map, map_lin_inv);
-  auto map_fact         = t_map.allocateLikeMe();
-  auto map_single_order = t_map.allocateLikeMe();
+  auto Id = t_map.allocateLikeMe();
+  auto M  = t_map.allocateLikeMe();
+  Id.set_identity();
+  print_map("\nId a:\n", Id);
+  for (auto k = 0; k < 6; k++) 
+    Id[k].set(7, 0e0, 1e0);
+  print_map("\nId b:\n", Id);
+
+  M = compose(t_map, Id);
+  M[0].print("\nM:\n", 1e-30, 0);
+
+  exit(0);
+  assert(false);
+
+  map_lin.rgetOrder(t_map, 1);
+
+  print_map("\n2:\n", map_lin);
+
+  map_lin_inv = gtpsa::minv(map_lin);
+  
+  print_map("\n3a:\n", map_lin_inv);
+  for (auto k = 0; k < 6; k++) 
+    map_lin_inv[k].set(7, 0e0, 1e0);
+  print_map("\n3b:\n", map_lin_inv);
+
+  auto map_fact = t_map.allocateLikeMe();
+  auto map_res  = gtpsa::compose(t_map, map_lin_inv);
+  auto map_k    = t_map.allocateLikeMe();
+
+  map_res[0].print("4", 1e-30, 0, 0);
 
   map_fact.set_zero();
   for(int k = 2; k < t_map.getMaximumOrder(); ++k) {
-    map_single_order.rgetOrder(map_res, k);
-    map_fact += map_single_order;
+    map_k.rgetOrder(map_res, k);
+    map_fact += map_k;
     map_fact *= -1.0;
     map_res = gtpsa::exppb(map_fact, map_res);
   }
 
-  std::cout << std::scientific << std::setprecision(3) << "\nM_to_M_fact:\n";
-  for (auto k = 0; k < 6; k++)
-    map_fact[k].print("", 1e-30, 0, stdout);
+  map_fact[0].print("5", 1e-30, 0, 0);
   return map_fact;
 }
 

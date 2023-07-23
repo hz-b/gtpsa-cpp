@@ -90,6 +90,13 @@ namespace gtpsa {
             mc_c.rcompose(ma_c, mb_c);
         }
 
+        inline void rcompose_jb(const TpsaBridgeContainer<T> &ma, const TpsaBridgeContainer<T> &mb) {
+            const ContainerBridge ma_c(ma.getBridgePtrs()), mb_c(mb.getBridgePtrs());
+            ContainerBridge mc_c(this->getBridgePtrs());
+
+            mc_c.rcompose_jb(ma_c, mb_c);
+        }
+
         inline void rminv(const TpsaBridgeContainer<T> &ma) {
             const ContainerBridge ma_c(ma.getBridgePtrs());
             ContainerBridge mc_c(this->getBridgePtrs());

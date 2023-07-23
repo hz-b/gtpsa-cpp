@@ -385,6 +385,10 @@ namespace gtpsa {
       throw std::runtime_error("rcompose currently only implemented for tpsa");
     }
 
+    inline void rcompose_jb(const ss_vect<T>& a, const ss_vect<T>& b){
+      throw std::runtime_error("rcompose currently only implemented for tpsa");
+    }
+
     void rvec2fld(const T& a) {
       throw std::runtime_error("rvec2fld currently only implemented for tpsa");
     }
@@ -708,6 +712,10 @@ namespace gtpsa {
   void  ss_vect<tpsa>::rcompose(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
 
   template<>
+  void  ss_vect<tpsa>::rcompose_jb
+  (const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
+
+  template<>
   void ss_vect<tpsa>::rminv(const ss_vect<tpsa>& a);
 
   template<>
@@ -754,6 +762,14 @@ namespace gtpsa {
   {
     auto c = a.allocateLikeMe();
     c.rcompose(a, b);
+    return c;
+  }
+
+  inline ss_vect<tpsa> compose_jb
+  (const ss_vect<tpsa>& a, const ss_vect<tpsa>& b)
+  {
+    auto c = a.allocateLikeMe();
+    c.rcompose_jb(a, b);
     return c;
   }
 

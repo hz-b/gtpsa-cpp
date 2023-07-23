@@ -19,28 +19,28 @@ void gtpsa::ss_vect<double>::show
   for(size_t i= 0; i<this->state_space.size(); ++i){
     strm << " " << this->state_space[i];
   }
-  if(with_endl) {	strm << "\n";        }
+  if(with_endl) { strm << "\n"; }
 }
 
 template<typename T>
 void gtpsa::ss_vect<T>::show
 (std::ostream& strm, int level, bool with_endl) const
 {
-  int precision = 6;
+  const int precision = 5;
 
   strm << std::scientific << std::setprecision(precision);
-  strm  << "cst\n";
+  strm  << "\ntpsa cst:\n";
   for(size_t i= 0; i<this->state_space.size(); ++i){
     auto& t_tpsa = this->state_space[i];
     auto val = t_tpsa.getsm(std::vector<idx_t>{0, 0});
-    strm << std::setw(14) << val << " ";
+    strm << std::setw(precision+8) << val;
   }
-  if(with_endl || (level >= 1)) {	strm << "\n";        }
+  if(with_endl || (level >= 1)) { strm << "\n"; }
   if(level == 0){
     return;
   }
 
-  strm  << "map\n";
+  strm  << "tpsa linear:\n";
   // preserve order
   for(size_t i= 0; i<this->state_space.size(); ++i){
     auto& t_tpsa = this->state_space[i];
@@ -49,7 +49,7 @@ void gtpsa::ss_vect<T>::show
     for (int j = 0; j<nn; ++j){
       // todo: validate index
       auto val = t_tpsa.getsm(std::vector<idx_t>{int(j+1), 1});
-      strm << std::setw(14) << val << " ";
+      strm << std::setw(precision+8) << val << " ";
     }
     strm << "\n";
   }
@@ -165,8 +165,8 @@ void gtpsa::ss_vect<gtpsa::tpsa>::setJacobian(arma::mat& jac) {
 
   if (jac.n_rows != this->state_space.size()) {
     std::stringstream strm;
-    strm << "Jacobian matrix has " << jac.n_rows << " rows, but state space has size "
-	 << this->state_space.size();
+    strm << "Jacobian matrix has " << jac.n_rows
+	 << " rows, but state space has size " << this->state_space.size();
     throw std::runtime_error(strm.str());
   }
 
@@ -288,7 +288,8 @@ void  gtpsa::ss_vect<gtpsa::tpsa>::rliebra
 }
 
 template<>
-void  gtpsa::ss_vect<gtpsa::tpsa>::rexppb(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
+void  gtpsa::ss_vect<gtpsa::tpsa>::rexppb
+(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
 {
   FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
   const bridge_container_type ma_b(filter.as_const(a.state_space)), mb_b
@@ -299,7 +300,8 @@ void  gtpsa::ss_vect<gtpsa::tpsa>::rexppb(const gtpsa::ss_vect<gtpsa::tpsa>& a, 
 }
 
 template<>
-void  gtpsa::ss_vect<gtpsa::tpsa>::rlogpb(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
+void  gtpsa::ss_vect<gtpsa::tpsa>::rlogpb
+(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
 {
   FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
   const bridge_container_type ma_b(filter.as_const(a.state_space)), mb_b
@@ -342,6 +344,19 @@ void  gtpsa::ss_vect<gtpsa::tpsa>::rcompose
   bridge_container_type mc_b(filter.as_non_const(this->state_space));
 
   mc_b.rcompose(ma_b, mb_b);
+}
+
+template<>
+void  gtpsa::ss_vect<gtpsa::tpsa>::rcompose_jb
+(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
+{
+  FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
+
+  const bridge_container_type ma_b(filter.as_const(a.state_space)), mb_b
+    (filter.as_const(b.state_space));
+  bridge_container_type mc_b(filter.as_non_const(this->state_space));
+
+  mc_b.rcompose_jb(ma_b, mb_b);
 }
 
 template<>
