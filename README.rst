@@ -51,6 +51,30 @@ The *gtpsa* I/O C -> C++ functions are in:
 
 		rgetOrder
 
+		get0(void)
+
+		geti(const idx_t i)
+
+		gets(const std::string s)
+
+		getm(const std::vector<ord_t> &m)
+
+		getv(const idx_t i, std::vector<GTPSA_BASE_T> *v)
+
+		a*x[0]+b
+		set0(const GTPSA_BASE_T a, const GTPSA_BASE_T b)
+
+		a*x[i]+b
+		seti(const idx_t i, const GTPSA_BASE_T a, const GTPSA_BASE_T b)
+
+		a*x[m]+b
+		sets(const std::string &s, const GTPSA_BASE_T a, const GTPSA_BASE_T b)
+
+		a*x[m]+b
+		setm(const std::vector<ord_t> &m, const GTPSA_BASE_T a, const GTPSA_BASE_T b)
+
+		setv(const idx_t i, const std::vector<GTPSA_BASE_T> &v)
+
 		rderiv
 
 		rinteg
@@ -135,13 +159,13 @@ The general *gtpsa* C -> C++ interface is in:
 
 		getOrderPerParameter
 
-		getNv
+		getNv(ord_t *mo_=0, int *np_=0, ord_t *po_=0)
 
-		maxOrd
+		maxOrd(int nn=0, ord_t *no=nullptr)
 
-		maxLen
+		maxLen(ord_t mo)
 
-		trunc
+		trunc(const ord_t to)
 
 
 	../src/gtpsa/c++/gtpsa/ss_vect.h
