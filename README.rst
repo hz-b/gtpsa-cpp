@@ -63,6 +63,8 @@ The *gtpsa* I/O C -> C++ functions are in:
 
 	../src/gtpsa/c++/gtpsa/mad/container_wrapper.tpp
 
+		size
+
 		getMaximumOrder
 
 		computeNorm
@@ -110,6 +112,37 @@ The *gtpsa* print functions are in:
 *Gtpsa* C -> C++ Interface
 ------------------------
 The general *gtpsa* C -> C++ interface is in:
+
+	../src/gtpsa/c++/gtpsa/desc.hpp
+
+	../src/gtpsa/c++/gtpsa/desc.cc
+
+		show
+
+		getDescription
+
+		getinfo
+
+		getNumberOfVariables
+
+		getVariablesMaximumOrder
+
+		getNumberOfParameters
+
+		getParametersMaximumOrder
+
+		getTotalNumber
+
+		getOrderPerParameter
+
+		getNv
+
+		maxOrd
+
+		maxLen
+
+		trunc
+
 
 	../src/gtpsa/c++/gtpsa/ss_vect.h
 
@@ -163,6 +196,12 @@ Not yet implemented:
 		pinv
 
 		M_to_h_DF
+
+TPSA descriptor operations are in:
+
+	../src/gtpsa/mad-ng/src/mad_desc.h
+
+	../src/gtpsa/mad-ng/src/mad_desc.c
 
 TPSA vector operations are in:
 
@@ -245,7 +284,7 @@ TPSA map operations are in:
 
 		fld2vec
 
-		mnrm
+		mnrm (norm)
 
 Also, a few are in:
 
