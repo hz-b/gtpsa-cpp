@@ -386,7 +386,8 @@ namespace gtpsa {
     }
 
     inline void rcompose_jb(const ss_vect<T>& a, const ss_vect<T>& b){
-      throw std::runtime_error("rcompose currently only implemented for tpsa");
+      throw std::runtime_error
+	("rcompose_jb currently only implemented for tpsa");
     }
 
     void rvec2fld(const T& a) {
