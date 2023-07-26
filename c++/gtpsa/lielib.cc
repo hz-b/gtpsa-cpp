@@ -92,7 +92,6 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
   M = compose(t_map, Id);
   M[0].print("\nM:\n", 1e-30, 0);
 
-  exit(0);
   assert(false);
 
   map_lin.rgetOrder(t_map, 1);
