@@ -15,7 +15,7 @@
 
 namespace gtpsa {
 
-  const int ss_vect_n_dim = 6;
+  const int ss_vect_n_dim = 6 + 1;
 
 
   /**
