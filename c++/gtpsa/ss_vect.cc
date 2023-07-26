@@ -6,9 +6,9 @@
 void gtpsa::report_vector_dimension_mismatch(size_t nv,  const size_t n)
 {
   std::stringstream strm;
-  strm << "gtpsa::ss_vect<gtpsa::(c)tpsa> "
-       << " state space of  dimension " << n <<  " requested"
-       << " tpsa object has only "<< nv << " number of variables";
+  strm << "gtpsa::ss_vect<gtpsa::(c)tpsa>\n"
+       << " state space dim " << n << " requested but tpsa object has only "
+       << nv << " number of variables";
   throw std::runtime_error(strm.str());
 }
 
@@ -49,7 +49,7 @@ void gtpsa::ss_vect<T>::show
     for (int j = 0; j<nn; ++j){
       // todo: validate index
       auto val = t_tpsa.getsm(std::vector<idx_t>{int(j+1), 1});
-      strm << std::setw(precision+8) << val << " ";
+      strm << std::setw(precision+8) << val;
     }
     strm << "\n";
   }
@@ -344,19 +344,6 @@ void  gtpsa::ss_vect<gtpsa::tpsa>::rcompose
   bridge_container_type mc_b(filter.as_non_const(this->state_space));
 
   mc_b.rcompose(ma_b, mb_b);
-}
-
-template<>
-void  gtpsa::ss_vect<gtpsa::tpsa>::rcompose_jb
-(const gtpsa::ss_vect<gtpsa::tpsa>& a, const gtpsa::ss_vect<gtpsa::tpsa>& b)
-{
-  FilterBasePointers <gtpsa::tpsa, gtpsa::TpsaTypeInfo> filter;
-
-  const bridge_container_type ma_b(filter.as_const(a.state_space)), mb_b
-    (filter.as_const(b.state_space));
-  bridge_container_type mc_b(filter.as_non_const(this->state_space));
-
-  mc_b.rcompose_jb(ma_b, mb_b);
 }
 
 template<>
