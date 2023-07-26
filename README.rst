@@ -34,9 +34,35 @@ C++ -> Python Pybind11 Part
 ---------------------------
 The *gtpsa* C++ -> Python Pybind11 part is in:
 
+	../python/src/thor_scsi.cc
+
+		inv
+
+		pinv
+
+		compose
+
+		M_to_h_DF
+
 	../src/gtpsa/python/src/gtpsa.cc
 
 	../src/gtpsa/python/src/ss_vect.cc
+
+		...
+
+	../src/gtpsa/python/src/gtpsa.cc
+
+		print
+
+		length
+
+		getDescription
+
+		get
+
+		set
+
+		...
 
 which also sets *eps* for the *gtpsa* print function; see below.
 (Set to e.g. 1e-30 vs. 0 to supress printing of zeroes)
@@ -59,25 +85,37 @@ The *gtpsa* I/O C -> C++ functions are in:
 
 		getm(const std::vector<ord_t> &m)
 
-		getv(const idx_t i, std::vector<GTPSA_BASE_T> *v)
+		getv(const idx_t i, std::vector<num_t> *v)
 
 		a*x[0]+b
-		set0(const GTPSA_BASE_T a, const GTPSA_BASE_T b)
+		set0(const num_t a, const num_t b)
 
 		a*x[i]+b
-		seti(const idx_t i, const GTPSA_BASE_T a, const GTPSA_BASE_T b)
+		seti(const idx_t i, const num_tT a, const num_tT b)
 
 		a*x[m]+b
-		sets(const std::string &s, const GTPSA_BASE_T a, const GTPSA_BASE_T b)
+		sets(const std::string &s, const num_tT a, const num_tT b)
 
 		a*x[m]+b
-		setm(const std::vector<ord_t> &m, const GTPSA_BASE_T a, const GTPSA_BASE_T b)
+		setm(const std::vector<ord_t> &m, const num_tT a, const num_tT b)
 
-		setv(const idx_t i, const std::vector<GTPSA_BASE_T> &v)
+		setv(const idx_t i, const std::vector<num_tT> &v)
 
 		rderiv
 
 		rinteg
+
+	../src/gtpsa/c++/gtpsa/bridge/container.hpp
+
+		size
+
+		getMaximumOrder
+
+		computeNorm
+
+		rvec2fld
+
+		...
 
 	../src/gtpsa/c++/gtpsa/mad/tpsa_wrapper.hpp
 
@@ -105,13 +143,11 @@ The *gtpsa* I/O C -> C++ functions are in:
 
 		rlogpb
 
-		rcompose
+		rcompose (which call compose in the gtpsa library)
 
 		rminv
 
 		rpminv
-
-and in:
 
 	../src/gtpsa/c++/gtpsa/intern/with_operators.hpp
 
@@ -172,6 +208,12 @@ The general *gtpsa* C -> C++ interface is in:
 
 	../src/gtpsa/c++/gtpsa/ss_vect.cc
 
+		ss_vect_n_dim
+
+		ss_vect
+
+		state_space
+
 		show(std::ostream &strm, int level = 1, bool with_endl = true) (For TPSA map)
 
 		jacobian
@@ -188,6 +230,7 @@ The general *gtpsa* C -> C++ interface is in:
 
 		setHessian
 
+		rcompose
 
 Not yet implemented:
 
@@ -218,6 +261,8 @@ Not yet implemented:
 		inv
 
 		pinv
+
+		compose
 
 		M_to_h_DF
 
