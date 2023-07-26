@@ -122,7 +122,7 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
  * @param t_map
  * @return
  */
-#if 1
+#if 0
 gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &map)
 {
   const int ps_dim = 6;
@@ -139,8 +139,8 @@ gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &map)
   for (auto k = 0; k < ps_dim/2; ++k) {
     f_x.clear();
     f_px.clear();
-    f_x.rinteg(map[2*k+1], 2*k+1) ;
-    f_px.rinteg(map[2*k], 2*(k+1)) ;
+    f_x.rinteg(map[2*k+1], 2*k+1);
+    f_px.rinteg(map[2*k], 2*(k+1));
     h += f_x - f_px;
   }
   return h;
@@ -148,7 +148,7 @@ gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &map)
 
 #else
 
-// Does not work for reimplementation of compose with parameter dependence.
+// Does not work for reimplementation of map compose with parameter dependence.
 gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 {
   auto max_ord = t_map.getMaximumOrder();
@@ -229,7 +229,8 @@ gtpsa::tpsa gtpsa::M_to_h_DF(const gtpsa::ss_vect<gtpsa::tpsa> &M)
 
   print_map("\nM:", M);
   param_to_ss_vect(desc0->maxLen(no), M, M1);
-  M1[6].set(7, 0e0, 1e0);
+  if (np != 0)
+    M1[6].set(7, 0e0, 1e0);
   print_map("\nM1:", M1);
   h1 = M_to_h(M_to_M_fact(M1));
   h1.print("\nh1:", 1e-30, 0);
