@@ -59,10 +59,19 @@ gtpsa::tpsa exp_v_to_tps
 #endif
 
 
-void print_map(const std::string &str, gtpsa::ss_vect<gtpsa::tpsa> &M)
+void print_map(const std::string &str, const gtpsa::ss_vect<gtpsa::tpsa> &M)
 {
-  for (auto k = 0; k < 6; k++) 
+  for (auto k = 0; k < M.size(); k++) 
     M[k].print(str.c_str(), 1e-30, 0);
+}
+
+
+void print_vec(std::vector<num_t> &v)
+{
+  for (auto mn: v)
+    std::cout << std::scientific << std::setprecision(3)
+	      << std::setw(11) << mn;
+  std::cout << "\n";
 }
 
 
@@ -79,37 +88,15 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
   auto map_lin     = t_map.allocateLikeMe();
   auto map_lin_inv = t_map.allocateLikeMe();
 
-  t_map[0].print("\nM_to_M_fact:\n1", 1e-30, 0, 0);
-
   auto Id = t_map.allocateLikeMe();
-  auto M  = t_map.allocateLikeMe();
   Id.set_identity();
-  print_map("\nId a:\n", Id);
-  for (auto k = 0; k < 6; k++) 
-    Id[k].set(7, 0e0, 1e0);
-  print_map("\nId b:\n", Id);
-
-  M = compose(t_map, Id);
-  M[0].print("\nM:\n", 1e-30, 0);
-
-  assert(false);
 
   map_lin.rgetOrder(t_map, 1);
-
-  print_map("\n2:\n", map_lin);
-
   map_lin_inv = gtpsa::minv(map_lin);
   
-  print_map("\n3a:\n", map_lin_inv);
-  for (auto k = 0; k < 6; k++) 
-    map_lin_inv[k].set(7, 0e0, 1e0);
-  print_map("\n3b:\n", map_lin_inv);
-
   auto map_fact = t_map.allocateLikeMe();
   auto map_res  = gtpsa::compose(t_map, map_lin_inv);
   auto map_k    = t_map.allocateLikeMe();
-
-  map_res[0].print("4", 1e-30, 0, 0);
 
   map_fact.set_zero();
   for(int k = 2; k < t_map.getMaximumOrder(); ++k) {
@@ -119,7 +106,6 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
     map_res = gtpsa::exppb(map_fact, map_res);
   }
 
-  map_fact[0].print("5", 1e-30, 0, 0);
   return map_fact;
 }
 
@@ -136,16 +122,87 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
  * @param t_map
  * @return
  */
+#if 1
+gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &map)
+{
+  const int ps_dim = 6;
+
+  auto max_ord = map.getMaximumOrder();
+  auto desc    = map[0].getDescription();
+  auto f_x     = gtpsa::tpsa(desc, max_ord);
+  auto f_px    = gtpsa::tpsa(desc, max_ord);
+  auto Id      = gtpsa::ss_vect<gtpsa::tpsa>(desc, max_ord);
+  auto h       = gtpsa::tpsa(desc, max_ord);
+
+  Id.set_identity();
+  h.clear();
+  for (auto k = 0; k < ps_dim/2; ++k) {
+    f_x.clear();
+    f_px.clear();
+    f_x.rinteg(map[2*k+1], 2*k+1) ;
+    f_px.rinteg(map[2*k], 2*(k+1)) ;
+    h += f_x - f_px;
+  }
+  return h;
+}
+
+#else
+
+// Does not work for reimplementation of compose with parameter dependence.
 gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 {
   auto max_ord = t_map.getMaximumOrder();
-  auto desc = t_map[0].getDescription();
-  auto h = gtpsa::tpsa(desc, max_ord);
+  auto desc    = t_map[0].getDescription();
+  auto h       = gtpsa::tpsa(desc, max_ord);
   h.clear();
   // In ../gtpsa/mad-ng/src/mad_tpsa_mops.c.
+  const auto info = desc->getInfo();
+  std::cout << "\nM_to_h - info:\n" << info << "\n";
   t_map.fld2vec(&h);
   return h;
 }
+
+#endif
+
+gtpsa::tpsa param_to_tps(const int nm, const gtpsa::tpsa &a, gtpsa::tpsa &b)
+{
+  std::vector<num_t> v(nm);
+  a.getv(0, &v);
+  b.setv(0, v);
+  return b;
+}
+
+
+gtpsa::ss_vect<gtpsa::tpsa> param_to_ss_vect
+(const int nm, const gtpsa::ss_vect<gtpsa::tpsa> &A,
+ gtpsa::ss_vect<gtpsa::tpsa> &B)
+{
+  for (auto k = 0; k < A.size(); k++)
+    param_to_tps(nm, A[k], B[k]);
+
+  return B;
+}
+
+
+gtpsa::tpsa tps_to_param(const int nm, const gtpsa::tpsa &a, gtpsa::tpsa &b)
+{
+  std::vector<num_t> v(nm);
+  a.getv(0, &v);
+  b.setv(0, v);
+  return b;
+}
+
+
+gtpsa::ss_vect<gtpsa::tpsa> ss_vect_to_param
+(const int nm, const gtpsa::ss_vect<gtpsa::tpsa> &A,
+ gtpsa::ss_vect<gtpsa::tpsa> &B)
+{
+  for (auto k = 0; k < A.size(); k++)
+    param_to_tps(nm, A[k], B[k]);
+
+  return B;
+}
+
 
 /**
  * Liefact in Forest's F77 LieLib.
@@ -154,7 +211,29 @@ gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
  * Dragt-Finn factorization:
  *   M ->  M_lin * exp(:h_3:) * exp(:h_4:) ...  * exp(:h_n:)
  */
-gtpsa::tpsa gtpsa::M_to_h_DF(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
+gtpsa::tpsa gtpsa::M_to_h_DF(const gtpsa::ss_vect<gtpsa::tpsa> &M)
 {
-  return M_to_h(M_to_M_fact(t_map));
+  // Workaround for gtpsa map compose with parameter dependence.
+  const auto desc0 = M[0].getDescription();
+  const auto info  = desc0->getInfo();
+  const auto nv    = info.getNumberOfVariables();
+  const auto no    = info.getVariablesMaximumOrder();
+  const auto np    = info.getNumberOfParameters();
+  const auto po    = info.getParametersMaximumOrder();
+  const auto desc1 = std::make_shared<gtpsa::desc>(nv+np, no);
+  const int  nm    = desc0->maxLen(no);
+
+  auto h = gtpsa::tpsa(desc0, no);
+  auto h1 = gtpsa::tpsa(desc1, no);
+  auto M1 = gtpsa::ss_vect<gtpsa::tpsa>(desc1, no);
+
+  print_map("\nM:", M);
+  param_to_ss_vect(desc0->maxLen(no), M, M1);
+  M1[6].set(7, 0e0, 1e0);
+  print_map("\nM1:", M1);
+  h1 = M_to_h(M_to_M_fact(M1));
+  h1.print("\nh1:", 1e-30, 0);
+  tps_to_param(desc0->maxLen(no), h1, h);
+
+  return h;
 }
