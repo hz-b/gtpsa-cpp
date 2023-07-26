@@ -48,6 +48,12 @@ The *gtpsa* C++ -> Python Pybind11 part is in:
 
 	../src/gtpsa/python/src/ss_vect.cc
 
+	TPSA map operations:
+
+		minv
+
+		pminv
+
 		compose (redundant)
 
 		...
