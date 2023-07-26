@@ -50,8 +50,9 @@ namespace gtpsa {
     (const std::shared_ptr<mad::desc> desc, const ord_t mo,
      const size_t n = ss_vect_n_dim)
     {
+#if 1
       check_vector_dimension(desc, n);
-
+#endif
       this->state_space.reserve(n);
       for (size_t i = 0; i < n; ++i) {
 	T tmp(desc, mo);
@@ -60,7 +61,9 @@ namespace gtpsa {
     }
 
     inline ss_vect(const T &t, const size_t n = ss_vect_n_dim) {
+#if 1
       check_vector_dimension(t.getDescription(), n);
+#endif
       this->state_space.reserve(n);
       for (size_t i = 0; i < n; ++i) {
 	this->state_space.push_back(t.newFromThis());
@@ -383,11 +386,6 @@ namespace gtpsa {
 
     inline void rcompose(const ss_vect<T>& a, const ss_vect<T>& b){
       throw std::runtime_error("rcompose currently only implemented for tpsa");
-    }
-
-    inline void rcompose_jb(const ss_vect<T>& a, const ss_vect<T>& b){
-      throw std::runtime_error
-	("rcompose_jb currently only implemented for tpsa");
     }
 
     void rvec2fld(const T& a) {
@@ -713,10 +711,6 @@ namespace gtpsa {
   void  ss_vect<tpsa>::rcompose(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
 
   template<>
-  void  ss_vect<tpsa>::rcompose_jb
-  (const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
-
-  template<>
   void ss_vect<tpsa>::rminv(const ss_vect<tpsa>& a);
 
   template<>
@@ -763,14 +757,6 @@ namespace gtpsa {
   {
     auto c = a.allocateLikeMe();
     c.rcompose(a, b);
-    return c;
-  }
-
-  inline ss_vect<tpsa> compose_jb
-  (const ss_vect<tpsa>& a, const ss_vect<tpsa>& b)
-  {
-    auto c = a.allocateLikeMe();
-    c.rcompose_jb(a, b);
     return c;
   }
 
