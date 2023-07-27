@@ -37,19 +37,19 @@ namespace gtpsa {
     using bridge_type = typename T::bridge_type;
 
     inline TpsaBridge(std::shared_ptr<mad::desc> desc, const ord_t mo)
-      : m_impl (desc, mo)
+      : m_impl(desc, mo)
     { }
 
-    inline TpsaBridge(const TpsaBridge<T>&       t,  const ord_t mo)
-      :  m_impl (t.m_impl, mo)
+    inline TpsaBridge(const TpsaBridge<T>& t, const ord_t mo)
+      :  m_impl(t.m_impl, mo)
     { }
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
-    inline TpsaBridge(const TpsaBridge<T>&              o)
-      : m_impl (o.m_impl)
+    inline TpsaBridge(const TpsaBridge<T>& o)
+      : m_impl(o.m_impl)
     { }
 #else /* GTSPA_ONLY_OPTIMISED_OPS */
-    inline TpsaBridge(const TpsaBridge<T>&              o) = delete;
+    inline TpsaBridge(const TpsaBridge<T>& o) = delete;
 #endif /* GTSPA_ONLY_OPTIMISED_OPS */
 
     /**
@@ -60,7 +60,7 @@ namespace gtpsa {
     //inline TpsaBridge<T>& operator= (TpsaBridge<T> && o)      = default;
 
 
-    inline TpsaBridge<T> clone(void)  const
+    inline TpsaBridge<T> clone(void) const
     { TpsaBridge<T> res(*this, mad::init::same);
       res._copyInPlace(*this);
       return res; }
@@ -79,8 +79,8 @@ namespace gtpsa {
      * base class. Avoids that many functions like process and so on need to
      * be declared as friend classes
      *
-     * not needed as this class adds functionality to the base class. Still kept as
-     * it seems to make further code easier to understand....
+     * not needed as this class adds functionality to the base class.
+     * Still kept as it seems to make further code easier to understand....
      */
     inline void _copyInPlace(const TpsaBridge<T>& o)
     { this->m_impl._copyInPlace(o.m_impl); }
@@ -138,8 +138,8 @@ namespace gtpsa {
     /**
      * @brief indexing / monomials (return idx_t = -1 if invalid)
      */
-    inline auto mono(std::vector<ord_t>& m, idx_t i)
-    { return this->m_impl.mono(m, i); }
+    inline auto mono(idx_t i, std::vector<ord_t> *m)
+    { return this->m_impl.mono(i, m); }
 
     /**
      *  @brief string mono "[0-9]*"
@@ -179,32 +179,32 @@ namespace gtpsa {
     /**
      * @brief a*x[0]+b
      */
-    inline void set(base_type a, base_type b) { this->m_impl.set0(   a, b ); }
+    inline void set(base_type a, base_type b) { this->m_impl.set0(  a, b); }
 
     /**
      * @brief a*x[i]+b
      */
     inline void set(const idx_t i, base_type a, base_type b)
-    { this->m_impl.seti(i, a, b ); }
+    { this->m_impl.seti(i, a, b); }
     /**
      * @brief a*x[m]+b
      */
     inline void set(const std::string& s, base_type a, base_type b)
-    { this->m_impl.sets(s, a, b ); }
+    { this->m_impl.sets(s, a, b); }
     /**
      * @brief a*x[m]+b
      */
     inline void set(const std::vector<ord_t>& m , base_type a, base_type b)
-    { this->m_impl.setm(m, a, b ); }
+    { this->m_impl.setm(m, a, b); }
 
     /**
-     * @brief a*x[m]+b, sparse mono [(i,o)]
+     * @brief a*x[m]+b, sparse mono [(i, o)]
      * @todo vector of pairs?
      */
     inline auto setsm(const std::vector<int> m, base_type a, base_type b)
-    { this->m_impl.setsm(m, a, b ); }
+    { this->m_impl.setsm(m, a, b); }
 
-    inline void getv(idx_t i,       std::vector<base_type> *v) const
+    inline void getv(idx_t i, std::vector<base_type> *v) const
     { this->m_impl.getv(i, v); }
     inline void setv(idx_t i, const std::vector<base_type> &v)
     { this->m_impl.setv(i, v); }
@@ -215,7 +215,7 @@ namespace gtpsa {
       this->m_impl.setvar(v, iv, scale);
     }
 
-    inline auto rgetOrder ( const TpsaBridge& src, const size_t order )
+    inline auto rgetOrder (const TpsaBridge& src, const size_t order)
     { return this->m_impl.rgetOrder(src.m_impl, order); };
     /**
      *
@@ -230,38 +230,38 @@ namespace gtpsa {
     inline auto cst(void) const { return this->get(); }
 
     /* results stored in this */
-    inline void pow( const TpsaBridge<T>& a, const TpsaBridge<T>& b)
+    inline void pow(const TpsaBridge<T>& a, const TpsaBridge<T>& b)
     { this->m_impl.pow(a.m_impl, b.m_impl);  }
-    inline void pow( const TpsaBridge<T>& a, const int i)
+    inline void pow(const TpsaBridge<T>& a, const int i)
     { this->m_impl.pow(a.m_impl, i);  }
-    inline void pow( const TpsaBridge<T>& a, const base_type v)
+    inline void pow(const TpsaBridge<T>& a, const base_type v)
     { this->m_impl.pow(a.m_impl, v);  }
 
 
     /* results stored in this */
-    inline void add( const TpsaBridge<T>& a, const TpsaBridge<T>& b )
+    inline void add(const TpsaBridge<T>& a, const TpsaBridge<T>& b)
     { this->m_impl.add(a.m_impl, b.m_impl); }
-    inline void dif( const TpsaBridge<T>& a, const TpsaBridge<T>& b )
+    inline void dif(const TpsaBridge<T>& a, const TpsaBridge<T>& b)
     { this->m_impl.dif(a.m_impl, b.m_impl); }
-    inline void sub( const TpsaBridge<T>& a, const TpsaBridge<T>& b )
+    inline void sub(const TpsaBridge<T>& a, const TpsaBridge<T>& b)
     { this->m_impl.sub(a.m_impl, b.m_impl); }
-    inline void mul( const TpsaBridge<T>& a, const TpsaBridge<T>& b )
+    inline void mul(const TpsaBridge<T>& a, const TpsaBridge<T>& b)
     { this->m_impl.mul(a.m_impl, b.m_impl); }
-    inline void div( const TpsaBridge<T>& a, const TpsaBridge<T>& b )
+    inline void div(const TpsaBridge<T>& a, const TpsaBridge<T>& b)
     { this->m_impl.div(a.m_impl, b.m_impl); }
 
     inline void acc(const TpsaBridge<T>& a, const num_t v)
     { this->m_impl.acc(a, v); }
-    inline void scl( const TpsaBridge<T>& a, const num_t v)
+    inline void scl(const TpsaBridge<T>& a, const num_t v)
     { this->m_impl.scl(a, v); }
-    inline void inv( const TpsaBridge<T>& a, const num_t v)
+    inline void inv(const TpsaBridge<T>& a, const num_t v)
     { this->m_impl.inv(a, v); }
-    inline void invsqrt( const TpsaBridge<T>& a, const num_t v)
+    inline void invsqrt(const TpsaBridge<T>& a, const num_t v)
     { this->m_impl.invsqrt(a, v); }
 
     inline void rderiv(const TpsaBridge<T>& o, const int iv)
     { this->m_impl.rderiv(o.m_impl, iv); }
-    inline void rinteg(const TpsaBridge<T>& o, const int iv )
+    inline void rinteg(const TpsaBridge<T>& o, const int iv)
     { this->m_impl.rinteg(o.m_impl, iv);   }
 
     /* |                                                                |

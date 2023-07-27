@@ -56,6 +56,7 @@ namespace gtpsa::mad {
     inline void fld2vec(GTPSA_CLASS(Wrapper)* r) const {
       auto tmpa = this->getConstBufferPtrs();
       // GTPSA_METH(fld2vec)(tmpa.size(), tmpa.data(), r->getPtr());
+      // Hard coded for map compose reimplementation.
       GTPSA_METH(fld2vec)(6, tmpa.data(), r->getPtr());
     }
 
