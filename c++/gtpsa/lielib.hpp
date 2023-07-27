@@ -6,7 +6,7 @@
 
 void print_map(const std::string &str, const gtpsa::ss_vect<gtpsa::tpsa> &M);
 
-void print_vec(std::vector<num_t> &v);
+void print_vec(const std::string &str, const std::vector<num_t> &v);
 
 gtpsa::ss_vect<gtpsa::tpsa> param_to_ss_vect
 (const int nm, const gtpsa::ss_vect<gtpsa::tpsa> &A,

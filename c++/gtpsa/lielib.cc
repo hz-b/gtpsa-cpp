@@ -61,13 +61,16 @@ gtpsa::tpsa exp_v_to_tps
 
 void print_map(const std::string &str, const gtpsa::ss_vect<gtpsa::tpsa> &M)
 {
+  const double eps = 0e-30;
+
   for (auto k = 0; k < M.size(); k++) 
-    M[k].print(str.c_str(), 1e-30, 0);
+    M[k].print(str.c_str(), eps, 0);
 }
 
 
-void print_vec(std::vector<num_t> &v)
+void print_vec(const std::string &str, const std::vector<num_t> &v)
 {
+  std::cout << str << "\n";
   for (auto mn: v)
     std::cout << std::scientific << std::setprecision(3)
 	      << std::setw(11) << mn;
@@ -110,6 +113,17 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 }
 
 
+double scl_ord(gtpsa::tpsa &a)
+{
+  const int ps_dim = 6;
+
+  auto scl = 0e0;
+  for (auto k = 0; k < ps_dim; k++)
+    scl += 1e0;
+  return scl;
+}
+
+
 /**
  * Intd in Forest's F77 LieLib.
  * E. Forest, M. Berz, J. Irwin 𝑁𝑜𝑟𝑚𝑎𝑙 𝐹𝑜𝑟𝑚 𝑀𝑒𝑡ℎ𝑜𝑑𝑠 𝑓𝑜𝑟 𝐶𝑜𝑚𝑝𝑙𝑖𝑐𝑎𝑡𝑒𝑑 𝑃𝑒𝑟𝑖𝑜𝑑𝑖𝑐 𝑆𝑦𝑠𝑡𝑒𝑚𝑠:
@@ -122,26 +136,24 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
  * @param t_map
  * @return
  */
-#if 0
+#if 1
 gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &map)
 {
   const int ps_dim = 6;
 
   auto max_ord = map.getMaximumOrder();
   auto desc    = map[0].getDescription();
-  auto f_x     = gtpsa::tpsa(desc, max_ord);
-  auto f_px    = gtpsa::tpsa(desc, max_ord);
-  auto Id      = gtpsa::ss_vect<gtpsa::tpsa>(desc, max_ord);
+  auto mn      = gtpsa::tpsa(desc, max_ord);
+  auto ps_k    = gtpsa::tpsa(desc, max_ord);
   auto h       = gtpsa::tpsa(desc, max_ord);
 
-  Id.set_identity();
   h.clear();
-  for (auto k = 0; k < ps_dim/2; ++k) {
-    f_x.clear();
-    f_px.clear();
-    f_x.rinteg(map[2*k+1], 2*k+1);
-    f_px.rinteg(map[2*k], 2*(k+1));
-    h += f_x - f_px;
+  for (auto k = 0; k < ps_dim; ++k) {
+    auto index = (k % 2 == 0)? k+2 : k+1;
+    ps_k.clear();
+    ps_k.setVariable(0e0, 2, 0e0);
+    mn = map[k]*ps_k;
+    h += (k % 2 == 0)? -mn : mn;
   }
   return h;
 }
