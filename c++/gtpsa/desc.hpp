@@ -55,7 +55,8 @@ namespace gtpsa::mad {
 	return;
       }
 #ifdef gtpsa_DEBUG
-#warning "gtpsa::desc: not deleting underlying gtpsa desc_t object. see  comment in <gtpsa/desc.hpp>"
+#warning "gtpsa::desc: not deleting underlying gtpsa desc_t object. "	\
+  "see  comment in <gtpsa/desc.hpp>"
 #endif
       //mad_desc_del(this->ptr);
       this->ptr=nullptr;
