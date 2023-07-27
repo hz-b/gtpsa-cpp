@@ -112,20 +112,6 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
   return map_fact;
 }
 
-
-/**
- * Intd in Forest's F77 LieLib.
- * E. Forest, M. Berz, J. Irwin 𝑁𝑜𝑟𝑚𝑎𝑙 𝐹𝑜𝑟𝑚 𝑀𝑒𝑡ℎ𝑜𝑑𝑠 𝑓𝑜𝑟 𝐶𝑜𝑚𝑝𝑙𝑖𝑐𝑎𝑡𝑒𝑑 𝑃𝑒𝑟𝑖𝑜𝑑𝑖𝑐 𝑆𝑦𝑠𝑡𝑒𝑚𝑠:
- * 𝐴 𝐶𝑜𝑚𝑝𝑙𝑒𝑡𝑒 𝑆𝑜𝑙𝑢𝑡𝑖𝑜𝑛 𝑈𝑠𝑖𝑛𝑔 𝐷𝑖𝑓𝑓𝑒𝑟𝑒𝑛𝑡𝑖𝑎𝑙 𝐴𝑙𝑔𝑒𝑏𝑟𝑎 𝑎𝑛𝑑 𝐿𝑖𝑒 𝑂𝑝𝑒𝑟𝑎𝑡𝑜𝑟𝑠 Part. Accel. 24,
- * 91-107 (1989):
- *   Eqs. (34)-(37).
- * Integrate monomials:
- *   M -> exp(:h:)
- *
- * @param t_map
- * @return
- */
-
 #if 1
 
 inline void print_ind(std::vector<ord_t> &ind)
@@ -158,12 +144,6 @@ void scl_mns(const int nv, const int k_ind, const int mn_n, gtpsa::tpsa &mn)
     auto ord = mn.mono(k, &ind);
     if (v[k] != 0e0) {
       v[k] /= compute_ord(ind);
-      std::cout << std::scientific << std::setprecision(3)
-		<< "  k = " << std::setw(3) << k
-		<< " val = " << std::setw(11) << v[k]
-		<< "  k_ind = " << k_ind
-		<< " ord = ";
-      print_ind(ind);
       std::cout << "\n";
     }
   }
@@ -171,6 +151,18 @@ void scl_mns(const int nv, const int k_ind, const int mn_n, gtpsa::tpsa &mn)
 }
 
 
+/**
+ * Intd in Forest's F77 LieLib.
+ * E. Forest, M. Berz, J. Irwin 𝑁𝑜𝑟𝑚𝑎𝑙 𝐹𝑜𝑟𝑚 𝑀𝑒𝑡ℎ𝑜𝑑𝑠 𝑓𝑜𝑟 𝐶𝑜𝑚𝑝𝑙𝑖𝑐𝑎𝑡𝑒𝑑 𝑃𝑒𝑟𝑖𝑜𝑑𝑖𝑐 𝑆𝑦𝑠𝑡𝑒𝑚𝑠:
+ * 𝐴 𝐶𝑜𝑚𝑝𝑙𝑒𝑡𝑒 𝑆𝑜𝑙𝑢𝑡𝑖𝑜𝑛 𝑈𝑠𝑖𝑛𝑔 𝐷𝑖𝑓𝑓𝑒𝑟𝑒𝑛𝑡𝑖𝑎𝑙 𝐴𝑙𝑔𝑒𝑏𝑟𝑎 𝑎𝑛𝑑 𝐿𝑖𝑒 𝑂𝑝𝑒𝑟𝑎𝑡𝑜𝑟𝑠 Part. Accel. 24,
+ * 91-107 (1989):
+ *   Eqs. (34)-(37).
+ * Integrate monomials:
+ *   M -> exp(:h:)
+ *
+ * @param t_map
+ * @return
+ */
 gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &M)
 {
   const int ps_dim = 6;
@@ -203,7 +195,7 @@ gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &M)
 
 #else
 
-// Does not work for reimplementation of map compose with parameter dependence.
+// The gtpsa function fld2vec does work for parameter dependence.
 gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 {
   auto no   = t_map.getMaximumOrder();
@@ -234,7 +226,6 @@ gtpsa::ss_vect<gtpsa::tpsa> param_to_ss_vect
 {
   for (auto k = 0; k < A.size(); k++)
     param_to_tps(nm, A[k], B[k]);
-
   return B;
 }
 
@@ -253,8 +244,7 @@ gtpsa::ss_vect<gtpsa::tpsa> ss_vect_to_param
  gtpsa::ss_vect<gtpsa::tpsa> &B)
 {
   for (auto k = 0; k < A.size(); k++)
-    param_to_tps(nm, A[k], B[k]);
-
+    tps_to_param(nm, A[k], B[k]);
   return B;
 }
 
@@ -290,6 +280,6 @@ gtpsa::tpsa gtpsa::M_to_h_DF(const gtpsa::ss_vect<gtpsa::tpsa> &M)
   h1 = M_to_h(M_to_M_fact(M1));
   h1.print("\nh1:", 1e-30, 0);
   tps_to_param(desc0->maxLen(no), h1, h);
-
+  h1.print("\nh:", 1e-30, 0);
   return h;
 }
