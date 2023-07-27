@@ -3,10 +3,16 @@ C++ Interface to Truncated Power Series Algebra Module Interface
 
 This code base is providing a shallow c++ wrapper to the
 truncatad power series algebra module as provided in mad-ng
+
 	https://github.com/MethodicalAcceleratorDesign/MAD.
 
 For details see
+
 	https://github.com/MethodicalAcceleratorDesign/MAD/blob/dev/src/libgtpsa/README.GTPSA.
+
+	http://mad.web.cern.ch/mad/releases/madng/html/index.html
+
+	http://mad.web.cern.ch/mad/releases/madng/html/mad_mod_diffalg.html
 
 
 **NB**: this code base modifies the C function defintions of the original code.
@@ -15,7 +21,7 @@ For serious work please checkout the original code, in particular if you are usi
 C++ and Python Pybind11 Interfaces
 ==================================
 
-The *gtpsa* C -> C++ -> Python Pybind11 interfaces were implemented by Pierre Schnizer.
+The Python Pybind11 <- C++ <- C *gtpsa* interface was prototyped and implemented by Pierre Schnizer.
 
 References:
 	P\. Schnizer, W. Khail, J. Bengtsson *Small Talk on AT* IPAC 2022
@@ -70,6 +76,10 @@ The *gtpsa* Python Pybind11 <- C++ part is in:
 		get
 		set
 
+
+		getv
+		setv
+
 		...
 
 The *gtpsa* C++ <- C functions are in:
@@ -81,13 +91,46 @@ The *gtpsa* C++ <- C functions are in:
 		index
 
 		get
+		set
 
 		getv
 		setv
 
+		getsm
+
 		setVariable (Set monomial: e.g. setVariable(a, 0e0, 2, 0e0)
 
-		mono
+		rgetorder
+
+		print
+
+		cst
+
+		pow
+
+		add
+
+		dif
+
+		sub
+
+		mul
+
+		div
+
+		acc
+
+		scl
+
+		inv
+
+		invsqrt
+
+		rderiv
+
+		rinteg
+
+		...
 
 	../src/gtpsa/c++/gtpsa/mad/wrapper.tpp
 
