@@ -32,7 +32,7 @@ Hence, they have been re-implemented in C++.
 
 C++ -> Python Pybind11 Part
 ---------------------------
-The *gtpsa* C++ -> Python Pybind11 part is in:
+The *gtpsa* Python Pybind11 <- C++ part is in:
 
 	../python/src/thor_scsi.cc
 
@@ -61,21 +61,33 @@ The *gtpsa* C++ -> Python Pybind11 part is in:
 	../src/gtpsa/python/src/gtpsa.cc
 
 		print
+		(Sets *eps* 1e-30 vs. 0 for the *gtpsa* print function to supress printing ofzeroes)
 
 		length
 
 		getDescription
 
 		get
-
 		set
 
 		...
 
-which also sets *eps* for the *gtpsa* print function; see below.
-(Set to e.g. 1e-30 vs. 0 to supress printing of zeroes)
+The *gtpsa* C++ <- C functions are in:
 
-The *gtpsa* I/O C -> C++ functions are in:
+	../src/gtpsa/c++/gtpsa/bridge/bridge.hpp
+
+		mono
+
+		index
+
+		get
+
+		getv
+		setv
+
+		setVariable (Set monomial: e.g. setVariable(a, 0e0, 2, 0e0)
+
+		mono
 
 	../src/gtpsa/c++/gtpsa/mad/wrapper.tpp
 
@@ -85,33 +97,38 @@ The *gtpsa* I/O C -> C++ functions are in:
 
 		rgetOrder
 
-		get0(void)
+		setvar (Set monomial)
 
-		geti(const idx_t i)
-
-		gets(const std::string s)
-
-		getm(const std::vector<ord_t> &m)
-
-		getv(const idx_t i, std::vector<num_t> *v)
+		mono
 
 		a*x[0]+b
+		get0(void)
 		set0(const num_t a, const num_t b)
 
 		a*x[i]+b
-		seti(const idx_t i, const num_tT a, const num_tT b)
+		geti(const idx_t i)
+		seti(const idx_t i, const num_t a, const num_t b)
 
 		a*x[m]+b
-		sets(const std::string &s, const num_tT a, const num_tT b)
+		gets(const std::string s)
+		sets(const std::string &s, const num_t a, const num_t b)
 
 		a*x[m]+b
-		setm(const std::vector<ord_t> &m, const num_tT a, const num_tT b)
+		getm(const std::vector<ord_t> &m)
+		setm(const std::vector<ord_t> &m, const num_t a, const num_t b)
 
-		setv(const idx_t i, const std::vector<num_tT> &v)
+		getv(const idx_t i, std::vector<num_t> *v)
+		setv(const idx_t i, const std::vector<num_t> &v)
 
 		rderiv
 
 		rinteg
+
+	../src/gtpsa/c++/gtpsa/mad/tpsa_wrapper.hpp
+
+		norm
+
+		equ
 
 	../src/gtpsa/c++/gtpsa/bridge/container.hpp
 
@@ -124,12 +141,6 @@ The *gtpsa* I/O C -> C++ functions are in:
 		rvec2fld
 
 		...
-
-	../src/gtpsa/c++/gtpsa/mad/tpsa_wrapper.hpp
-
-		norm
-
-		equ
 
 	../src/gtpsa/c++/gtpsa/mad/container_wrapper.tpp
 
@@ -177,9 +188,9 @@ The *gtpsa* print functions are in:
 
 		print_damap
 
-*Gtpsa* C -> C++ Interface
+*Gtpsa* C++ <- C Interface
 ------------------------
-The general *gtpsa* C -> C++ interface is in:
+The general *gtpsa* C++ <- C interface is in:
 
 	../src/gtpsa/c++/gtpsa/desc.hpp
 
