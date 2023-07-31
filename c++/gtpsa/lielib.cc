@@ -25,6 +25,58 @@ void print_vec(const std::string &str, const std::vector<num_t> &v)
   std::cout << "\n";
 }
 
+
+inline void print_ind(const std::vector<ord_t> &ind)
+{
+  for (auto i: ind)
+    std::cout << std::setw(2) << (int)i;
+}
+
+
+inline void print_mn
+(const int k, const num_t v_k, const std::vector<ord_t> &ind)
+{
+  const int n_dec = 3;
+
+  std::cout << std::scientific << std::setprecision(n_dec)
+	    << std::setw(3) << k << std::setw(n_dec+8) << v_k;
+  print_ind(ind);
+  std::cout << "\n";
+}
+
+
+void print_tpsa(const gtpsa::tpsa &a)
+{
+  const double eps = 1e-30;
+
+  const auto nv = a.getDescription()->getNv();
+
+  std::vector<ord_t> ind(nv);
+  std::vector<num_t> v(a.length());
+
+  a.getv(0, &v);
+  for (auto k = 0; k < v.size(); k++) {
+    a.mono(k, &ind);
+    if (fabs(v[k]) > eps)
+      print_mn(k, v[k], ind);
+  }
+}
+
+
+double compute_norm(gtpsa::tpsa &a)
+{
+  const auto len = a.length();
+
+  std::vector<num_t> v(len);
+
+  a.getv(0, &v);
+  auto norm = 0e0;
+  for (auto k = 0; k < len; k++)
+    norm += fabs(v[k]);
+  return norm;
+}
+
+
 /**
  *  Daflo in Forest's F77 LieLib.
  *    y = v * nabla * x
@@ -67,7 +119,7 @@ gtpsa::tpsa exp_v_to_tps
   for (auto k = 1; k <= n_max; k++) {
     y_k = v_to_tps(v, y_k/k);
     y += y_k;
-    eps1 = norm(y_k);
+    eps1 = compute_norm(y_k);
     if (eps1 < eps)
       break;
   }
@@ -115,15 +167,12 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
   auto map_fact    = t_map.allocateLikeMe();
   auto map_k       = t_map.allocateLikeMe();
 
-  print_map("\n1:\n", t_map);
   map_lin.rgetOrder(t_map, 1);
   map_lin_inv = gtpsa::minv(map_lin);
   // map_lin_inv[ps_dim].setVariable(0e0);
-  print_map("\n2:\n", map_lin_inv);
   
   auto map_res = gtpsa::compose(t_map, map_lin_inv);
 
-  print_map("\n3:\n", map_res);
   map_fact.set_zero();
   for(int k = 2; k < t_map.getMaximumOrder(); ++k) {
     map_k.rgetOrder(map_res, k);
@@ -133,20 +182,12 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
     //   operator *= 1e0.
     for (auto j = 0; j < map_k.size(); j++)
       map_k[j] = -map_k[j];
-    if (k == 2)
-      map_k[0].print("\n4:\n", 1e-30);
 #if 1
     map_res = exp_v_to_map(map_k, map_res);
 #else
     map_res = gtpsa::exppb(map_k, map_res);
 #endif
-    if (k == 2) {
-      map_res[0].print("\n5:\n", 1e-30);
-    }
   }
-  map_fact[0].print("\n6:\n", 1e-30);
-  map_fact[1].print("", 1e-30);
-  assert(false);
 
   return map_fact;
 }
@@ -259,40 +300,6 @@ void ss_vect_to_param
 {
   for (auto k = 0; k < A.size(); k++)
     tps_to_param(A[k], B[k]);
-}
-
-
-inline void print_ind(const std::vector<ord_t> &ind)
-{
-  for (auto i: ind)
-    std::cout << std::setw(2) << (int)i;
-}
-
-
-inline void print_mn
-(const int k, const num_t v_k, const std::vector<ord_t> &ind)
-{
-  const int n_dec = 3;
-
-  std::cout << std::scientific << std::setprecision(n_dec)
-	    << std::setw(3) << k << std::setw(n_dec+8) << v_k;
-  print_ind(ind);
-  std::cout << "\n";
-}
-
-
-void print_tps(const gtpsa::tpsa &a)
-{
-  const auto nv = a.getDescription()->getNv();
-
-  std::vector<ord_t> ind(nv);
-  std::vector<num_t> v(a.length());
-
-  a.getv(0, &v);
-  for (auto k = 0; k < v.size(); k++) {
-    a.mono(k, &ind);
-    print_mn(k, v[k], ind);
-  }
 }
 
 
