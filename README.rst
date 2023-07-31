@@ -56,6 +56,7 @@ Hence, they have been re-implemented in C++.
 	num_t double
 	ord_t unsigned char
 	idx_t int32_t
+	ssz_t int32_t
 
 
 C++ -> Python Pybind11 Part
@@ -129,27 +130,31 @@ The *gtpsa* C++ <- C functions are in:
 
 		print()
 		print("", 1e-30, 0, stdout) (For TPSA vector; use cout << for map)
+
 		rgetOrder
-		setvar (Set monomial)
+
 		mono
 
-		a*x[0]+b
 		get0(void)
+		geti(const idx_t i)
+		gets(const std::string s)
+		getm(const std::vector<ord_t> &m)
+		getv(const idx_t i, std::vector<num_t> *v)
+
+		setvar (Set monomial)
+
+		a*x[0]+b
 		set0(const num_t a, const num_t b)
 
 		a*x[i]+b
-		geti(const idx_t i)
 		seti(const idx_t i, const num_t a, const num_t b)
 
 		a*x[m]+b
-		gets(const std::string s)
 		sets(const std::string &s, const num_t a, const num_t b)
 
 		a*x[m]+b
-		getm(const std::vector<ord_t> &m)
 		setm(const std::vector<ord_t> &m, const num_t a, const num_t b)
 
-		getv(const idx_t i, std::vector<num_t> *v)
 		setv(const idx_t i, const std::vector<num_t> &v)
 
 		rderiv
@@ -203,7 +208,7 @@ The *gtpsa* print functions are in:
 		print_damap
 
 *Gtpsa* C++ <- C Interface
-------------------------
+--------------------------
 The general *gtpsa* C++ <- C interface is in:
 
 	../src/gtpsa/c++/gtpsa/desc.hpp
@@ -222,7 +227,7 @@ The general *gtpsa* C++ <- C interface is in:
 		getNv(ord_t *mo_=0, int *np_=0, ord_t *po_=0)
 		maxOrd(int nn=0, ord_t *no=nullptr)
 		maxLen(ord_t mo)
-		trunc(const ord_t to)
+		trunc(const ord_t to) (From mad_desc_gtrunc)
 
 	../src/gtpsa/c++/gtpsa/ss_vect.h
 
