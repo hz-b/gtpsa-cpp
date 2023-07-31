@@ -32,9 +32,31 @@ References:
 
 	https://accelconf.web.cern.ch/ipac2015/papers/mopje039.pdf
 
+The C++ <- C gtpsa bridge interface is in:
+
+	../src/gtpsa/python/src/gtpsa.cc
+
+	/*
+	 * Implementation split up in three parts:
+	 *
+	 * 1. bridge: defined as template
+	 * 2. operator functions using the bridge
+	 * 3. class using c++ operators defined in a template
+	 * 4. class providing full functionality derived from the template
+	 *
+	 * This splits the functionality in different parts. Hopefully that
+	 * makes the code a little more maintainable
+	 */
+
+
 However, some of the key *gtpsa* map analysis functions are implemented in the *Lua* scripting language; see below.
 
 Hence, they have been re-implemented in C++.
+
+	num_t double
+	ord_t unsigned char
+	idx_t 
+
 
 C++ -> Python Pybind11 Part
 ---------------------------
@@ -43,11 +65,8 @@ The *gtpsa* Python Pybind11 <- C++ part is in:
 	../python/src/thor_scsi.cc
 
 		inv
-
 		pinv
-
 		compose
-
 		M_to_h_DF
 
 	../src/gtpsa/python/src/gtpsa.cc
@@ -57,26 +76,18 @@ The *gtpsa* Python Pybind11 <- C++ part is in:
 	TPSA map operations:
 
 		minv
-
 		pminv
-
 		compose (redundant)
-
 		...
 
 	../src/gtpsa/python/src/gtpsa.cc
 
 		print
 		(Sets *eps* 1e-30 vs. 0 for the *gtpsa* print function to supress printing ofzeroes)
-
 		length
-
 		getDescription
-
 		get
 		set
-
-
 		getv
 		setv
 
@@ -87,7 +98,6 @@ The *gtpsa* C++ <- C functions are in:
 	../src/gtpsa/c++/gtpsa/bridge/bridge.hpp
 
 		mono
-
 		index
 
 		get
@@ -97,51 +107,30 @@ The *gtpsa* C++ <- C functions are in:
 		setv
 
 		getsm
-
 		setVariable (Set monomial: e.g. setVariable(a, 0e0, 2, 0e0)
-
 		rgetorder
-
 		print
-
 		cst
-
 		pow
-
 		add
-
 		dif
-
 		sub
-
 		mul
-
 		div
-
 		acc
-
 		scl
-
 		inv
-
 		invsqrt
-
 		rderiv
-
 		rinteg
-
 		...
 
 	../src/gtpsa/c++/gtpsa/mad/wrapper.tpp
 
 		print()
-
 		print("", 1e-30, 0, stdout) (For TPSA vector; use cout << for map)
-
 		rgetOrder
-
 		setvar (Set monomial)
-
 		mono
 
 		a*x[0]+b
@@ -164,23 +153,19 @@ The *gtpsa* C++ <- C functions are in:
 		setv(const idx_t i, const std::vector<num_t> &v)
 
 		rderiv
-
 		rinteg
 
 	../src/gtpsa/c++/gtpsa/mad/tpsa_wrapper.hpp
+	Wrapper for C++ <- C.
 
 		norm
-
 		equ
 
 	../src/gtpsa/c++/gtpsa/bridge/container.hpp
 
 		size
-
 		getMaximumOrder
-
 		computeNorm
-
 		rvec2fld
 
 		...
@@ -188,35 +173,22 @@ The *gtpsa* C++ <- C functions are in:
 	../src/gtpsa/c++/gtpsa/mad/container_wrapper.tpp
 
 		size
-
 		getMaximumOrder
-
 		computeNorm
-
 		rvec2fld
-
 		fld2vec
-
 		fgrad
-
 		rliebra
-
 		rexppb
-
 		rlogpb
-
 		rcompose (which call compose in the gtpsa library)
-
 		rminv
-
 		rpminv
 
 	../src/gtpsa/c++/gtpsa/intern/with_operators.hpp
 
 		show()
-
 		show(stdout, level) (For TPSA vector)
-
 		operator<<
 
 		Remark: It only prints leading order; *level* parameter not implemented.
@@ -228,7 +200,6 @@ The *gtpsa* print functions are in:
 	../src/gtpsa/mad-ng/src]/mad_tpsa_comp.c
 
 		print
-
 		print_damap
 
 *Gtpsa* C++ <- C Interface
@@ -240,127 +211,91 @@ The general *gtpsa* C++ <- C interface is in:
 	../src/gtpsa/c++/gtpsa/desc.cc
 
 		show
-
 		getDescription
-
 		getinfo
-
 		getNumberOfVariables
-
 		getVariablesMaximumOrder
-
 		getNumberOfParameters
-
 		getParametersMaximumOrder
-
 		getTotalNumber
-
 		getOrderPerParameter
-
 		getNv(ord_t *mo_=0, int *np_=0, ord_t *po_=0)
-
 		maxOrd(int nn=0, ord_t *no=nullptr)
-
 		maxLen(ord_t mo)
-
 		trunc(const ord_t to)
-
 
 	../src/gtpsa/c++/gtpsa/ss_vect.h
 
 	../src/gtpsa/c++/gtpsa/ss_vect.cc
 
 		ss_vect_n_dim
-
 		ss_vect
-
 		state_space
-
 		show(std::ostream &strm, int level = 1, bool with_endl = true) (For TPSA map)
 
 		jacobian
-
 		hessian
-
 		set_zero
-
 		set_identity
-
 		setConstant
-
 		setJacobian
-
 		setHessian
-
 		rcompose
+
+	../src/gtpsa/c++/gtpsa/funcs.h
+
+		sqrt
+		exp
+		log
+		...
+
 
 Not yet implemented:
 
 (For TPSA maps)
 
 	rminv
-
 	rpminv
-
 	rcompose
-
 	rvec2fld
-
 	fld2vec
-
 	fgrad
-
 	rliebra
-
 	rexppb
-
 	rlogpb
-
 	rderiv
 
 	../src/gtpsa/c++/gtpsa/lielib.cc
 
 		inv
-
 		pinv
-
 		compose
-
 		M_to_h_DF
 
-TPSA descriptor operations are in:
+TPSA descriptor operations:
 
 	../src/gtpsa/mad-ng/src/mad_desc.h
 
 	../src/gtpsa/mad-ng/src/mad_desc.c
 
-TPSA vector operations are in:
+TPSA vector operations:
 
 	../src/gtpsa/mad-ng/src/mad_tpsa.h
 
 	../src/gtpsa/mad-ng/src/mad_tpsa_ops.c
 
 		add
-
 		sub
-
 		...
-
 		integ
-
 		deriv
-
 		poisbra
-
 		...
-
 		print
-
 		...
-
 		cutord
 
-TPSA map operations are in:
+TPSA map operations:
 
 	../src/gtpsa/mad-ng/src/mad_tpsa_comp.c
 
@@ -371,9 +306,7 @@ TPSA map operations are in:
 		Public
 
 		compose
-
 		translate
-
 		eval
 
 
@@ -396,25 +329,19 @@ TPSA map operations are in:
 		Public
 
 		exppb
-
 		logpb
-
 		liebra
-
 		fgrad
 
 		Compute (Eq. (34)):
-
 			G(x;0) = -J grad.f(x;0)
+
 		vec2fld
 
-
 		Compute(Eqs. (34)-(37)):
-
 			f(x;0) = \int_0^x J G(x';0) dx' = x^t J phi G(x;0)
 
 		fld2vec
-
 		mnrm (norm)
 
 Also, a few are in:
@@ -424,7 +351,6 @@ Also, a few are in:
 	../src/gtpsa/mad-ng/src/madl_damap.mad
 
 		map_ctor
-
 		factor_map
 
 		Factored Lie of exponential and poisson bracket:
@@ -432,9 +358,7 @@ Also, a few are in:
 			r = exp(:y1:) exp(:y2:)... x
 
 		lieexppb
-
 		flofacg
-
 		...
 
 	../src/gtpsa/madl_gphys.mad
@@ -444,8 +368,7 @@ Also, a few are in:
 			L\. Healy *Lie-Algebraic Methods for Treating Lattice Parameter Errors in Particle Accelerators* Thesis, Univ. of Maryland, 1986.
 
 		gphys.normal_ng (Map normal form)
-
-		normal_c (Phasor basis)
+		normal_c        (Phasor basis)
 
 *Lua* Scripting Language
 ----------------------
