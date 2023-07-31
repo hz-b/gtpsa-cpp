@@ -12,6 +12,7 @@
  * preprocessor. Have a look to the comments given in this file
  */
 
+#include <iostream>
 #include <gtpsa/forward_decl.hpp>
 
 extern "C" {
@@ -40,39 +41,43 @@ extern "C" {
 #include <gtpsa/mad/container_wrapper.tpp>
 #include <gtpsa/utils.hpp>
 namespace gtpsa::mad {
-    class TpsaWrapper: public _TpsaWrapper {
-    public:
-        inline TpsaWrapper(std::shared_ptr<desc> desc, const ord_t mo)
-            :  _TpsaWrapper(desc, mo)
-            {}
+  class TpsaWrapper: public _TpsaWrapper {
+  public:
+    inline TpsaWrapper(std::shared_ptr<desc> desc, const ord_t mo)
+      :  _TpsaWrapper(desc, mo)
+    {}
 
-        inline TpsaWrapper(const TpsaWrapper& t, const ord_t mo)
-            :  _TpsaWrapper(t,  mo)
-            {}
+    inline TpsaWrapper(const TpsaWrapper& t, const ord_t mo)
+      :  _TpsaWrapper(t,  mo)
+    {}
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
-        inline TpsaWrapper(const TpsaWrapper& t)
-            :  _TpsaWrapper(t)
-            {}
+    inline TpsaWrapper(const TpsaWrapper& t)
+      :  _TpsaWrapper(t)
+    {}
 
 #endif  //GTSPA_ONLY_OPTIMISED_OPS
-        friend class CTpsaWrapper;
+    friend class CTpsaWrapper;
 
-        inline void atan2(const TpsaWrapper& y, const TpsaWrapper& x) {
-	    GTPSA_METH(atan2)(y.getPtr(), x.getPtr(), this->getPtr());
-	}
-
-	inline auto norm (void) {
-	    return mad_tpsa_nrm (this->getPtr());
-	}
-
-	inline auto equ (const TpsaWrapper& o, num_t tol) {
-	    return mad_tpsa_equ (this->getPtr(), o.getPtr(), tol);
+    inline void atan2(const TpsaWrapper& y, const TpsaWrapper& x) {
+      GTPSA_METH(atan2)(y.getPtr(), x.getPtr(), this->getPtr());
     }
-	friend inline auto norm(const TpsaWrapper& a);
-	friend inline auto
-	equ(const TpsaWrapper& a, const TpsaWrapper& b, num_t tol);
-    };
+
+    inline auto rnorm(void) {
+      std::cout << "tpsa_wrapper.hpp - norm:\n";
+      return mad_tpsa_nrm(this->getPtr());
+    }
+
+    inline auto equ(const TpsaWrapper& o, num_t tol) {
+      return mad_tpsa_equ(this->getPtr(), o.getPtr(), tol);
+    }
+
+    friend inline auto norm(const TpsaWrapper& a);
+
+    friend inline auto equ
+    (const TpsaWrapper& a, const TpsaWrapper& b, num_t tol);
+
+  };
 };
 #ifndef GTPSA_KEEP_MACROS
 #undef GTPSA_CLASS
@@ -85,15 +90,15 @@ namespace gtpsa::mad {
 
 namespace gtpsa::mad {
 
-    /*o---------------------------------------------------------------------o
-      |                                                                     |
-      | Functions below are given here as these only exist for the normal   |
-      | "tpsa" part                                                         |
-     */
+  /*o---------------------------------------------------------------------o
+    |                                                                     |
+    | Functions below are given here as these only exist for the normal   |
+    | "tpsa" part                                                         |
+  */
 
-     /*
-     *
-     */
+  /*
+   *
+   */
 
 #ifdef GTPSA_FUNC_ARG1
 #undef GTPSA_FUNC_ARG1
@@ -101,10 +106,10 @@ namespace gtpsa::mad {
 #ifdef GTPSA_FUNC_ARG1_WITH_RET_ARG
 #undef GTPSA_FUNC_ARG1_WITH_RET_ARG
 #endif
-#define GTPSA_FUNC_ARG1_WITH_RET_ARG(fname)				\
-    inline void fname (const TpsaWrapper& t, TpsaWrapper* r) \
-    { fname (static_cast<const _TpsaWrapper&>(t), \
-	     static_cast<_TpsaWrapper*>(r)); }
+#define GTPSA_FUNC_ARG1_WITH_RET_ARG(fname)			\
+  inline void fname (const TpsaWrapper& t, TpsaWrapper* r)	\
+  { fname (static_cast<const _TpsaWrapper&>(t),			\
+	   static_cast<_TpsaWrapper*>(r)); }
 #define GTPSA_FUNC_ARG1(fname) GTPSA_FUNC_ARG1_WITH_RET_ARG(fname)
 #include <gtpsa/funcs.h>
 #undef GTPSA_FUNC_ARG1_WITH_RET_ARG

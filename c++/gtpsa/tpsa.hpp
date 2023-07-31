@@ -16,6 +16,7 @@
 #include <cassert>
 #include <iomanip>
 #include <ostream>
+#include <iostream>
 
 #include <gtpsa/mad/tpsa_wrapper.hpp>
 #include <gtpsa/intern/templated_funcs.hpp>
@@ -40,7 +41,7 @@ namespace gtpsa {
   // Type information for the bridge template
   typedef GTpsaTypeInfo
   <tpsa_t, num_t, tpsa, mad::TpsaWrapper, mad::_TpsaWrapper,
-   mad::_TpsaContainerWrapper>  TpsaTypeInfo;
+   mad::_TpsaContainerWrapper> TpsaTypeInfo;
 
   /*
    * @brief tpsa object
@@ -59,7 +60,7 @@ namespace gtpsa {
     {}
 
     inline tpsa_bridge(tpsa_bridge&& o) = default;
-    inline tpsa_bridge(base&&        o)  noexcept
+    inline tpsa_bridge(base&& o)  noexcept
       :  base(std::move(o))
     { };
 
@@ -70,7 +71,7 @@ namespace gtpsa {
     { ((base*)(this))->pow(a, b); }
     inline void pow(const tpsa_bridge& a, const int i)
     { ((base*)(this))->pow(a, i); }
-    inline void pow   (const tpsa_bridge& a, const num_t v)
+    inline void pow(const tpsa_bridge& a, const num_t v)
     { ((base*)(this))->pow(a, v); }
   };
   // } // intern
@@ -102,7 +103,7 @@ namespace gtpsa {
     {}
 
     inline tpsa(tpsa&& o) = default;
-    inline tpsa(base&& o)  noexcept
+    inline tpsa(base&& o) noexcept
       :  base(std::move(o))
     { };
 
@@ -116,11 +117,11 @@ namespace gtpsa {
       : base(o)
     {}
 
-    inline tpsa(const tpsa&              o) = default;
+    inline tpsa(const tpsa& o) = default;
 
 #else /* GTSPA_ONLY_OPTIMISED_OPS */
 
-    inline tpsa(const tpsa&              o) = delete;
+    inline tpsa(const tpsa& o) = delete;
 
 #endif
     tpsa clone(void) const
@@ -132,78 +133,78 @@ namespace gtpsa {
      */
     tpsa newFromThis(void) const { return tpsa(base::newFromThis()); }
 
-    inline void atan2(const tpsa&  y, const tpsa&   x) {
+    inline void atan2(const tpsa& y, const tpsa& x) {
       this->m_impl.atan2(y.m_impl, x.m_impl);
     }
     // for variant
-    inline void atan2(const tpsa&  y, const double& x) {
+    inline void atan2(const tpsa& y, const double& x) {
       auto tmp = y.newFromThis();
       tmp.set(0, x);
       this->atan2(y, tmp);
     }
-    inline void atan2(const double& y,  const tpsa&   x) {
+    inline void atan2(const double& y, const tpsa& x) {
       auto tmp = x.newFromThis();
       tmp.set(0, y);
       this->atan2(tmp, x);
     }
 
-    inline tpsa& operator =  (const num_t o)
+    inline tpsa& operator=(const num_t o)
     { base::operator=(o); return *this; }
-    inline tpsa& operator =  (const tpsa& o)
+    inline tpsa& operator=(const tpsa& o)
     { base::operator=(o); return *this; }
-    // inline tpsa& operator =  (const base& o )
+    // inline tpsa& operator=(const base& o )
     // { this->_copyInPlace(o); return *this; }
-    // inline tpsa& operator =  (const num_t o )
+    // inline tpsa& operator=(const num_t o )
     // { this->set(0, o); return *this; }
-    inline bool  operator >= (const num_t a) const { return this->cst() >= a; }
-    inline bool  operator <= (const num_t a) const { return this->cst() <= a; }
-    inline bool  operator >  (const num_t a) const { return this->cst() >  a; }
-    inline bool  operator <  (const num_t a) const { return this->cst() <  a; }
-    inline bool  operator == (const num_t a) const
+    inline bool  operator>=(const num_t a) const { return this->cst() >= a; }
+    inline bool  operator<=(const num_t a) const { return this->cst() <= a; }
+    inline bool  operator>(const num_t a)  const { return this->cst() >  a; }
+    inline bool  operator<(const num_t a)  const { return this->cst() <  a; }
+    inline bool  operator==(const num_t a) const
     { return this->cst() ==  a; }
-    inline bool  operator == (const tpsa& a) const
+    inline bool  operator==(const tpsa& a) const
     { return this->cst() ==  a.cst(); }
 
-    inline tpsa  operator  - (void) const
+    inline tpsa  operator -(void) const
     { return tpsa( base::operator-() ); }
 #if 0
-    inline tpsa& operator += (const tpsa& o)
-    { base::operator += (o); return *this; }
-    inline tpsa& operator -= (const tpsa& o)
-    { base::operator -= (o); return *this; }
-    inline tpsa& operator *= (const tpsa& o)
-    { base::operator *= (o); return *this; }
-    inline tpsa& operator /= (const tpsa& o)
-    { base::operator /= (o); return *this; }
+    inline tpsa& operator+=(const tpsa& o)
+    { base::operator+=(o); return *this; }
+    inline tpsa& operator-=(const tpsa& o)
+    { base::operator-=(o); return *this; }
+    inline tpsa& operator*=(const tpsa& o)
+    { base::operator*=(o); return *this; }
+    inline tpsa& operator/=(const tpsa& o)
+    { base::operator/=(o); return *this; }
 
-    inline tpsa& operator += (const num_t o)
-    { base::operator += (o); return *this; }
-    inline tpsa& operator -= (const num_t o)
-    { base::operator -= (o); return *this; }
-    inline tpsa& operator *= (const num_t o)
-    { base::operator *= (o); return *this; }
-    inline tpsa& operator /= (const num_t o)
-    { base::operator /= (o); return *this; }
+    inline tpsa& operator+=(const num_t o)
+    { base::operator+=(o); return *this; }
+    inline tpsa& operator-=(const num_t o)
+    { base::operator-=(o); return *this; }
+    inline tpsa& operator*=(const num_t o)
+    { base::operator*=(o); return *this; }
+    inline tpsa& operator/=(const num_t o)
+    { base::operator/=(o); return *this; }
 #endif
-    inline tpsa  operator + (const double o) const
-    { return tpsa( base::operator+ (o)  ) ; }
-    inline tpsa  operator - (const double o) const
-    { return tpsa( base::operator- (o)  ) ; }
-    inline tpsa  operator * (const double o) const
-    { return tpsa( base::operator* (o)  ) ; }
-    inline tpsa  operator / (const double o) const
-    { return tpsa( base::operator/ (o)  ) ; }
+    inline tpsa operator+(const double o) const
+    { return tpsa(base::operator+(o)) ; }
+    inline tpsa operator-(const double o) const
+    { return tpsa(base::operator-(o)) ; }
+    inline tpsa operator*(const double o) const
+    { return tpsa(base::operator*(o)) ; }
+    inline tpsa operator/(const double o) const
+    { return tpsa(base::operator/(o)) ; }
 
-    inline tpsa  operator + (const tpsa&  o) const
+    inline tpsa operator+(const tpsa&  o) const
     { return tpsa(static_cast<const tpsa::base&>
 		  (*this) + static_cast<const tpsa::base&>(o)) ; }
-    inline tpsa  operator -  (const tpsa&  o) const
+    inline tpsa operator-(const tpsa&  o) const
     { return tpsa(static_cast<const tpsa::base&>
 		  (*this) - static_cast<const tpsa::base&>(o)) ; }
-    inline tpsa  operator *  (const tpsa&  o) const
+    inline tpsa operator*(const tpsa&  o) const
     { return tpsa(static_cast<const tpsa::base&>
 		  (*this) * static_cast<const tpsa::base&>(o)) ; }
-    inline tpsa  operator /  (const tpsa&  o) const
+    inline tpsa operator/(const tpsa&  o) const
     { return tpsa(static_cast<const tpsa::base&>
 		  (*this) / static_cast<const tpsa::base&>(o)) ; }
 
@@ -212,10 +213,9 @@ namespace gtpsa {
      * here if no copies are required
      */
     friend inline auto equ(const tpsa& a, const tpsa& b, num_t tol);
-    friend inline auto norm(const tpsa& a);
+    friend inline num_t norm(const tpsa& a);
 
     friend inline auto ordn(const std::vector<const tpsa&> objs);
-
 
     friend inline tpsa operator+(const num_t a, const tpsa& b);
     friend inline tpsa operator-(const num_t a, const tpsa& b);
@@ -245,8 +245,9 @@ namespace gtpsa {
   { return tpsa(static_cast<const tpsa::base&>(a)
 		* static_cast<const tpsa::base&>(b) ); }
   inline tpsa operator/(const tpsa& a, const tpsa& b)
-  { return tpsa(static_cast<const tpsa::base&>(a)
-		/ static_cast<const tpsa::base&>(b) ); }
+  { return tpsa
+      (static_cast<const tpsa::base&>(a)
+       / static_cast<const tpsa::base&>(b) ); }
 #endif
 
   inline tpsa operator+(const num_t a, const tpsa& b)
@@ -262,7 +263,7 @@ namespace gtpsa {
   inline bool operator==(const num_t a, const tpsa& b) { return (b == a); }
   inline tpsa pow(const tpsa& a, const tpsa& b)
   { tpsa n = a.newFromThis(); n.pow(a, b); return n; }
-  inline tpsa pow(const tpsa& a, const int   i)
+  inline tpsa pow(const tpsa& a, const int i)
   { tpsa n = a.newFromThis(); n.pow(a, i); return n; }
   inline tpsa pow(const tpsa& a, const num_t v)
   { tpsa n = a.newFromThis(); n.pow(a, v); return n; }
@@ -291,6 +292,11 @@ namespace gtpsa {
 
   inline tpsa deriv(const tpsa& a, const int v) {
     return tpsa(deriv(static_cast<const tpsa::base&>(a), v));
+  }
+
+  inline num_t norm(const tpsa& a) {
+    // return a.gtpsa::mad::rnorm();
+    return 1e0;
   }
 
   inline tpsa atan2(const tpsa& y, const tpsa& x)

@@ -741,17 +741,17 @@ namespace gtpsa {
   template<>
   void ss_vect<tpsa>::fgrad(tpsa * b, tpsa * r) const;
   template<>
-  void  ss_vect<tpsa>::rliebra(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
+  void ss_vect<tpsa>::rliebra(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
   template<>
-  void  ss_vect<tpsa>::rexppb(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
+  void ss_vect<tpsa>::rexppb(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
   template<>
-  void  ss_vect<tpsa>::rlogpb(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
+  void ss_vect<tpsa>::rlogpb(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b);
 
   template<>
-  void  ss_vect<tpsa>::rgetOrder(const ss_vect<tpsa>& a, const int order);
+  void ss_vect<tpsa>::rgetOrder(const ss_vect<tpsa>& a, const int order);
 
   template<>
-  void  ss_vect<tpsa>::rderiv(const ss_vect<tpsa>& a, const int order);
+  void ss_vect<tpsa>::rderiv(const ss_vect<tpsa>& a, const int order);
 
   inline ss_vect<tpsa> compose(const ss_vect<tpsa>& a, const ss_vect<tpsa>& b)
   {
