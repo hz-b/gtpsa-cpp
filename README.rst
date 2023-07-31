@@ -55,7 +55,7 @@ Hence, they have been re-implemented in C++.
 
 	num_t double
 	ord_t unsigned char
-	idx_t 
+	idx_t int32_t
 
 
 C++ -> Python Pybind11 Part
