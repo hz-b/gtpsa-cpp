@@ -138,7 +138,7 @@ namespace gtpsa {
     /**
      * @brief indexing / monomials (return idx_t = -1 if invalid)
      */
-    inline auto mono(idx_t i, std::vector<ord_t> *m)
+    inline auto mono(idx_t i, std::vector<ord_t> *m) const
     { return this->m_impl.mono(i, m); }
 
     /**
