@@ -32,6 +32,8 @@ References:
 
 	https://accelconf.web.cern.ch/ipac2015/papers/mopje039.pdf
 
+Turned out that the gtpsa map concatenator can not handle parameter dependence; so it had to be reimplemented.
+
 The C++ <- C gtpsa bridge interface is in:
 
 	../src/gtpsa/python/src/gtpsa.cc
