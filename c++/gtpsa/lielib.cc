@@ -63,6 +63,13 @@ void print_tpsa(const gtpsa::tpsa &a)
 }
 
 
+/**
+ * Compute norm of tpsa:
+ *    |a| = sum | a_k |
+ *
+ * Todo:
+ *    Replace by mad_desc_gtrunc in mad_desc.c.
+ */
 double compute_norm(gtpsa::tpsa &a)
 {
   const auto len = a.length();
@@ -87,7 +94,7 @@ gtpsa::tpsa v_to_tps(const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa &x)
 
   auto y = x.clone();
 
-  y = 0e0;
+  y.clear();
   for (auto k = 0; k < ps_dim; k++)
     y += v[k]*deriv(x, k+1);
   return y;
@@ -115,7 +122,6 @@ gtpsa::tpsa exp_v_to_tps
   auto   y_k = x.clone();
   auto   y   = x.clone();
 
-  y_k = y = x;
   for (auto k = 1; k <= n_max; k++) {
     y_k = v_to_tps(v, y_k/k);
     y += y_k;
@@ -142,11 +148,11 @@ gtpsa::ss_vect<gtpsa::tpsa> exp_v_to_map
   const double
     eps_tps = 1e-30;
 
-  auto M = map.allocateLikeMe();
+  auto M = map.clone();
 
   for (auto k = 0; k < ps_dim; k++)
-    M[k] = exp_v_to_tps(v, map[k], eps_tps, n_max);
-  return map;
+    M[k] = exp_v_to_tps(v, M[k], eps_tps, n_max);
+  return M;
 }
 
 
@@ -160,7 +166,9 @@ gtpsa::ss_vect<gtpsa::tpsa> exp_v_to_map
 static gtpsa::ss_vect<gtpsa::tpsa>
 M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 {
-  const int ps_dim = 6;
+  const int
+    ps_dim = 6,
+    no     = t_map.getMaximumOrder();
 
   auto map_lin     = t_map.allocateLikeMe();
   auto map_lin_inv = t_map.allocateLikeMe();
@@ -174,12 +182,12 @@ M_to_M_fact(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
   auto map_res = gtpsa::compose(t_map, map_lin_inv);
 
   map_fact.set_zero();
-  for(int k = 2; k < t_map.getMaximumOrder(); ++k) {
+  for(int k = 2; k < no; ++k) {
     map_k.rgetOrder(map_res, k);
     map_fact += map_k;
     map_k.rgetOrder(map_fact, k);
     // Workaround for:
-    //   operator *= 1e0.
+    //   operator *= -1e0.
     for (auto j = 0; j < map_k.size(); j++)
       map_k[j] = -map_k[j];
 #if 1
