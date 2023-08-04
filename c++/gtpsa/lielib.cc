@@ -7,6 +7,12 @@
 //   ..gtpsa/mad-ng/src]/mad_tpsa_mops.c
 
 
+// F. Klein 𝑉𝑒𝑟𝑔𝑙𝑒𝑖𝑐ℎ𝑒𝑛𝑑𝑒 𝐵𝑒𝑡𝑟𝑎𝑐ℎ𝑡𝑢𝑛𝑔𝑒𝑛 𝑢̈𝑏𝑒𝑟 𝑛𝑒𝑢𝑒𝑟𝑒 𝑔𝑒𝑜𝑚𝑒𝑡𝑟𝑖𝑠𝑐ℎ𝑒 𝐹𝑜𝑟𝑠𝑐ℎ𝑢𝑛𝑔𝑒𝑛
+// (Deichert, 1872).
+// Aka Felix Klein's Erlangen Program.
+//  https://archive.org/details/abn7632.0001.001.umich.edu/page/n1/mode/2up
+
+
 void print_map(const std::string &str, const gtpsa::ss_vect<gtpsa::tpsa> &M)
 {
   const double eps = 1e-30;
@@ -85,7 +91,7 @@ double compute_norm(gtpsa::tpsa &a)
 
 
 /**
- *  Daflo in Forest's F77 LieLib.
+ *  𝐷𝑎𝑓𝑙𝑜 in Forest's F77 LieLib.
  *    y = v * nabla * x
  */
 gtpsa::tpsa v_to_tps(const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa &x)
@@ -102,7 +108,7 @@ gtpsa::tpsa v_to_tps(const gtpsa::ss_vect<gtpsa::tpsa> &v, const gtpsa::tpsa &x)
 
 
 /**
- * Expflo in Forest's F77 LieLib:
+ * 𝐸𝑥𝑝𝑓𝑙𝑜 in Forest's F77 LieLib:
  *    y = exp(v*nabla) * x
  *
  * @param v
@@ -159,7 +165,7 @@ gtpsa::ss_vect<gtpsa::tpsa> exp_v_to_map
 /**
  * @brief Factor map:
  *
- * Flofac in Forest's F77 LieLib.
+ * 𝐹𝑙𝑜𝑓𝑎𝑐 in Forest's F77 LieLib.
  * Factor map:
  *   M = M_2 ... * M_n
   */
@@ -233,8 +239,7 @@ void scl_mns
 
 
 /**
- * Intd in Forest's F77 LieLib.
- *
+ * 𝐼𝑛𝑡𝑑 in Forest's F77 LieLib.
  * E. Forest, M. Berz, J. Irwin 𝑁𝑜𝑟𝑚𝑎𝑙 𝐹𝑜𝑟𝑚 𝑀𝑒𝑡ℎ𝑜𝑑𝑠 𝑓𝑜𝑟 𝐶𝑜𝑚𝑝𝑙𝑖𝑐𝑎𝑡𝑒𝑑 𝑃𝑒𝑟𝑖𝑜𝑑𝑖𝑐 𝑆𝑦𝑠𝑡𝑒𝑚𝑠:
  * 𝐴 𝐶𝑜𝑚𝑝𝑙𝑒𝑡𝑒 𝑆𝑜𝑙𝑢𝑡𝑖𝑜𝑛 𝑈𝑠𝑖𝑛𝑔 𝐷𝑖𝑓𝑓𝑒𝑟𝑒𝑛𝑡𝑖𝑎𝑙 𝐴𝑙𝑔𝑒𝑏𝑟𝑎 𝑎𝑛𝑑 𝐿𝑖𝑒 𝑂𝑝𝑒𝑟𝑎𝑡𝑜𝑟𝑠 Part. Accel. 24,
  * 91-107 (1989):
