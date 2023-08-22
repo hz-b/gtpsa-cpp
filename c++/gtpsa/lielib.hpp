@@ -4,6 +4,23 @@
 #include <gtpsa/ss_vect.h>
 // #include <pybind11/stl.h>
 
+
+typedef struct MNFType
+{
+  gtpsa::tpsa
+    K,              // Normalised generator.
+    g;              // Generator for canonical transformation to Floquet space.
+  gtpsa::ss_vect<gtpsa::tpsa>
+    M,              // Poincaré map.
+    M_res,          // Residual map.
+    A0, A0_inv,     // Linear transformation to fixed point.
+    A1, A1_inv,     // Linear transformation to Floquet space.
+    A_nl, A_nl_inv, // Nonlinear transformation to Floquet space.
+    R,              // Floquet space rotation.
+    nus;            // Tune shift.
+} MNFType;
+
+
 void print_map(const std::string &str, const gtpsa::ss_vect<gtpsa::tpsa> &M);
 
 void print_vec(const std::string &str, const std::vector<num_t> &v);
