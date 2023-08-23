@@ -119,7 +119,7 @@ namespace gtpsa::python {
 	/**
 	 * @brief
 	 */
-	IndexMapping(const index_mapping_t& d, const std::string info="");
+	IndexMapping(const index_mapping_t& d, const std::string info="", const bool check_default_keys=true);
 
 	std::vector<std::string> pdir(void) const override final;
 	size_t index(const std::string key) const override final;

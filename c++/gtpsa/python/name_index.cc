@@ -141,14 +141,16 @@ static const gpy::index_mapping_t from_hamiltion_index_mapping(const gpy::hamilt
 	return res;
 }
 
-gpy::IndexMapping::IndexMapping(const index_mapping_t& d, const std::string info)
+gpy::IndexMapping::IndexMapping(const index_mapping_t& d, const std::string info, const bool check_default_keys)
 	: IndexMappingBase()
 	, m_mapping(d)
 	, m_info(info)
 {
 
 	check_unique_keys_index(this->m_mapping, this->m_info);
-	check_default_keys_index(this->m_mapping, default_mapping, this->m_info);
+    if(check_default_keys){
+        check_default_keys_index(this->m_mapping, default_mapping, this->m_info);
+    }
 }
 
 std::vector<std::string> gpy::IndexMapping::pdir(void) const
