@@ -16,7 +16,9 @@ namespace gpy = gtpsa::python;
  * Does not check if all keys can be used as python attributes
  *
  */
-static void check_unique_keys_index(const gpy::index_mapping& d, const std::string& info);
+#if 0
+static void check_unique_keys_index(const gpy::index_mapping_t& d, const std::string& info);
+#endif
 
 /**
  * @brief check that default mappings are matched
@@ -25,14 +27,16 @@ static void check_unique_keys_index(const gpy::index_mapping& d, const std::stri
  *
  * @raises std::runtime_error if conditions not matched
  */
-static void check_default_keys_index(const gpy::index_mapping& d,
-					  const gpy::index_mapping& default_mapping,
+#if 0
+static void check_default_keys_index(const gpy::index_mapping_t& d,
+					  const gpy::index_mapping_t& default_mapping,
 					  const std::string& info = "");
-
-static void check_unique_keys_index(const gpy::index_mapping& d, const std::string& info)
+#endif
+template<typename T>
+static void check_unique_keys_index(const std::map<const std::string, const T>& d, const std::string& info)
 {
     std::set<std::string> keys;
-    std::set<size_t> indices;
+    std::set<T> indices;
 
     const std::string
 	prefix = "gtpsa::python checking uniquess",
@@ -62,7 +66,7 @@ static void check_unique_keys_index(const gpy::index_mapping& d, const std::stri
     /* no exception thrown ... all good */
 }
 
-static void check_default_keys_index(const gpy::index_mapping& d, const gpy::index_mapping& default_mapping,
+static void check_default_keys_index(const gpy::index_mapping_t& d, const gpy::index_mapping_t& default_mapping,
 				     const std::string& info)
 {
 
@@ -94,7 +98,8 @@ static void check_default_keys_index(const gpy::index_mapping& d, const gpy::ind
 }
 
 
-static std::vector<std::string> mapping_keys_for_dir(const gpy::index_mapping& im)
+template<typename T>
+static std::vector<std::string> mapping_keys_for_dir(const std::map<const std::string, T>& im)
 {
 	std::vector<std::string> names;
 	names.reserve(im.size());
@@ -105,7 +110,8 @@ static std::vector<std::string> mapping_keys_for_dir(const gpy::index_mapping& i
 	return names;
 }
 
-static size_t mapping_index(const gpy::index_mapping& im, const std::string& key)
+template<typename T>
+static auto mapping_index(const std::map<const std::string, T>& im, const std::string& key)
 {
 	const auto& entry = im.find(key);
 	if (entry == im.end()){
@@ -116,13 +122,35 @@ static size_t mapping_index(const gpy::index_mapping& im, const std::string& key
 	return entry->second;
 }
 
-gpy::IndexMapping::IndexMapping(const index_mapping& d, const std::string info)
-	: m_mapping(d)
+/**
+ * @brief extract name index mapping from Hamiltonian canonical coordinates
+ */
+static const gpy::index_mapping_t from_hamiltion_index_mapping(const gpy::hamiltonian_pair_mapping_t& d)
+{
+	gpy::index_mapping_t res;
+	// res.reserve(d.size() * 2);
+
+	for(const auto& [key, val] : d){
+		/* extract canonical variables: space and impuls ?  */
+		const auto& base = std::get<0>(val);
+		res.insert(base);
+		const auto& deriv = std::get<1>(val);
+		res.insert(deriv);
+	}
+
+	return res;
+}
+
+gpy::IndexMapping::IndexMapping(const index_mapping_t& d, const std::string info, const bool check_default_keys)
+	: IndexMappingBase()
+	, m_mapping(d)
 	, m_info(info)
 {
 
 	check_unique_keys_index(this->m_mapping, this->m_info);
-	check_default_keys_index(this->m_mapping, default_mapping, this->m_info);
+    if(check_default_keys){
+        check_default_keys_index(this->m_mapping, default_mapping, this->m_info);
+    }
 }
 
 std::vector<std::string> gpy::IndexMapping::pdir(void) const
@@ -135,7 +163,7 @@ size_t  gpy::IndexMapping::index(const std::string key) const
 	return mapping_index(this->m_mapping, key);
 }
 
-std::vector<size_t> gpy::IndexMapping::order_vector_from_power(const index_mapping& powers) const
+std::vector<size_t> gpy::IndexMapping::order_vector_from_power(const index_mapping_t& powers) const
 {
 	std::vector<size_t> p(this->m_mapping.size());
 	std::transform(p.begin(), p.end(), p.begin(), [](const size_t val){return 0;});
@@ -157,6 +185,35 @@ std::vector<size_t> gpy::IndexMapping::order_vector_from_power(const index_mappi
 	return p;
 }
 
+
+gpy::HamiltonianIndexMapping::HamiltonianIndexMapping(const hamiltonian_pair_mapping_t& d, const std::string info)
+	: IndexMappingBase()
+	, m_hamiltonian_mapping(d)
+	, m_mapping(from_hamiltion_index_mapping(d))
+	, m_info(info)
+{
+
+	check_unique_keys_index(this->m_mapping, this->m_info);
+	check_default_keys_index(this->m_mapping, default_mapping, this->m_info);
+
+	// default mapping for hamiltonian
+	check_unique_keys_index(this->m_hamiltonian_mapping, this->m_info);
+}
+
+
+std::vector<std::string> gpy::HamiltonianIndexMapping::pdir(void) const
+{
+	return mapping_keys_for_dir(this->m_hamiltonian_mapping);
+}
+
+size_t  gpy::HamiltonianIndexMapping::index(const std::string key) const
+{
+    throw std::runtime_error("Hamiltoninan index mapping needs to be implemented");
+	// return mapping_index(this->m_hamiltonian_mapping, key);
+}
+
+
 namespace gtpsa::python {
 	const IndexMapping DefaultIndexMapping(gpy::default_mapping, "gtpsa::ss_vect");
+	std::shared_ptr<IndexMapping> default_index_mapping_ptr = std::make_shared<IndexMapping>(gpy::default_mapping, "gtpsa::ss_vect");
 } // namespace gtpa::python

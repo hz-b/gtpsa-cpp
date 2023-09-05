@@ -116,6 +116,17 @@ BOOST_AUTO_TEST_CASE(test5_set_variable)
 	t2.getv(1, &derivs);
 	// mad ng starts to count with 1 internally
 	BOOST_CHECK_CLOSE(derivs[iv - 1], 1, 1e-12);
+
+
+
+	// mad ng starts to count with 1 internally
+	BOOST_CHECK_CLOSE(derivs[iv - 1], 1, 1e-12);
+
+
+	std::vector<ord_t> power(6);
+	power[iv-1] = 1;
+	BOOST_CHECK_CLOSE(t2.get(power), 1, 1e-12);
+
     }
 
     {
@@ -682,4 +693,41 @@ BOOST_AUTO_TEST_CASE(test80_compare){
     fflush(stdout);
     std::cout << std::endl;
     t2.getCoefficients();
+}
+
+BOOST_AUTO_TEST_CASE(test90_atan2){
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 1);
+    gtpsa::tpsa x(a_desc, gtpsa::mad::default_), y(a_desc, gtpsa::mad::default_);
+
+    x.set(0, -1);
+    y.set(0, -1);
+
+    auto angle = gtpsa::atan2(x, y);
+    BOOST_CHECK_CLOSE(angle.cst(), -135e0/180e0*M_PI, 1e-12);
+}
+
+BOOST_AUTO_TEST_CASE(test100_pow){
+    auto a_desc = std::make_shared<gtpsa::desc>(6, 1);
+    gtpsa::tpsa x(a_desc, 1);
+
+    x.set(0, 2);
+    BOOST_CHECK_CLOSE(x.cst(), 2, 1e-12);
+    {
+	gtpsa::tpsa p(a_desc, 1);
+	p.set(0, 2);
+	auto y =  gtpsa::pow(x, p);
+	BOOST_CHECK_CLOSE(y.cst(), 4, 1e-12);
+	BOOST_CHECK_CLOSE(x.cst(), 2, 1e-12);
+    }
+    {
+	auto y =  gtpsa::pow(x, 2);
+	BOOST_CHECK_CLOSE(y.cst(), 4, 1e-12);
+	BOOST_CHECK_CLOSE(x.cst(), 2, 1e-12);
+    }
+    {
+	auto y =  gtpsa::pow(x, 2e0);
+	BOOST_CHECK_CLOSE(y.cst(), 4, 1e-12);
+	BOOST_CHECK_CLOSE(x.cst(), 2, 1e-12);
+    }
+
 }

@@ -146,7 +146,7 @@ namespace gtpsa::mad {
         inline void _copyInPlace(const GTPSA_CLASS(Wrapper) &o) { GTPSA_METH(copy)(o.getPtr(), this->getPtr()); }
 
         inline GTPSA_CLASS(Wrapper) clone(void) const {
-            GTPSA_CLASS(Wrapper) res(*this, init::same);
+            GTPSA_CLASS(Wrapper) res(*this, this->ord());
             res._copyInPlace(*this);
             return res;
         }
@@ -174,12 +174,12 @@ namespace gtpsa::mad {
         /**
          * @todo: rename to order ?
          */
-        inline auto ord(void) const { return GTPSA_METH(ord)(this->getPtr()); }
+        inline ord_t ord(void) const { return GTPSA_METH(ord)(this->getPtr()); }
 
         // initialization
         inline void clear(void) { GTPSA_METH(clear)(this->getPtr()); }
 
-        inline auto isNull(void) const { GTPSA_METH(isnul)(this->getPtr()); }
+        inline auto isNull(void) const { return GTPSA_METH(isnul)(this->getPtr()); }
 
         inline void setnam(const std::string name) { GTPSA_METH(setnam)(this->getPtr(), name.c_str()); }
 
@@ -287,14 +287,98 @@ namespace gtpsa::mad {
         }
 
         inline void pow(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b) {
-            process2w_(a, b, this, GTPSA_METH(pow));
+            this->process2w(a, b, GTPSA_METH(pow));
         }
 
         inline void pow(const GTPSA_CLASS(Wrapper) &a, const int n) { GTPSA_METH(powi)(a.getPtr(), n, this->getPtr()); }
 
         inline void pow(const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T v) {
-            process2w_(a, v, this, GTPSA_METH(pown));
+            this->process2w(a, v, GTPSA_METH(pown));
         }
+
+        /*
+         * processing functions with a single argument in, single out
+         */
+        inline void process1w(const GTPSA_CLASS(Wrapper) &a,  void (*func)(const GTPSA_PTR_T *a, GTPSA_PTR_T *r)){
+	    func(a.getPtr(), this->getPtr());
+	}
+	/*
+	 * @brief processing functions with two arguments in, single out, all gtpsa object pointers
+	 */
+	inline void process2w(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b,
+			      void (*func)(const GTPSA_PTR_T *a, const GTPSA_PTR_T *b, GTPSA_PTR_T *r)) {
+	    func(a.getPtr(), b.getPtr(), this->getPtr());
+	}
+
+	/*
+	 * @brief processing functions with two arguments in, single out
+	 * @param a first argument gtpsa object pointer
+	 * @param b second argument gtpsa base object (double or complex double)
+	 * @param c return argument
+	 */
+	inline void process2w(const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T b,
+			      void (*func)(const GTPSA_PTR_T *a, const GTPSA_BASE_T b, GTPSA_PTR_T *r)) {
+	    func(a.getPtr(), b, this->getPtr());
+	}
+
+	inline void add(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b) {
+	    this->process2w(a, b, GTPSA_METH(add));
+	}
+
+	/**
+	 * @brief  (a_i-b_i)/max(|a_i|,1)
+	 */
+	inline void dif(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b) {
+	    this->process2w(a, b, GTPSA_METH(dif));
+	}
+
+	inline void sub(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b) {
+	    this->process2w(a, b, GTPSA_METH(sub));
+	}
+
+	inline void mul(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b) {
+	    this->process2w(a, b, GTPSA_METH(mul));
+	}
+
+	inline void div(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b) {
+	    this->process2w(a, b, GTPSA_METH(div));
+	}
+
+	/**
+	 * @brief single argument in, single argument out, return argument allocated
+	 */
+	/**
+	 * @brief c += v*a, aliasing OK
+	 */
+	inline void acc(const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T &v) {
+	    this->process2w(a, v,&GTPSA_METH(acc));
+	}
+
+	/**
+	 * @brief c = v*a, aliasing OK ?
+	 */
+	inline void scl(const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T &v) {
+	    this->process2w(a, v, &GTPSA_METH(scl));
+	}
+
+	/**
+	 * @brief c = v/a, aliasing OK ?
+	 */
+	inline void inv(const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T &v) {
+	    this->process2w(a, v, &GTPSA_METH(inv));
+	}
+
+	/**
+	 * @brief c = v/sqrt(a), aliasing OK ?
+	 */
+	inline void invsqrt_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T &v) {
+	    this->process2w(a, v, &GTPSA_METH(invsqrt));
+	}
+
+
+	inline void taylor(const GTPSA_CLASS(Wrapper) &a, const std::vector<GTPSA_BASE_T> coeff, GTPSA_CLASS(Wrapper) *c) {
+	    GTPSA_METH(taylor)(a.getPtr(), coeff.size(), coeff.data(), c->getPtr());
+	}
 
     protected:
         inline const GTPSA_PTR_T *getPtr(void) const { return this->ltm->getPtr(); }
@@ -302,33 +386,16 @@ namespace gtpsa::mad {
         inline GTPSA_PTR_T *getPtr(void) { return this->ltm->getPtr(); }
 
         /*
-         * processing functions with a single argument in, single out
-         */
-        friend inline void process1w_(const GTPSA_CLASS(Wrapper) &a, GTPSA_CLASS(Wrapper) *r,
-                                      void (*func)(const GTPSA_PTR_T *a, GTPSA_PTR_T *r));
-
-        /*
-         * processing functions with a two arguments  in, single out
-         */
-        friend inline void
-        process2w_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b, GTPSA_CLASS(Wrapper) *r,
-                   void (*func)(const GTPSA_PTR_T *a, const GTPSA_PTR_T *b, GTPSA_PTR_T *r));
-
-        friend inline void process2w_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T b, GTPSA_CLASS(Wrapper) *r,
-                                      void (*func)(const GTPSA_PTR_T *a, const GTPSA_BASE_T b, GTPSA_PTR_T *r));
-
-        /*
          * processing functions with a single input two output arguments
          */
         friend inline void
-        process1to2w_(const GTPSA_CLASS(Wrapper) &a, GTPSA_CLASS(Wrapper) *r1, GTPSA_CLASS(Wrapper) *r2,
-                      void (*func)(const GTPSA_PTR_T *a, GTPSA_PTR_T *r1, GTPSA_PTR_T *r2));
+	    process1to2w_(const GTPSA_CLASS(Wrapper) &a, GTPSA_CLASS(Wrapper) *r1, GTPSA_CLASS(Wrapper) *r2,
+			  void (*func)(const GTPSA_PTR_T *a, GTPSA_PTR_T *r1, GTPSA_PTR_T *r2));
 
         /*
          * functions with a single call pattern
          */
-        friend inline void
-        taylor(const GTPSA_CLASS(Wrapper) &a, std::vector<GTPSA_BASE_T> coeff, GTPSA_CLASS(Wrapper) *c);
+        friend inline void taylor(const GTPSA_CLASS(Wrapper) &a, std::vector<GTPSA_BASE_T> coeff, GTPSA_CLASS(Wrapper) *c);
 
         friend inline ord_t maxord(const std::vector<const GTPSA_CLASS(Wrapper) *>& vec);
 
@@ -344,8 +411,8 @@ namespace gtpsa::mad {
 #undef GTPSA_FUNC_ARG1_WITH_RET_ARG
 #endif
 
-#define GTPSA_FUNC_ARG1_WITH_RET_ARG(fname)                \
-    inline void fname (const GTPSA_CLASS(Wrapper)& t, GTPSA_CLASS(Wrapper)* r){ process1w_(t, r, GTPSA_METH(fname) ); }
+#define GTPSA_FUNC_ARG1_WITH_RET_ARG(fname)				\
+    inline void fname (const GTPSA_CLASS(Wrapper)& t, GTPSA_CLASS(Wrapper)* r){ r->process1w(t, GTPSA_METH(fname) ); }
 
 #define GTPSA_FUNC_ARG1(fname) GTPSA_FUNC_ARG1_WITH_RET_ARG(fname)
 
@@ -354,7 +421,7 @@ namespace gtpsa::mad {
 #undef GTPSA_FUNC_ARG1_WITH_RET_ARG
 #undef GTPSA_FUNC_ARG1
 
-
+#if 0
     /*
      * @brief processing functions with a single argument in, single out, all gtpsa object pointers
      */
@@ -383,13 +450,14 @@ namespace gtpsa::mad {
     }
 
     /*
-    inline GTPSA_CLASS(Wrapper) process2w(const GTPSA_CLASS(Wrapper)& a, const GTPSA_CLASS(Wrapper)&  b,
-					void (*func)(const GTPSA_CLASS(Wrapper)& a, const GTPSA_CLASS(Wrapper)& b, GTPSA_CLASS(Wrapper)* r) ) {
-	auto ret = a.newFromThis(); //TpsaWithOp<T>(a, gtpsa::init::same);
-	func(a, b, &ret);
-	return ret;
-    }
+      inline GTPSA_CLASS(Wrapper) process2w(const GTPSA_CLASS(Wrapper)& a, const GTPSA_CLASS(Wrapper)&  b,
+      void (*func)(const GTPSA_CLASS(Wrapper)& a, const GTPSA_CLASS(Wrapper)& b, GTPSA_CLASS(Wrapper)* r) ) {
+      auto ret = a.newFromThis(); //TpsaWithOp<T>(a, gtpsa::init::same);
+      func(a, b, &ret);
+      return ret;
+      }
     */
+#endif
 
     /**
      * @brief single argument in, two arguments out, all gtpsa object pointers
@@ -398,81 +466,14 @@ namespace gtpsa::mad {
                               void (*func)(const GTPSA_PTR_T *a, GTPSA_PTR_T *r1, GTPSA_PTR_T *r2)) {
         func(a.getPtr(), r1->getPtr(), r2->getPtr());
     }
-
-    inline void add_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b, GTPSA_CLASS(Wrapper) *r) {
-        process2w_(a, b, r, GTPSA_METH(add));
-    }
-
-    /**
-     * @brief  (a_i-b_i)/max(|a_i|,1)
-     */
-    inline void dif_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b, GTPSA_CLASS(Wrapper) *r) {
-        process2w_(a, b, r, GTPSA_METH(dif));
-    }
-
-    inline void sub_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b, GTPSA_CLASS(Wrapper) *r) {
-        process2w_(a, b, r, GTPSA_METH(sub));
-    }
-
-    inline void mul_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b, GTPSA_CLASS(Wrapper) *r) {
-        process2w_(a, b, r, GTPSA_METH(mul));
-    }
-
-    inline void div_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b, GTPSA_CLASS(Wrapper) *r) {
-        process2w_(a, b, r, GTPSA_METH(div));
-    }
-
-    inline void pow_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_CLASS(Wrapper) &b, GTPSA_CLASS(Wrapper) *r) {
-        r->pow(a, b);
-    }
-
-    inline void pow_(const GTPSA_CLASS(Wrapper) &a, const int n, GTPSA_CLASS(Wrapper) *r) { r->pow(a, n); }
-
-    inline void pow_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T v, GTPSA_CLASS(Wrapper) *r) { r->pow(a, v); }
-
-    /**
-     * @brief single argument in, single argument out, return argument allocated
-     */
-    /**
-     * @brief c += v*a, aliasing OK
-     */
-    inline void acc_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T &v, GTPSA_CLASS(Wrapper) *c) {
-        process2w_(a, v, c, &GTPSA_METH(acc));
-    }
-
-    /**
-     * @brief c = v*a, aliasing OK ?
-     */
-    inline void scl_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T &v, GTPSA_CLASS(Wrapper) *c) {
-        process2w_(a, v, c, &GTPSA_METH(scl));
-    }
-
-    /**
-     * @brief c = v/a, aliasing OK ?
-     */
-    inline void inv_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T &v, GTPSA_CLASS(Wrapper) *c) {
-        process2w_(a, v, c, &GTPSA_METH(inv));
-    }
-
-    /**
-     * @brief c = v/sqrt(a), aliasing OK ?
-     */
-    inline void invsqrt_(const GTPSA_CLASS(Wrapper) &a, const GTPSA_BASE_T &v, GTPSA_CLASS(Wrapper) *c) {
-        process2w_(a, v, c, &GTPSA_METH(invsqrt));
-    }
-
-
     inline void sincos(const GTPSA_CLASS(Wrapper) &t, GTPSA_CLASS(Wrapper) *r1, GTPSA_CLASS(Wrapper) *r2) {
-        process1to2w_(t, r1, r2, GTPSA_METH(sincos));
+	process1to2w_(t, r1, r2, GTPSA_METH(sincos));
     }
 
     inline void sincosh(const GTPSA_CLASS(Wrapper) &t, GTPSA_CLASS(Wrapper) *r1, GTPSA_CLASS(Wrapper) *r2) {
-        process1to2w_(t, r1, r2, GTPSA_METH(sincosh));
+	process1to2w_(t, r1, r2, GTPSA_METH(sincosh));
     }
 
-    inline void taylor(const GTPSA_CLASS(Wrapper) &a, const std::vector<GTPSA_BASE_T> coeff, GTPSA_CLASS(Wrapper) *c) {
-        GTPSA_METH(taylor)(a.getPtr(), coeff.size(), coeff.data(), c->getPtr());
-    }
 
     /**
      * would naturally blend into bridge, but also required for instantiating

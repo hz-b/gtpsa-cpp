@@ -3,6 +3,15 @@
 #include <gtpsa/intern/gtpsa_container.hpp>
 #include <sstream>
 
+void gtpsa::report_vector_dimension_mismatch(size_t nv,  const size_t n)
+{
+    std::stringstream strm;
+    strm << "gtpsa::ss_vect<gtpsa::(c)tpsa> "
+	 << " state space of  dimension " << n <<  " requested"
+	 << " tpsa object has only "<< nv << " number of variables";
+    throw std::runtime_error(strm.str());
+}
+
 template<>
 void gtpsa::ss_vect<double>::show(std::ostream& strm, int level, bool with_endl) const
 {
@@ -33,7 +42,9 @@ void gtpsa::ss_vect<T>::show(std::ostream& strm, int level, bool with_endl) cons
     // preserve order
     for(size_t i= 0; i<this->state_space.size(); ++i){
 	auto& t_tpsa = this->state_space[i];
-	for (int j = 0; j<6; ++j){
+	const auto& info = t_tpsa.getDescription()->getInfo();
+	const int nn = info.getNumberOfVariables() + info.getNumberOfParameters();
+	for (int j = 0; j<nn; ++j){
 	    // todo: validate index
 	    auto val = t_tpsa.getsm(std::vector<idx_t>{int(j+1), 1});
 	    strm << std::setw(14) << val << " ";
@@ -99,24 +110,52 @@ arma::mat gtpsa::ss_vect<gtpsa::tpsa>::jacobian(void) const
     auto desc = this->state_space.at(0).getDescription();
     size_t nv = desc->getNv();
 
-    arma::mat mat(this->size(), nv);
-    mat.fill(NAN);
-    std::vector<num_t> vec(nv);
 
-    const size_t start = estimate_start_order(1, nv);
-    for(size_t row = 0; row < this->state_space.size(); ++row){
-        for(auto& e: vec) e = NAN;
-        auto &t = this->state_space[row];
+    arma::mat mat(this->size(), nv, arma::fill::zeros);
+    mat.fill(NAN);
+
+    // std::cout << "get jacobian .." << std::endl;
+
+    std::vector<ord_t> ord(nv);
+    for(size_t slice = 0; slice < this->size(); ++slice) {
+	auto &t = this->state_space[slice];
+	for(size_t row = 0; row < nv; ++row){
+	    // set ord to zero
+	    for(auto& e: ord) e=0;
+	    // compute exponent array for this entry
+	    ord.at(row) += 1;
+	    if(t.index(ord) < 0){
+		std::cerr << "Invalid index {" << int(ord.at(0)) << ", " << int(ord.at(1)) << "," << int(ord.at(2)) << "}" <<std::endl;
+		continue;
+	    }
+	    mat(slice, row) = t.get(ord);
+	}
+    }
+    return mat;
+
+    /*
+      original version... I prefer to do proper look up ..
+
+      const size_t start = estimate_start_order(1, nv);
+      std::vector<num_t> vec(nv);
+      for(size_t row = 0; row < this->state_space.size(); ++row){
+      for(auto& e: vec) e = NAN;
+      auto &t = this->state_space[row];
         t.getv(start, &vec);
         for(size_t col = 0; col < nv; ++col){
             mat(row, col) = vec[col];
         }
     }
 
+
     return mat;
+    */
+
 }
 template<>
 void gtpsa::ss_vect<gtpsa::tpsa>::setJacobian(arma::mat& jac) {
+
+
 
     auto desc = this->state_space.at(0).getDescription();
     size_t nv = desc->getNv();
@@ -135,6 +174,27 @@ void gtpsa::ss_vect<gtpsa::tpsa>::setJacobian(arma::mat& jac) {
         throw std::runtime_error(strm.str());
     }
 
+    std::vector<ord_t> ord(nv);
+    for(size_t slice = 0; slice < this->size(); ++slice) {
+	auto &t = this->state_space[slice];
+	for(size_t row = 0; row < nv; ++row){
+	    // set ord to zero
+	    for(auto& e: ord) e=0;
+	    // compute exponent array for this entry
+	    ord[row] += 1;
+	    if(t.index(ord) < 0){
+		std::stringstream strm;
+		strm << "gtpsa::ss_vect::setJacobian: ";
+		strm << "Invalid index {" << int(ord[0]) << ", " << int(ord[1]) << "," << int(ord[2]) << "}" <<std::endl;
+		throw std::runtime_error(strm.str());
+		continue;
+	    }
+	    t.set(ord, 0e0, jac(slice, row));
+	}
+    }
+
+/*
+    // throw std::runtime_error("needs to be reimplemented");
     const size_t start = estimate_start_order(1, nv);
     for(size_t row = 0; row < this->state_space.size(); ++row){
         arma::mat row_vec = jac.row(row);
@@ -144,6 +204,7 @@ void gtpsa::ss_vect<gtpsa::tpsa>::setJacobian(arma::mat& jac) {
         }
         this->state_space[row].setv(start, v);
     }
+*/
 }
 
 /**
@@ -166,7 +227,7 @@ arma::cube gtpsa::ss_vect<gtpsa::tpsa>::hessian() const
      * retrieve element by element
      */
     //const size_t start = estimate_start_order(2, nv);
-    for(size_t slice = 0; slice < nv; ++slice) {
+    for(size_t slice = 0; slice < this->size(); ++slice) {
         for(auto& e: vec) e = NAN;
         auto &t = this->state_space[slice];
 

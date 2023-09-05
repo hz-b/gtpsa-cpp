@@ -51,6 +51,7 @@ ext_modules = [
             "src/desc.cc",
             "src/gtpsa.cc",
             "src/ss_vect.cc",
+            "src/named_index.cc",
             "src/arma.cc"
         ]),
         define_macros=[("GTPSA_DEFINE_BOOL",1)],

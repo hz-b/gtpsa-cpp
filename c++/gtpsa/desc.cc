@@ -34,3 +34,15 @@ gtpsa::mad::desc_info gtpsa::mad::desc::getInfo() const
 
 	return info;
 }
+
+void gtpsa::mad::desc::show(std::ostream& o) const
+{
+    o << this->getInfo();
+}
+
+std::string gtpsa::mad::desc::repr() const
+{
+    std::stringstream o;
+    this->show(o);
+    return o.str();
+}

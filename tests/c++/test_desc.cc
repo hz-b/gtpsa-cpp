@@ -139,8 +139,8 @@ BOOST_AUTO_TEST_CASE(test31_desc_info)
 BOOST_AUTO_TEST_CASE(test33_desc_info)
 {
     // currently fails for 144 on my machine
-    const int nv = 3, mo =7, np=62, po=1;
-    auto a_desc = gtpsa::desc(nv, mo, np, po);
+    const int nv = 3, no =7, np=62, po=1;
+    auto a_desc = gtpsa::desc(nv, no, np, po);
     a_desc.info();
     auto info = a_desc.getInfo();
     std::cout << " info: " << info << std::endl;
@@ -155,6 +155,16 @@ BOOST_AUTO_TEST_CASE(test30_desc_nv)
 {
     const int nv = 3, no =7;
     auto a_desc = gtpsa::desc(nv, no);
+
+    // BOOST_CHECK_EQUAL(a_desc.getNv(), nv);
+}
+
+
+BOOST_AUTO_TEST_CASE(test31_desc_for_bba)
+{
+    const int nv = 7, np = 144 * 3;
+    const ord_t mo = 3, po = 1;
+    auto a_desc = gtpsa::desc(nv, mo, np, po);
 
     // BOOST_CHECK_EQUAL(a_desc.getNv(), nv);
 }

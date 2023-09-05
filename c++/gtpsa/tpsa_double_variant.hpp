@@ -120,7 +120,7 @@ namespace gtpsa {
         }
 
         inline bool operator== (const TpsaOrDouble& o) const {
-            bool flag;
+            bool flagm
             std::visit(overloaded{
                     [&flag] (const base_type& t, const base_type& o){ flag = (t == o); },
                     [&flag] (const auto& t, const auto& o){ flag = false; /* (t == o); */ },
@@ -130,6 +130,15 @@ namespace gtpsa {
 #endif
         inline void rsin(const TpsaOrDouble& o) { rapply_helper( o.m_arg, &this->m_arg, std::sin, gtpsa::sin_); }
         inline void rcos(const TpsaOrDouble& o) { rapply_helper( o.m_arg, &this->m_arg, std::cos, gtpsa::cos_); }
+
+	inline void atan2(const TpsaOrDouble& y, const TpsaOrDouble& x) {
+	    intern::tpsa_or_double_t* r = &this->m_arg;
+	    std::visit( overloaded {
+		    [&r](const double& ty, const double& tx) { r->emplace<double>( std::atan2(ty, tx)   ); },
+		    [&r](const auto&   ty, const auto&   tx) { r->emplace<tpsa>  ( gtpsa::atan2(ty, tx) ); },
+		}, y.m_arg, x.m_arg);
+	}
+
 	// required for operator +=
 	inline double& ladd(double& a) const {
             std::visit(overloaded{
@@ -177,6 +186,8 @@ namespace gtpsa {
 
     inline TpsaOrDouble sin(const TpsaOrDouble& o){ TpsaOrDouble n = o; n.rsin(o); return n; }
     inline TpsaOrDouble cos(const TpsaOrDouble& o){ TpsaOrDouble n = o; n.rcos(o); return n; }
+
+    inline TpsaOrDouble atan2(const TpsaOrDouble& y, const TpsaOrDouble& x){ TpsaOrDouble n = y; n.atan2(y, x); return n; }
 #endif
 
 } // namespace gtpsa

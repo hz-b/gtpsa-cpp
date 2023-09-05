@@ -4,6 +4,7 @@ Some simple examples
 """
 import gtpsa
 import numpy as np
+import copy
 
 # The description object provides number of variables and maximum
 # order.Internally it contains look up tables for calculations and
@@ -52,4 +53,18 @@ print("length", t.length())
 print("order", t.order)
 
 # available methods
-print(dir(t))
+print(type(t))
+
+
+# Power handled by dedicated c++ function
+tmp = t**2
+print(tmp, type(tmp))
+
+print("t**2 gradient for x", tmp.get(dict(x=1)), tmp.get(dict(x=2)))
+print(tmp.get_coefficients())
+
+tmp = copy.copy(t)
+print(tmp, type(tmp))
+tmp  = t * t
+print(tmp, type(tmp))
+print("gradient for x", tmp.get(dict(x=1)))

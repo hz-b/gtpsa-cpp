@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <vector>
 
-
 namespace gtpsa {
     // ------------------------------------------------------------------------------
     // helper functions for different operators and mathematical functions
@@ -70,6 +69,9 @@ namespace gtpsa {
     inline TpsaWithOp<T> pow (const TpsaWithOp<T>& a, const int n         ){ auto r = a.newFromThis(); pow(a, n, &r); return r; }
     template<typename T, typename = typename T::bridge_type, typename = typename T::base_type, typename = typename T::ptr_type>
     inline TpsaWithOp<T> pow (const TpsaWithOp<T>& a, typename T::base_type v){ auto r = a.newFromThis(); pow(a, v, &r); return r; }
+
+    template<class C>
+    inline TpsaWithOp<T> deriv(const TpsaWithOp<C>& o, const int iv) {	auto n = o.newFromThis(); n.rderiv(o, iv); return n; };
 
 } // namespace gtpsa
 

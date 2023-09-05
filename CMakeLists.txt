@@ -1,14 +1,39 @@
 cmake_minimum_required(VERSION 3.0.0)
 
 project("gtpsa" LANGUAGES C CXX)
-set(GTPSA_VERSION 0.0.1)
+
+# required for building implemenetation of svddec and
+# miccado. matmul refers to these
+ENABLE_LANGUAGE(Fortran)
+
+set(GTPSA_VERSION 0.1.0)
 
 OPTION (USE_OpenMP "Use OpenMP" ON)
-
+# Normally used during development.
+# For release and installing the python module it is
+# better to use the provided python setup files to
+# achieve it
+OPTION (USE_pybind11 "Use cmake to build the pybind11 extension" ON)
+# Install the python package to the found python interpreter
+# convienient for debug builds. Only useful if the pybind11 build is
+# also used
+option(PYTHON_MODULE_DEVELOPMENT_INSTALL "Install python binary module to source directory" ON)
 
 find_package(BLAS)
 find_package(LAPACK)
 find_package(Armadillo REQUIRED)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RELEASE) # default to release build
+  message(STATUS "Default to Release build")
+endif()
+
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+  set(gtpsa_DEBUG_BUILD ON)
+else()
+  set(gtpsa_DEBUG_BUILD OFF)
+endif()
+
 
 IF(USE_OpenMP)
     FIND_PACKAGE(OpenMP)
@@ -19,19 +44,14 @@ IF(USE_OpenMP)
     ENDIF()
 ENDIF()
 
-set(mad_ng_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/mad-ng/src/)
-
-#include_directories(
-#  ${mad_ng_SRC_DIR}/libgtpsa/
-#  ${mad_ng_SRC_DIR}
-#)
-
 # specify the C standard
 set(CMAKE_C_STANDARD 11)
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+enable_testing()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
 #   add_definitions(
@@ -53,6 +73,10 @@ add_subdirectory(c)
 # need to build proper package support
 # include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c++)
 add_subdirectory(c++)
-add_subdirectory(python)
+IF(USE_pybind11)
+  # used when building the pybind11 module
+  # in the tree
+  add_subdirectory(python)
+endif()
 add_subdirectory(examples)
 add_subdirectory(tests)

@@ -24,9 +24,9 @@ BOOST_AUTO_TEST_CASE(test10_bridge_container)
 
     std::vector<gtpsa::tpsa_bridge*> vec {&t0, &t1, &t2, &t3, &t4, &t5};
 
-    const gtpsa::TpsaBridgeContainer<gtpsa::TpsaTypeInfo> ba(vec), bb(vec);
+    const gtpsa::TTpsaBridgeContainer ba(vec), bb(vec);
 
-    gtpsa::TpsaBridgeContainer<gtpsa::TpsaTypeInfo> bc(vec);
+    gtpsa::TTpsaBridgeContainer bc(vec);
     bc.rcompose(ba, bb);
 }
 
@@ -45,8 +45,8 @@ BOOST_AUTO_TEST_CASE(test20_bridge_container_liebra)
 
     std::vector<gtpsa::tpsa_bridge*> vec {&t0, &t1, &t2, &t3, &t4, &t5};
 
-    const gtpsa::TpsaBridgeContainer<gtpsa::TpsaTypeInfo> ba(vec), bb(vec);
+    const gtpsa::TTpsaBridgeContainer ba(vec), bb(vec);
 
-    gtpsa::TpsaBridgeContainer<gtpsa::TpsaTypeInfo> bc(vec);
+    gtpsa::TTpsaBridgeContainer bc(vec);
     bc.rliebra(ba, bb);
 }

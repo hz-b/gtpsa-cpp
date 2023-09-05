@@ -6,6 +6,7 @@ cmake_policy(SET CMP0063 NEW)
 add_library(_gtpsa MODULE
   src/gtpsa_module.cc
   src/desc.cc
+  src/named_index.cc
   src/gtpsa.cc
   src/ss_vect.cc
   src/arma.cc
@@ -22,7 +23,11 @@ target_link_libraries(_gtpsa
   )
 
 pybind11_extension(_gtpsa)
-pybind11_strip(_gtpsa)
+if(${gtpsa_DEBUG_BUILD} STREQUAL OFF)
+  pybind11_strip(_gtpsa)
+else()
+  message(STATUS "not stripping _gtpsa extension")
+endif()
 set_target_properties(_gtpsa
   PROPERTIES CXX_VISIBILITY_PRESET "hidden"
   CUDA_VISIBILITY_PRESET "hidden"
@@ -43,7 +48,10 @@ target_link_libraries(_gtpsa_variant_test
   )
 
 pybind11_extension(_gtpsa_variant_test)
-pybind11_strip(_gtpsa_variant_test)
+if(${gtpsa_DEBUG_BUILD} STREQUAL OFF)
+  pybind11_strip(_gtpsa_variant_test)
+endif()
+
 set_target_properties(_gtpsa_variant_test
   PROPERTIES CXX_VISIBILITY_PRESET "hidden"
   CUDA_VISIBILITY_PRESET "hidden"

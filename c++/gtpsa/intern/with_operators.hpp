@@ -14,67 +14,66 @@ namespace gtpsa {
     {
     public:
 	using bridge = TpsaBridge<T>;
-    using base_type = typename T::base_type;
+	using base_type = typename T::base_type;
 
     public:
-	inline TpsaWithOp(std::shared_ptr<mad::desc> desc, const ord_t mo)
-	    : bridge(desc, mo)
-	    {}
+        inline TpsaWithOp(std::shared_ptr<mad::desc> desc, const ord_t mo)
+            : bridge(desc, mo)
+            {}
 
-	inline TpsaWithOp(const TpsaWithOp&              t, const ord_t mo)
-	    : bridge(t,   mo)
-	    {}
+        inline TpsaWithOp(const TpsaWithOp&              t, const ord_t mo)
+            : bridge(t,   mo)
+            {}
 
-	inline TpsaWithOp(      TpsaWithOp&&       o) = default;
+        inline TpsaWithOp(      TpsaWithOp&&       o) = default;
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
 
-	inline TpsaWithOp(const bridge& o)
-	    : bridge(o)
-	    {}
+        inline TpsaWithOp(const bridge& o)
+            : bridge(o)
+            {}
 
-	inline TpsaWithOp(const TpsaWithOp&              o) = default;
+        inline TpsaWithOp(const TpsaWithOp&              o) = default;
 
 #else /* GTSPA_ONLY_OPTIMISED_OPS */
 
-	inline TpsaWithOp(const TpsaWithOp&              o) = delete;
+        inline TpsaWithOp(const TpsaWithOp&              o) = delete;
 
         // inline TpsaWithOP getOrder(int order) {return bridge::getOrder(); }
 #endif
 
-	inline TpsaWithOp newFromThis(void) const { return bridge::newFromThis(); }
+        inline TpsaWithOp newFromThis(void) const { return bridge::newFromThis(); }
 
-        inline void rgetOrder(const TpsaWithOp& o, int order) { return bridge::rgetOrder(o, order); }
+        inline auto rgetOrder(const TpsaWithOp& o, int order) { return bridge::rgetOrder(o, order); }
 
         inline auto toBridgePtr(void) const { return static_cast<bridge &>(*this); }
 
+        /**
+         * These operators need to make copys of the actual instance
+         * In the current implementation I assume the compiler can not fully optimise it away
+         * if not required
+         *
+         * review if the copy constructor should be private and called from here ...
+         * seems that it is more efficient than the clone
+         */
+        inline TpsaWithOp<T>&  operator =  (const TpsaWithOp<T>& o )       { this->_copyInPlace(o); return *this; }
 
-	/**
-	 * These operators need to make copys of the actual instance
-	 * In the current implementation I assume the compiler can not fully optimise it away
-	 * if not required
-	 *
-	 * review if the copy constructor should be private and called from here ...
-	 * seems that it is more efficient than the clone
-	 */
-	inline TpsaWithOp<T>&  operator =  (const TpsaWithOp<T>& o )       { this->_copyInPlace(o); return *this; }
+        /**
+         * brief: assign a c
+         *
+         * @todo check if not the whole object should be zeroed ...
+         *       same as in Johan's tps
+         */
+        inline TpsaWithOp<T>&  operator =  (const typename T::base_type& o ) { this->set(0, o);       return *this; }
 
-	/**
-	 * brief: assign a c
-	 *
-	 * @todo check if not the whole object should be zeroed ...
-	 *       same as in Johan's tps
-	 */
-	inline TpsaWithOp<T>&  operator =  (const typename T::base_type& o ) { this->set(0, o);       return *this; }
-
-	/*
-	 * operators: use already defined functions
-	 */
-	inline TpsaWithOp& operator += (const TpsaWithOp& o ) { radd(*this, o, this); return *this; }
+        /*
+         * operators: use already defined functions
+         */
+        inline TpsaWithOp& operator += (const TpsaWithOp& o ) { this->add(*this, o); return *this; }
 	// (a_i-b_i)/max(|a_i|,1)
-	inline TpsaWithOp& operator -= (const TpsaWithOp& o ) { rsub(*this, o, this); return *this; }
-	inline TpsaWithOp& operator *= (const TpsaWithOp& o ) { rmul(*this, o, this); return *this; }
-	inline TpsaWithOp& operator /= (const TpsaWithOp& o ) { rdiv(*this, o, this); return *this; }
+	inline TpsaWithOp& operator -= (const TpsaWithOp& o ) { this->sub(*this, o); return *this; }
+	inline TpsaWithOp& operator *= (const TpsaWithOp& o ) { this->mul(*this, o); return *this; }
+	inline TpsaWithOp& operator /= (const TpsaWithOp& o ) { this->div(*this, o); return *this; }
 
 	/*
 	 * operators with base type as one argument
@@ -89,12 +88,7 @@ namespace gtpsa {
 	 * @brief negation
 	 * @todo do I need to make a copy ....?
 	 */
-	inline TpsaWithOp   operator -  (void) const { return scl(*this, -1); }
-
-	inline TpsaWithOp  operator +  (const TpsaWithOp<T>& o ) const { return TpsaWithOp( add(*this, o) ); }
-	inline TpsaWithOp  operator -  (const TpsaWithOp<T>& o ) const { return TpsaWithOp( sub(*this, o) ); }
-	inline TpsaWithOp  operator *  (const TpsaWithOp<T>& o ) const { return TpsaWithOp( mul(*this, o) ); }
-	inline TpsaWithOp  operator /  (const TpsaWithOp<T>& o ) const { return TpsaWithOp( div(*this, o) ); }
+	inline TpsaWithOp  operator -  (void) const { auto r = this->newFromThis(); r.m_impl.scl(this->m_impl, -1); return r; }
 
 	inline TpsaWithOp  operator +  (const typename T::base_type o) const { auto r = this->newFromThis(); r.set(0, o); r += *this;     return r; }
 	inline TpsaWithOp  operator -  (const typename T::base_type o) const { auto r = this->newFromThis(); r.set(0, o); return *this - r;         }
@@ -112,8 +106,9 @@ namespace gtpsa {
 	    strm << "gtpsa  cst:\n\t" << this->cst();
 	    if(this->order()){
 		// at least first order ...
-		auto nv = this->getDescription()->getNv(0, 0, 0);
-		std::vector<typename T::base_type> v(nv);
+		const auto& info = this->getDescription()->getInfo();
+		const int nn = info.getNumberOfVariables() + info.getNumberOfParameters();
+		std::vector<typename T::base_type> v(nn);
 		this->getv(1, &v);
 
 		strm  << "\ngtpsa linear :\n"
@@ -178,6 +173,15 @@ namespace gtpsa {
 
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
+    template<class T>
+    inline TpsaWithOp<T>  operator+  (const TpsaWithOp<T>& a, const TpsaWithOp<T>& b ) { auto n = a.newFromThis(); n.add(a, b); return n; }
+    template<class T>
+    inline TpsaWithOp<T>  operator-  (const TpsaWithOp<T>& a, const TpsaWithOp<T>& b ) { auto n = a.newFromThis(); n.sub(a, b); return n; }
+    template<class T>
+    inline TpsaWithOp<T>  operator*  (const TpsaWithOp<T>& a, const TpsaWithOp<T>& b ) { auto n = a.newFromThis(); n.mul(a, b); return n; }
+    template<class T>
+    inline TpsaWithOp<T>  operator/  (const TpsaWithOp<T>& a, const TpsaWithOp<T>& b ) { auto n = a.newFromThis(); n.div(a, b); return n; }
+
     template<class T, typename = typename T::base_type>
     inline TpsaWithOp<T>  operator +  (const typename T::base_type a, const TpsaWithOp<T>& b)  { return b + a; }
     template<class T, typename = typename T::base_type>
@@ -186,6 +190,8 @@ namespace gtpsa {
     inline TpsaWithOp<T>  operator *  (const typename T::base_type a, const TpsaWithOp<T>& b)  { return b * a; }
     template<class T, typename = typename T::base_type>
     inline TpsaWithOp<T>  operator /  (const typename T::base_type a, const TpsaWithOp<T>& b)  { auto t = b.newFromThis(); t.set(0, a    ); return t / b; }
+    template<class T, typename = typename T::base_type>
+    inline TpsaWithOp<T>  deriv  (const TpsaWithOp<T>& o, const int iv)  { auto t = o.newFromThis(); t.rderiv(o, iv); return t; }
 #endif
 
 } //namespace gtpsa

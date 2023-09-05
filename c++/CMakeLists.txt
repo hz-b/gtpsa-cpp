@@ -1,3 +1,12 @@
+# a dedicated preprocessor flag for gtpsa
+# currently used for some writing some warnings
+# at compile time and enabling some
+# debug message prints
+#
+# current use desc.hpp
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Dgtpsa_DEBUG")
+
+
 set(gtpsa_c++_mad_HEADERS
   gtpsa/mad/forward_decl.hpp
   gtpsa/mad/wrapper.tpp
@@ -21,6 +30,7 @@ set(gtpsa_c++_intern_HEADERS
 
 set(gtpsa_c++_python_HEADERS
   gtpsa/python/name_index.h
+  gtpsa/python/objects_with_named_index.h
   )
 
 set(gtpsa_c++_HEADERS
