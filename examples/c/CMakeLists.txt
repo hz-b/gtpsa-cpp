@@ -1,7 +1,7 @@
 # current hack .. until the library is properly defined
 # include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../c++)
 
-set(GTPSA_EX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtpsa/external_repositories/mad-ng/src/libgtpsa/)
+set(GTPSA_EX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../external_repositories/mad-ng/src/libgtpsa/)
 
 add_executable(gtpsa_ex0_c ${GTPSA_EX_DIR}/gtpsa_ex0.c)
 add_executable(gtpsa_ex1_c ${GTPSA_EX_DIR}/gtpsa_ex1.c)
