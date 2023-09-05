@@ -56,6 +56,10 @@ set(gtpsa_FILES
   ${mad_ng_SRC_DIR}/mad_tpsa_mops.c
   ${mad_ng_SRC_DIR}/mad_tpsa_ops.c
   ${mad_ng_SRC_DIR}/mad_vec.c
+
+  # Fortran File implementing former MAD
+  # micado version
+  ${mad_ng_SRC_DIR}/madx_micado.f90
   )
 
 

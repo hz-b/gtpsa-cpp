@@ -152,6 +152,7 @@ namespace gtpsa::mad {
 	desc_info  getInfo() const;
 
 	inline void info(FILE * fp = nullptr)                      const { mad_desc_info(this->getPtr(), fp);                    }
+/*
 	inline void info_s(std::string* buf)                       const {
 	    mad_desc_info_s(this->getPtr(), buf->size(), buf->data());
 	}
@@ -160,6 +161,7 @@ namespace gtpsa::mad {
 	    this->info_s(&buf);
 	    return buf;
 	}
+ */
 	/* consider removing methods that don't use containers */
 	inline log_t isvalid   (const std::string& s, const ssz_t n=0) const {
 	    return mad_desc_isvalids  (this->getPtr(), (n == 0) ? s.size() : n, s.c_str() );
@@ -202,8 +204,8 @@ namespace gtpsa::mad {
 	inline ord_t mono      (const idx_t i, std::vector<ord_t>* m) const { return mad_desc_mono      (this->getPtr(), i, m->size(), m->data()); }
 
 
-	inline std::string repr(void)                           const { return this->info_s();	}
-	inline void show(std::ostream& o)                       const { o << this->repr(); }
+	std::string repr(void)      const;
+	void show(std::ostream& o)  const;
 
 	friend std::ostream& operator<<(std::ostream&, const desc& d);
 	friend class  mad::_TpsaWrapper;

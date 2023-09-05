@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 3.0.0)
 
 project("gtpsa" LANGUAGES C CXX)
-set(GTPSA_VERSION 0.0.1)
+
+# required for building implemenetation of svddec and
+# miccado. matmul refers to these
+ENABLE_LANGUAGE(Fortran)
+
+set(GTPSA_VERSION 0.1.0)
 
 OPTION (USE_OpenMP "Use OpenMP" ON)
 # Normally used during development.
