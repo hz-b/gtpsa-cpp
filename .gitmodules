@@ -1,3 +1,3 @@
 [submodule "MAD"]
-	path = mad-ng
+	path = external_repositories/mad-ng
 	url = https://github.com/MethodicalAcceleratorDesign/MAD
