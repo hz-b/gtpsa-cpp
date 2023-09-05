@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(test33_desc_info)
     std::cout << " info: " << info << std::endl;
 
     BOOST_CHECK_EQUAL(nv, info.getNumberOfVariables());
-    BOOST_CHECK_EQUAL(mo, info.getVariablesMaximumOrder());
+    BOOST_CHECK_EQUAL(no, info.getVariablesMaximumOrder());
     BOOST_CHECK_EQUAL(np, info.getNumberOfParameters());
     BOOST_CHECK_EQUAL(po, info.getParametersMaximumOrder());
 }
