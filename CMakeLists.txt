@@ -67,12 +67,11 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-add_subdirectory(c)
 
-# Required info in the directories below
-# need to build proper package support
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c++)
-add_subdirectory(c++)
+
+
+add_subdirectory(src)
+
 IF(USE_pybind11)
   # used when building the pybind11 module
   # in the tree
