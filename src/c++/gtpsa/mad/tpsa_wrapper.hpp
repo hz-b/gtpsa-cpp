@@ -38,7 +38,7 @@ extern "C" {
 #include <gtpsa/mad/forward_decl.hpp>
 #include <gtpsa/mad/wrapper.tpp>
 #include <gtpsa/mad/container_wrapper.tpp>
-#include <gtpsa/utils.hpp>
+#include <gtpsa/mad/utils.hpp>
 namespace gtpsa::mad {
     class TpsaWrapper: public _TpsaWrapper {
     public:
