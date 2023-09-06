@@ -7,11 +7,8 @@ https://github.com/MethodicalAcceleratorDesign/MAD.
 For details see
 https://github.com/MethodicalAcceleratorDesign/MAD/blob/dev/src/libgtpsa/README.GTPSA.
 
+*NB*: the code base builds gtpsa as a library.
 
-**NB**: this code base modifies the C function defintions of the original code. For serious work please checkout the original code, in particular if you are using the "C" language.
-
-
-The wrapper code should be currently seen as an experiment of
-how such a c++ style wrapper could be built.
+The wrapper covers a good fraction of what the gtpsa library provides.
 
 If interested, you are welcome to join.
