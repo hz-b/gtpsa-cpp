@@ -2,7 +2,7 @@
 add_compile_definitions(GTPSA_AS_LIB)
 include(CMakePackageConfigHelpers)
 
-set(mad_ng_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../external_repositories/mad-ng/src/)
+set(mad_ng_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../external_repositories/mad-ng/src/)
 
 set(gtpsa_HEADERS
   ${mad_ng_SRC_DIR}/mad_bit.h
@@ -67,6 +67,7 @@ add_library(gtpsa SHARED
   ${gtpsa_FILES}
   ${gtpsa_HEADERS}
 )
+add_library(gtpsa::c ALIAS gtpsa)
 target_link_libraries(gtpsa lapack blas ${OpenMP_C_LIBRARIES})
 
 
@@ -89,22 +90,7 @@ target_include_directories(gtpsa
                            "$<BUILD_INTERFACE:${mad_ng_build_SRC_DIR/gtpsa}>"
                            "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
-message(STATUS "Building gtpsa.cmake")
-set(GTPSA_CMAKE_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/")
 
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/gtpsaConfig.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/gtpsaConfig.cmake"
-    INSTALL_DESTINATION ${GTPSA_CMAKE_LIB_DIR}
-)
-
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/gtpsaConfigVersion.cmake
-    VERSION "${GTPSA_VERSION}"
-    COMPATIBILITY SameMajorVersion
-    # check the destination file
-    # INSTALL_DESTINATION ${GTPSA_CMAKE_LIB_DIR}
-)
 
 
 install(TARGETS gtpsa
@@ -113,19 +99,15 @@ install(TARGETS gtpsa
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-message(STATUS "cmake  ${CMAKE_INSTALL_INCLUDEDIR}")
-install(FILES ${gtpsa_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+	)
 
 install(
     EXPORT gtpsaTargets
     FILE gtpsaTargets.cmake
-    DESTINATION ${GTPSA_CMAKE_LIB_DIR}
+    DESTINATION ${gtpsa_CMAKE_LIB_DIR}
     NAMESPACE gtpsa::
 )
 
-install(FILES
-         "${CMAKE_CURRENT_BINARY_DIR}/gtpsaConfig.cmake"
-         "${CMAKE_CURRENT_BINARY_DIR}/gtpsaConfigVersion.cmake"
-	 DESTINATION ${GTPSA_CMAKE_LIB_DIR}
-)
+
+message(STATUS "cmake  ${CMAKE_INSTALL_INCLUDEDIR}")
+install(FILES ${gtpsa_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

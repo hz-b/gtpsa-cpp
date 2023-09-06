@@ -1,0 +1,40 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+include("${CMAKE_CURRENT_LIST_DIR}/gtpsaTargets.cmake")
+
+check_required_components(gtpsa)
+
+
+include(CMakeFindDependencyMacro)
+# Otherwise warning occurs at least cmake 3.16.3
+cmake_policy(SET CMP0057 NEW)
+
+
+set(_supported_components gtpsacpp)
+
+# A current hack .. why still needed ?
+set(gtpsa_FOUND TRUE)
+message(STATUS "gtpsa_found ${gtpsa_FOUND}")
+
+
+get_filename_component(gtpsa_mad_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../include/" ABSOLUTE)
+get_filename_component(gtpsa_cpp_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../include/" ABSOLUTE)
+message(STATUS "gtpsa mad include dir ${gtpsa_mad_INCLUDE_DIR}")
+message(STATUS "gtpsa cpp include dir ${gtpsa_mad_INCLUDE_DIR}")
+
+message(STATUS "Looking for gtpsa components: ${gtpsa_FIND_COMPONENTS}")
+
+foreach(_comp ${gtpsa_FIND_COMPONENTS})
+  if (NOT _comp IN_LIST _supported_components)
+    message(STATUS "gtpsa component ${_comp} not in supported components {_supported_components}")
+    set(gtpsa_FOUND False)
+    set(gtpsa_NOT_FOUND_MESSAGE "Unsupported component: ${_cmp}")
+  endif()
+  set(_comp_load_name "${CMAKE_CURRENT_LIST_DIR}/${_comp}Targets.cmake")
+  message(STATUS "loadling ${_comp_load_name}")
+  include("${_comp_load_name}")
+  message(STATUS "loaded ${_comp_load_name}")
+endforeach()
+
+message(STATUS "gtpsa (still) found ${gtpsa_FOUND} ")
