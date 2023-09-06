@@ -22,6 +22,8 @@ jobs:
     steps:
     - name: checkout gtpsa-cpp code
       uses: actions/checkout@v3
+      with:
+        submodules: True
 
     - name: install apt dependencies
       run: |
