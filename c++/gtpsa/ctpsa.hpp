@@ -1,16 +1,5 @@
 #ifndef _GTPSA_CTPSA_H_
 #define _GTPSA_CTPSA_H_ 1
-/**
- * @brief Complex truncated power series modules
- *
- * As distributed as part of the MAD package see
- * https://cern.ch/mad for details
- *
- * This wrapper provides "nearly direct access" to the original C functions
- * and provides operator access to these functions too.
- *
- * @todo: add wrapper for more advanced functions
- */
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
@@ -40,10 +29,8 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 
     /* required for the template adding operators */
     typedef TpsaWithOp<CTpsaTypeInfo> ctpsa_with_op ;
-    /*
-     * @brief Complex truncated power series
-     *
-     * @todo add missing functionality
+    /**
+     * @brief Complex truncated power series modules
      */
     class ctpsa : public ctpsa_with_op {
 
