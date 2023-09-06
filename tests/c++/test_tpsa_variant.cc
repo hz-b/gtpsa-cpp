@@ -2,6 +2,7 @@
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/test/unit_test.hpp>
+#include <gtpsa/utils.hpp>
 #include <gtpsa/tpsa_double_variant.hpp>
 #include <memory>
 #include <array>
