@@ -2,7 +2,9 @@
 #define _GTPSA_UTIL_H_ 1
 
 #include <gtpsa/desc.hpp>
-#include <gtpsa/utils.hpp>
+#include <gtpsa/tpsa.hpp>
+#include <gtpsa/ctpsa.hpp>
+#include <gtpsa/mad/utils.hpp>
 
 #include <algorithm> // to be removed?
 #include <complex>
@@ -20,13 +22,14 @@ namespace gtpsa {
     inline auto clone(const double v) { return v; }
     inline auto clone(const std::complex<double> v) { return v; }
 
+
     template<class T>
-    inline T same_as_instance(const T &v) { return T(v, init::same); }
+    inline T     sqr  (const T &v) { return v * v; }
 
-    inline auto same_as_instance(const double &v) { return double(0e0); }
-    inline auto same_as_instance(const std::complex<double> &v) { return double(0e0); }
+    inline tpsa  sqr (const gtpsa::tpsa&  v) { return gtpsa::pow(v, 2); }
+    inline ctpsa sqr (const gtpsa::ctpsa& v) { return gtpsa::pow(v, 2); }
 
-
+    inline auto sqrt(const double  v) { return std::sqrt(v); }
 } // namespace gtpa
 
 #endif /* _GTPSA_UTIL_H_ */

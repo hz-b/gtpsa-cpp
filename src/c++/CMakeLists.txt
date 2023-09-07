@@ -10,6 +10,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Dgtpsa_DEBUG")
 set(gtpsa_c++_mad_HEADERS
   gtpsa/mad/forward_decl.hpp
   gtpsa/mad/wrapper.tpp
+  gtpsa/mad/utils.hpp
   gtpsa/mad/tpsa_wrapper.hpp
   gtpsa/mad/ctpsa_wrapper.hpp
   gtpsa/mad/container_wrapper.tpp
@@ -94,6 +95,7 @@ add_library(gtpsa-c++ SHARED
   ${gtpsa_c++_intern_HEADERS}
   ${gtpsa_c++_python_HEADERS}
   )
+add_library(gtpsa::gtpsacpp ALIAS gtpsa-c++)
 
 target_link_libraries(gtpsa-c++ gtpsa lapack blas ${OpenMP_C_LIBRARIES} ${ARMADILLO_LIBRARIES})
 
@@ -104,10 +106,9 @@ target_include_directories(gtpsa-c++ PUBLIC
   ${ARMADILLO_INCLUDE_DIRS}
   )
 
-set(GTPSA_C++_CMAKE_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/")
 
 install(TARGETS gtpsa-c++
-        EXPORT gtpsa-c++Targets
+        EXPORT gtpsacppTargets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -115,26 +116,8 @@ install(TARGETS gtpsa-c++
 )
 
 install(
-    EXPORT gtpsa-c++Targets
-    FILE gtpsa-c++Targets.cmake
-    DESTINATION ${GTPSA_C++_CMAKE_LIB_DIR}
+    EXPORT gtpsacppTargets
+    FILE gtpsacppTargets.cmake
+    DESTINATION ${gtpsa_CMAKE_LIB_DIR}
     NAMESPACE gtpsa::
 )
-
-configure_package_config_file(
-		${CMAKE_CURRENT_SOURCE_DIR}/cmake/gtpsa-c++Config.cmake.in
-		"${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++Config.cmake"
-		INSTALL_DESTINATION ${GTPSA_C++_CMAKE_LIB_DIR}
-)
-
-write_basic_package_version_file(
-		${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++ConfigVersion.cmake
-		VERSION "${GTPSA_VERSION}"
-		COMPATIBILITY SameMajorVersion
-)
-
-install(FILES
-		"${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++Config.cmake"
-		"${CMAKE_CURRENT_BINARY_DIR}/gtpsa-c++ConfigVersion.cmake"
-		DESTINATION ${GTPSA_C++_CMAKE_LIB_DIR}
-		)
