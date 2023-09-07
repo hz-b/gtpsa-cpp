@@ -13,11 +13,11 @@ OPTION (USE_OpenMP "Use OpenMP" ON)
 # For release and installing the python module it is
 # better to use the provided python setup files to
 # achieve it
-OPTION (USE_pybind11 "Use cmake to build the pybind11 extension" ON)
+OPTION (USE_pybind11 "Use cmake to build the pybind11 extension" OFF)
 # Install the python package to the found python interpreter
 # convienient for debug builds. Only useful if the pybind11 build is
 # also used
-option(PYTHON_MODULE_DEVELOPMENT_INSTALL "Install python binary module to source directory" ON)
+option(PYTHON_MODULE_DEVELOPMENT_INSTALL "Install python binary module to source directory" OFF)
 
 find_package(BLAS)
 find_package(LAPACK)
