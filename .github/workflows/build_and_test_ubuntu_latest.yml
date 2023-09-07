@@ -60,4 +60,4 @@ jobs:
       run: gtpsa_PREFIX=/usr/local pip3 install -v ./python
 
     - name : gtpsa test python package
-      run : pytest-3 python
+      run : LD_LIBRARY_PREFIX=/usr/local/lib pytest-3 python
