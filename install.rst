@@ -123,8 +123,8 @@ can be installed using `setup.py` too.
 
 
 
-Installing python module thor_scsi and gtpsa
---------------------------------------------
+Installing python module
+------------------------
 
 Currently the python wrapper is automatically built when the c++ library is built.
 Additionally a `setup.py` script is provided that can be used to use the standard
@@ -133,25 +133,9 @@ python install procedure.
 Before you can use this script, you need to build the c++ library and install it
  to some path (called `/path/to/install/to` above).
 
-Directories with python modules
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Two python modules are provided
-
-* gtpsa: directory src/gtpsa/python
-* thor_scsi: directory python/
-
-Recommandation is to first build gtpsa and then thor scsi.
-The description below refers to both of them. Both directories are 
-refered to as `python` directory below.
-
-Installation instruction for one of the packages
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 The process of building the python package depends on the C++ headers and libraries.
 Thus it needs to know where these are installed. The process described below will
 use the directory provided by the  environment variable:
-
 
 * `gtpsa_PREFIX`
 
