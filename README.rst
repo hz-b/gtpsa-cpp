@@ -12,3 +12,8 @@ https://github.com/MethodicalAcceleratorDesign/MAD/blob/dev/src/libgtpsa/README.
 The wrapper covers a good fraction of what the gtpsa library provides.
 
 If interested, you are welcome to join.
+
+For installation instructions see `install.rst`_
+
+.. _`install.rst` : install.rst
+
