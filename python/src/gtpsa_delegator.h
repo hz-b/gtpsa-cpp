@@ -79,10 +79,17 @@ namespace gtpsa::python {
 	    {
 		size_t n = this->getVectorPtr()->size();
 		if (index < 0){
-		    throw std::out_of_range("index < 0");
+		    std::stringstream strm;
+		    strm << "gtpsa::ss_vect_elem_access (index = " << index
+			 << ") < 0";
+		    throw std::out_of_range(strm.str());
 		}
 		if (index >= n){
-		    throw std::out_of_range("index >= n");
+		    std::stringstream strm;
+		    strm << "gtpsa::ss_vect_elem_access (index=" << index
+			 << ") >= (n=" << this->getVectorPtr()->size()
+			 << ")";
+		    throw std::out_of_range(strm.str());
 		}
 	    }
 

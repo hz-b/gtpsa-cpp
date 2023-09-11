@@ -1,12 +1,16 @@
 #include <gtpsa/desc.hpp>
+#include <cassert>
+#include <iostream>
+
 void gtpsa::mad::desc_info::show(std::ostream& strm) const
 {
-	strm << " number of variables: "           << this->getNumberOfVariables()
-	     << " maximum order for variables: "   << int(this->getVariablesMaximumOrder())
-	     << " number of parameters: "          << this->getNumberOfParameters()
-	     << " maximum order for parameters: "  << int(this->getParametersMaximumOrder());
+	strm << "description object"
+	     << "\n\t number of variables:          "           << this->getNumberOfVariables()
+	     << "\n\t maximum order for variables:  "   << int(this->getVariablesMaximumOrder())
+	     << "\n\t number of parameters:         "          << this->getNumberOfParameters()
+	     << "\n\t maximum order for parameters: "  << int(this->getParametersMaximumOrder());
 
-	strm  << " orders [";
+	strm  << "\n\t orders [";
 
 	bool first = true;
 	for(auto&o: this->getOrderPerParameter()){
@@ -22,17 +26,20 @@ void gtpsa::mad::desc_info::show(std::ostream& strm) const
 	strm << "]";
 }
 
+// need to upgrade to c++20
+#define ensure(arg) assert(arg)
+
 gtpsa::mad::desc_info gtpsa::mad::desc::getInfo() const
 {
-	ord_t mo=-1, po=-1;
+	ord_t mo=-1, po=-1, max_order=-1;
 	int np = -1;
 	auto nv =  mad_desc_getnv (this->getPtr(), &mo, &np, &po);
-	std::vector<ord_t> orders(nv + np);
-#warning "desc: need to get orders"
-	// this->getNo(orders.size(), orders.data());
-	auto info =  desc_info(nv, mo, np, po, orders);
 
-	return info;
+	std::vector<ord_t> orders(nv + np);
+	max_order = mad_desc_maxord(this->getPtr(), orders.size(), orders.data());
+	ensure(max_order>=0 && max_order!=-1);
+
+	return desc_info(nv, mo, np, po, orders);
 }
 
 void gtpsa::mad::desc::show(std::ostream& o) const
