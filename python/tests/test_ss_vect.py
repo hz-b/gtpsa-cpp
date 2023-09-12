@@ -517,6 +517,26 @@ def test120_attribute_access():
     print(dir(ps))
 
 
+def test_user_indices():
+    named_index_d = dict(x=0, px=1, y=2, py=3, delta=4, ct=5, K=6, dx=7, dy=8)
+    named_index = gtpsa.IndexMapping(named_index_d)
+    desc = gtpsa.desc(6, 2, 3, 2)
+    print(desc)
+    desc.info()
+
+    ps = gtpsa.ss_vect_tpsa(desc, 2, 6, named_index)
+    ps.set_identity()
+
+    with pytest.raises(IndexError):
+        # This is a knob not a variable ... thus no direct access as
+        # subvector
+        # test included as it did cost me some time to realise why
+        # the error
+        ps.dx
+
+    for a_tpsa in [ps.x, ps.px]:
+        pass
+
 ## if __name__ == "__main__":
 ##     test70_sst_hessian()
 ##

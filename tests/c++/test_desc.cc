@@ -2,8 +2,10 @@
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/test/unit_test.hpp>
+#include <boost/test/tools/output_test_stream.hpp>
 #include <gtpsa/desc.hpp>
 #include <iostream>
+#include <cassert>
 
 // Simple check for some methods
 
@@ -123,32 +125,47 @@ BOOST_AUTO_TEST_CASE(test20_tpsa_isvaildsm)
 
 BOOST_AUTO_TEST_CASE(test31_desc_info)
 {
-    const int nv = 3, no =7;
-    auto a_desc = gtpsa::desc(nv, no);
+    const int nv = 3, mo =7;
+    auto a_desc = gtpsa::desc(nv, mo);
     a_desc.info();
     auto info = a_desc.getInfo();
-    std::cout << " info " << info  << std::endl;
+    {
+	boost::test_tools::output_test_stream output;
+	output << info;
+    }
 
     BOOST_CHECK_EQUAL(nv, info.getNumberOfVariables());
-    BOOST_CHECK_EQUAL(no, info.getVariablesMaximumOrder());
+    BOOST_CHECK_EQUAL(mo, info.getVariablesMaximumOrder());
     BOOST_CHECK_EQUAL(0 , info.getNumberOfParameters());
     BOOST_CHECK_EQUAL(0 , info.getParametersMaximumOrder());
+
+    auto m_order = info.getOrderPerParameter();
+    assert(m_order.at(0) == mo);
+    BOOST_CHECK_EQUAL(m_order.at(0), mo);
+    BOOST_CHECK_EQUAL(m_order.at(nv-1), mo);
 }
+
 
 
 BOOST_AUTO_TEST_CASE(test33_desc_info)
 {
     // currently fails for 144 on my machine
-    const int nv = 3, no =7, np=62, po=1;
-    auto a_desc = gtpsa::desc(nv, no, np, po);
+    const int nv = 3, mo =7, np=13, po=1;
+    auto a_desc = gtpsa::desc(nv, mo, np, po);
     a_desc.info();
     auto info = a_desc.getInfo();
-    std::cout << " info: " << info << std::endl;
+    std::cout << "info: " << info << std::endl;
+
+    auto m_order = info.getOrderPerParameter();
 
     BOOST_CHECK_EQUAL(nv, info.getNumberOfVariables());
-    BOOST_CHECK_EQUAL(no, info.getVariablesMaximumOrder());
+    BOOST_CHECK_EQUAL(mo, info.getVariablesMaximumOrder());
     BOOST_CHECK_EQUAL(np, info.getNumberOfParameters());
     BOOST_CHECK_EQUAL(po, info.getParametersMaximumOrder());
+
+    BOOST_CHECK_EQUAL(m_order.at(nv-1), mo);
+    BOOST_CHECK_EQUAL(m_order.at(np-1), po);
+
 }
 
 BOOST_AUTO_TEST_CASE(test30_desc_nv)
@@ -159,12 +176,12 @@ BOOST_AUTO_TEST_CASE(test30_desc_nv)
     // BOOST_CHECK_EQUAL(a_desc.getNv(), nv);
 }
 
-
-BOOST_AUTO_TEST_CASE(test31_desc_for_bba)
-{
-    const int nv = 7, np = 144 * 3;
-    const ord_t mo = 3, po = 1;
-    auto a_desc = gtpsa::desc(nv, mo, np, po);
-
-    // BOOST_CHECK_EQUAL(a_desc.getNv(), nv);
-}
+// what would be possible ?
+// BOOST_AUTO_TEST_CASE(test31_desc_for_bba)
+// {
+//     const int nv = 7, np = 144 * 3;
+//     const ord_t mo = 3, po = 1;
+//     auto a_desc = gtpsa::desc(nv, mo, np, po);
+//
+//     // BOOST_CHECK_EQUAL(a_desc.getNv(), nv);
+// }

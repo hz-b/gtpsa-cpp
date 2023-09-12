@@ -45,6 +45,11 @@ Args:\n\
 	.def("indexsm"        , &gtpsa::mad::desc::idxsm     )
 	.def("isvalid"        , py::overload_cast<const std::vector<ord_t>&>( &gtpsa::mad::desc::isvalid, py::const_ ))
 	.def("index"          , py::overload_cast<const std::vector<ord_t>&>( &gtpsa::mad::desc::idx,     py::const_ ))
+	.def("info",           [](const gtpsa::mad::desc& inst){
+	                           inst.info(stdout);
+	                        },
+	    "print description info using c' stdout"
+	    )
 	.def(py::init<int, ord_t>(),             desc_newv_doc,
 	     py::arg("nv"), py::arg("mo") = 0)
 	.def(py::init<int, ord_t, int, ord_t>(), desc_newvp_doc,

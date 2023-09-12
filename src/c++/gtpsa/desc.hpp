@@ -74,21 +74,21 @@ namespace gtpsa::mad {
      */
     class desc_info {
 	const int m_nv, m_np;
-	const ord_t m_no, m_po;
+	const ord_t m_mo, m_po;
 	const std::vector<ord_t> m_orders;
 
     public:
-	inline desc_info(int nv, ord_t no, int np, ord_t po, const std::vector<ord_t> orders)
+	inline desc_info(int nv, ord_t mo, int np, ord_t po, const std::vector<ord_t> orders)
 	    : m_nv(nv)
 	    , m_np(np)
-	    , m_no(no)
+	    , m_mo(mo)
 	    , m_po(po)
 	    , m_orders(orders)
 	    {}
 
 	inline auto getNumberOfVariables      ( void ) const { return this->m_nv; }
 	inline auto getNumberOfParameters     ( void ) const { return this->m_np; }
-	inline auto getVariablesMaximumOrder  ( void ) const { return this->m_no; }
+	inline auto getVariablesMaximumOrder  ( void ) const { return this->m_mo; }
 	inline auto getParametersMaximumOrder ( void ) const { return this->m_po; }
 
 	/**
@@ -113,7 +113,7 @@ namespace gtpsa::mad {
 	inline desc(int nv, ord_t mo, int np, ord_t po = 0 )
 	    : dm( std::make_unique<desc_mgr>( mad_desc_newvp (nv, mo, np, po) ) )
 	    {}
-	inline desc(int nv, ord_t mo, int np, ord_t po, const ord_t no[/*nv+np?*/] )
+	inline desc(int nv, ord_t mo, int np, ord_t po, const ord_t no[/*nv+np?*/])
 	    : dm( std::make_unique<desc_mgr>( mad_desc_newvpo(nv, mo, np, po, no) ) )
 	    {}
 	inline desc(int nv, ord_t mo, int np, ord_t po, const std::vector<ord_t> no)
