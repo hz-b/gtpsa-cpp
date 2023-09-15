@@ -132,7 +132,20 @@ def test_40_pow():
     tp.print("pi**2", eps=1e-12)
 
 
+def test_50_cos():
+
+    desc = gtpsa.desc(6, 1)
+    t = gtpsa.tpsa(desc, 0)
+    t.set_variable(355/113, 2, 0)
+    t2 = gtpsa.cos(t)
+
+    td = gtpsa.TpsaOrDouble(t)
+    t3 = gtpsa.cos(td)
+
+
+
 if __name__ == "__main__":
     test_20_radd()
     test_30_cplx()
     test_31_polar()
+    test_50_cos()

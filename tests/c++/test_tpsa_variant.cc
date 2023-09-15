@@ -6,6 +6,7 @@
 #include <gtpsa/tpsa_double_variant.hpp>
 #include <memory>
 #include <array>
+#include <cmath>
 #include <utility>
 
 BOOST_AUTO_TEST_CASE(test10_variant_tpsa_alloc)
@@ -156,5 +157,52 @@ BOOST_AUTO_TEST_CASE(test50_double_atan2)
     double ref = std::atan2(y, x);
     const auto r = gtpsa::atan2(y, x);
     BOOST_CHECK_CLOSE(gtpsa::cst(r), gtpsa::cst(ref), 1e-12);
+
+}
+
+
+// Trying to reporduce a bug that was triggered calling from python
+BOOST_AUTO_TEST_CASE(test50_tpsa_cos)
+{
+    auto desc = std::make_shared<gtpsa::desc>(6, 1, 1, 1);
+    gtpsa::tpsa x(desc, 1);
+    x.setVariable(M_PI/2, 1);
+    const auto tx = gtpsa::TpsaOrDouble(x);
+
+    auto cs = gtpsa::cos(x);
+    auto si = gtpsa::sin(x);
+
+    BOOST_CHECK_SMALL(cs.cst(),         1e-12);
+
+    // check derivatives
+    BOOST_CHECK_CLOSE(cs.get("1"),  -1, 0e-12);
+    BOOST_CHECK_SMALL(cs.get("010"),    1e-12);
+    BOOST_CHECK_SMALL(cs.get("001"),    1e-12);
+    BOOST_CHECK_SMALL(cs.get("000100"), 1e-12);
+    BOOST_CHECK_SMALL(cs.get("000010"), 1e-12);
+    BOOST_CHECK_SMALL(cs.get("000001"), 1e-12);
+
+
+    BOOST_CHECK_CLOSE(si.cst(),      1, 0e-12);
+
+    // check derivatives
+    BOOST_CHECK_SMALL(si.get("1"),      1e-12);
+    BOOST_CHECK_SMALL(si.get("010"),    1e-12);
+    BOOST_CHECK_SMALL(si.get("001"),    1e-12);
+    BOOST_CHECK_SMALL(si.get("000100"), 1e-12);
+    BOOST_CHECK_SMALL(si.get("000010"), 1e-12);
+    BOOST_CHECK_SMALL(si.get("000001"), 1e-12);
+
+
+    // and that x did not change ...
+    BOOST_CHECK_CLOSE(x.cst(), M_PI/2e0,  1e-12);
+
+    // check dericsatives
+    BOOST_CHECK_CLOSE(x.get("1"),  1 , 0e-12);
+    BOOST_CHECK_SMALL(x.get("010"),    1e-12);
+    BOOST_CHECK_SMALL(x.get("001"),    1e-12);
+    BOOST_CHECK_SMALL(x.get("000100"), 1e-12);
+    BOOST_CHECK_SMALL(x.get("000010"), 1e-12);
+    BOOST_CHECK_SMALL(x.get("000001"), 1e-12);
 
 }
