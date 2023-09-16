@@ -139,8 +139,11 @@ def test_50_cos():
     t.set_variable(355/113, 2, 0)
     t2 = gtpsa.cos(t)
 
+    # Used to crash the interpreter
+    # in handling std::variant in function wrapper
     td = gtpsa.TpsaOrDouble(t)
     t3 = gtpsa.cos(td)
+    t4 = gtpsa.sin(td)
 
 
 
