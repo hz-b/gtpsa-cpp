@@ -15,6 +15,7 @@
 //#include <memory>
 #include <gtpsa/gtpsa_base_variant.hpp>
 #include <gtpsa/tpsa.hpp>
+#include <gtpsa/utils.hpp>
 
 namespace gtpsa {
     namespace intern  {
@@ -63,11 +64,11 @@ namespace gtpsa {
     }
 
     inline void rapply_helper(const intern::tpsa_or_double_t& a, intern::tpsa_or_double_t* c,
-			     double (*fd)(const double), void (*ft)(const gtpsa::tpsa&, gtpsa::tpsa* ))
+			     double (*fd)(const double), gtpsa::tpsa (*ft)(const gtpsa::tpsa&))
     {
         std::visit( overloaded {
-                [&c, &fd](const double& ta) { c->emplace<double>( fd(ta)); },
-		[&c, &ft](const auto&   ta) { tpsa& tmp = std::get<tpsa>(*c); ft(ta, &tmp); c->emplace<tpsa>(tmp); },
+                [&c, &fd](const double& ta) { c->emplace<double>( fd(ta) ); },
+		[&c, &ft](const auto&   ta) { c->emplace<tpsa>  ( ft(ta) ); },
 	    }, a);
     }
 
@@ -75,10 +76,14 @@ namespace gtpsa {
 } // gtpsa
 
 namespace gtpsa {
+
+
     /**
      * @brief a variant allowing tpsa or double
      */
     typedef TpsaVariantTypes<double, tpsa, intern::tpsa_or_double_t> TpsaVariantDoubleTypes;
+
+    class TpsaOrDouble;
 
     class TpsaOrDouble : public GTpsaOrBase<TpsaVariantDoubleTypes> {
         using base = GTpsaOrBase<TpsaVariantDoubleTypes>;
@@ -128,8 +133,8 @@ namespace gtpsa {
             return flag;
         }
 #endif
-        inline void rsin(const TpsaOrDouble& o) { rapply_helper( o.m_arg, &this->m_arg, std::sin, gtpsa::sin_); }
-        inline void rcos(const TpsaOrDouble& o) { rapply_helper( o.m_arg, &this->m_arg, std::cos, gtpsa::cos_); }
+        inline void rsin(const TpsaOrDouble& o) { rapply_helper( o.m_arg, &this->m_arg, std::sin, gtpsa::sin); }
+        inline void rcos(const TpsaOrDouble& o) { rapply_helper( o.m_arg, &this->m_arg, std::cos, gtpsa::cos); }
 
 	inline void atan2(const TpsaOrDouble& y, const TpsaOrDouble& x) {
 	    intern::tpsa_or_double_t* r = &this->m_arg;
@@ -170,7 +175,10 @@ namespace gtpsa {
             }, m_arg);
 	    return a;
 	}
+
+
     };
+
 
 
 #if 0
@@ -184,8 +192,8 @@ namespace gtpsa {
     inline double& operator*= (double& a, const TpsaOrDouble& b) { return b.lmul(a); }
     inline double& operator/= (double& a, const TpsaOrDouble& b) { return b.ldiv(a); }
 
-    inline TpsaOrDouble sin(const TpsaOrDouble& o){ TpsaOrDouble n = o; n.rsin(o); return n; }
-    inline TpsaOrDouble cos(const TpsaOrDouble& o){ TpsaOrDouble n = o; n.rcos(o); return n; }
+    inline TpsaOrDouble sin(const TpsaOrDouble& o){ TpsaOrDouble n(o.clone()); n.rsin(o); return n; }
+    inline TpsaOrDouble cos(const TpsaOrDouble& o){ TpsaOrDouble n(o.clone()); n.rcos(o); return n; }
 
     inline TpsaOrDouble atan2(const TpsaOrDouble& y, const TpsaOrDouble& x){ TpsaOrDouble n = y; n.atan2(y, x); return n; }
 #endif

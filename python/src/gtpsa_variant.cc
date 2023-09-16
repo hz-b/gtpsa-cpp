@@ -200,4 +200,7 @@ void gpy::py_gtpsa_init_variant(pybind11::module &m)
 	.def(py::self * std::complex<double>())
 	.def(py::self / std::complex<double>())
 	;
+
+    m.def("cos", [](const gtpsa::TpsaOrDouble& v){ return gtpsa::cos( v ); });
+    m.def("sin", [](const gtpsa::TpsaOrDouble& v){ return gtpsa::sin( v ); });
 }
