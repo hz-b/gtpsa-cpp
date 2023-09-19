@@ -47,7 +47,7 @@ First clone the repository using
 
 .. code:: shell
 
-   git clone https://github.com/PierreSchnizer/gtpsa-cpp.git
+   git clone https://github.com/hz-b/gtpsa-cpp.git
 
 
 change to the directory (persumably) `gtpsa-cpp`.
