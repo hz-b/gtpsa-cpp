@@ -32,6 +32,7 @@ set(gtpsa_c++_intern_HEADERS
 set(gtpsa_c++_python_HEADERS
   gtpsa/python/name_index.h
   gtpsa/python/objects_with_named_index.h
+  gtpsa/python/utils.h
   )
 
 set(gtpsa_c++_HEADERS

@@ -96,7 +96,7 @@ namespace gtpsa {
 	    return strm.str();
 	}
 
-	virtual  void accept(GTpsaOrBaseVisitor<C>& visitor) {
+	virtual  void accept(GTpsaOrBaseVisitor<C>& visitor) const {
 	    visitor.visit(*this);
 	}
 
