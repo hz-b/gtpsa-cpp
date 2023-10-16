@@ -533,7 +533,6 @@ namespace gtpsa {
   inline void ss_vect<double>::setConstantPartWithoutCheck
   (const std::vector<double> &r) {
     for (size_t i = 0; i < this->size(); ++i) { this->state_space[i] = r[i]; }
-
   }
 
   template<>

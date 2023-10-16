@@ -337,8 +337,7 @@ inline int compute_ord(const std::vector<ord_t> &ind)
 }
 
 
-void scl_mns
-(const int k_ind, gtpsa::tpsa &mn)
+void scl_mns(gtpsa::tpsa &mn)
 {
   const int  ps_dim = 6;
   const auto nv     = mn.getDescription()->getNv();
@@ -382,7 +381,8 @@ gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &M)
     ps_k.clear();
     ps_k.setVariable(0e0, index, 0e0);
     mn = M[k]*ps_k;
-    scl_mns(index, mn);
+    // Integrate monomials.
+    scl_mns(mn);
     h += (k % 2 == 0)? -mn : mn;
   }
   return h;
@@ -401,6 +401,150 @@ gtpsa::tpsa M_to_h(const gtpsa::ss_vect<gtpsa::tpsa> &t_map)
 }
 
 #endif
+
+double f_q_k_conj(const std::vector<ord_t> &jj)
+{
+  // Adjust the sign for the momenta for the oscillating planes.
+  // Correct sign for complex vs. real momenta p_k.
+  //   q_k =  (h_q_k^+ + h_q_k^-) / 2
+  // i p_k = -(h_q_k^+ - h_q_k^-) / 2
+  // Adjust the sign for the momenta for the oscillating planes.
+
+  const int n_dof = 3;
+
+  int ord, k, sgn = 0;
+
+  // Compute the sum of exponents for the momenta for the oscillating planes:
+  ord = 0;
+  for (k = 0; k < n_dof; k++)
+    ord += jj[2*k+1];
+  ord = (ord % 4);
+  //  Sum_k c_ijkl x^i p_x^j y^k p_y^l
+  //  j + l mod 4 = [0, 3: +1; 1, 2: -1]
+  switch (ord) {
+  case 0:
+  case 3:
+    sgn = 1;
+    break;
+  case 1:
+  case 2:
+    sgn = -1;
+    break;
+  default:
+    printf("\n: undefined case %d\n", ord);
+    break;
+  }
+  return sgn;
+}
+
+
+gtpsa::tpsa tps_compute_function
+(const gtpsa::tpsa &a, std::function<double (const std::vector<ord_t> &)> fun)
+{
+  const int  ps_dim = 6;
+  const auto desc   = a.getDescription();
+  const auto nv     = desc->getNv();
+  const auto no     = desc->maxOrd();
+
+  auto b = gtpsa::tpsa(desc, no);
+
+  std::vector<num_t> v(a.length());
+  std::vector<ord_t> ind(nv);
+
+  a.getv(0, &v);
+  for (auto k = 0; k < v.size(); k++) {
+    auto ord = a.mono(k, &ind);
+    if (v[k] != 0e0)
+      v[k] *= fun(ind);
+  }
+  b.setv(0, v);
+
+  return b;
+}
+
+
+gtpsa::tpsa q_k_conj(const gtpsa::tpsa &a)
+{
+  return tps_compute_function(a, f_q_k_conj);
+}
+
+
+void CtoR(const gtpsa::tpsa &a, gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
+{
+
+  const int n_dof = 3;
+
+  const auto desc = a.getDescription();
+  const auto no   = desc->maxOrd();
+
+  auto b   = gtpsa::tpsa(desc, no);
+  auto c   = gtpsa::tpsa(desc, no);
+
+  auto Id  = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+  auto map = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+
+  Id.set_identity();
+
+  b = q_k_conj(a);
+
+  // q_k -> (q_k + p_k) / 2
+  // p_k -> (q_k - p_k) / 2
+  // Complex space:
+  // q_k =   (h_q_k^+ + h_q_k^-) / 2
+  // p_k = i (h_q_k^+ - h_q_k^-) / 2
+  map.set_identity();
+  for (auto k = 0; k < n_dof; k++) {
+    map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
+    map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
+  }
+  // b = gtpsa::compose(b, map);
+
+  // q_k -> p_k
+  // p_k -> q_k
+  // Complex space:
+  // i (q_k -/+ i p_k) = (i q_k +/- p_k)
+  map.set_identity();
+  for (auto k = 0; k < n_dof; k++) {
+    map[2*k]   = Id[2*k+1];
+    map[2*k+1] = Id[2*k];
+  }
+  // c = b*map;
+
+  a_re = (b+c)/2e0;
+  a_im = (b-c)/2e0;
+}
+
+
+gtpsa::tpsa RtoC(gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
+{
+  const int n_dof = 3;
+
+  const auto desc = a_re.getDescription();
+  const auto no   = desc->maxOrd();
+
+  auto b   = gtpsa::tpsa(desc, no);
+  auto Id  = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+  auto map = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+
+  Id.set_identity();
+
+  b = a_re + a_im;
+
+  // q_k -> q_k + p_k
+  // p_k -> q_k - p_k
+  // Complex space:
+  // h_q_k^+ = q_k - i h_p_k
+  // h_q_k^- = q_k + i h_p_k
+  map.set_identity();
+  for (auto k = 0; k < n_dof; k++) {
+    map[2*k]   = Id[2*k] + Id[2*k+1];
+    map[2*k+1] = Id[2*k] - Id[2*k+1];
+  }
+  // b = b*map;
+  b = q_k_conj(b);
+  return b;
+}
+
 
 void param_to_tps(const gtpsa::tpsa &a, gtpsa::tpsa &b)
 {
@@ -647,7 +791,7 @@ void compute_M_diag(const std::shared_ptr<gtpsa::mad::desc> &desc, MNFType &MNF)
   const int
     n_dof = 2,
     n_dim = 2*n_dof;
-
+  
   Eigen::VectorXd
     nu_eig(n_dim),
     nu_eig_ord(n_dim);
@@ -707,20 +851,18 @@ void compute_M_diag(const std::shared_ptr<gtpsa::mad::desc> &desc, MNFType &MNF)
   print_map("\nR:\n",     MNF.R);
 }
 
-#if 0
 
 gtpsa::tpsa get_g
 (const gtpsa::tpsa nu_x, const gtpsa::tpsa nu_y, const gtpsa::tpsa &h)
 {
-  // Compute g = (1-R)^-1 * h 
+  // Compute g = (1-R)^-1 * h
 
   const auto desc = h.getDescription();
   const auto no   = desc->maxOrd();
+  const auto nv   = desc->getNv();
 
-  long int jj[ss_dim];
-
-  long int jj1[ss_dim], jj2[ss_dim];
-  double   re, im;
+  std::vector<ord_t> jj1(nv), jj2(7);
+  double             re, im;
 
   auto h_re  = gtpsa::tpsa(desc, no);
   auto h_im  = gtpsa::tpsa(desc, no);
@@ -730,11 +872,11 @@ gtpsa::tpsa get_g
   auto mn2   = gtpsa::tpsa(desc, no);
   auto cotan = gtpsa::tpsa(desc, no);
 
-  auto Id = h.allocateLikeMe();
+  auto Id    = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
 
   CtoR(h, h_re, h_im);
 
-  for (auto k = 0; k < ss_dim; k++) {
+  for (auto k = 0; k < nv; k++) {
     jj1[k] = jj2[k] = 0;
   }
 
@@ -758,18 +900,18 @@ gtpsa::tpsa get_g
 	    for (auto m = 0; m <= no-i-j-k-l; m++) {
 	      jj1[delta_] = jj2[delta_] = m;
 	      for (auto n = 0; n <= no-i-j-k-l; n++) {
-		jj1[ss_dim-1] = jj2[ss_dim-1] = n;
-		re = h_re[jj1];
-		im = h_im[jj1];
+		jj1[nv-1] = jj2[nv-1] = n;
+		re = h_re.get(jj1);
+		im = h_im.get(jj1);
 		// Compute g.
 		g_re +=
 		  (re-cotan*im)*(mn1+mn2)*pow(Id[delta_], m)
-		  *pow(Id[ss_dim-1], n)/2e0;
+		  *pow(Id[nv-1], n)/2e0;
 		g_im +=
 		  (im+cotan*re)*(mn1-mn2)*pow(Id[delta_], m)
-		  *pow(Id[ss_dim-1], n)/2e0;
-		h_re.pook(jj2, 0e0);
-		h_im.pook(jj2, 0e0);
+		  *pow(Id[nv-1], n)/2e0;
+		h_re.set(jj2, 0e0, 0e0);
+		h_im.set(jj2, 0e0, 0e0);
 	      }
 	    }
 	  }
@@ -782,36 +924,37 @@ gtpsa::tpsa get_g
 }
 
 
-tps get_Ker(const tps &h)
+gtpsa::tpsa get_Ker(const gtpsa::tpsa &h)
 {
   const auto desc = h.getDescription();
   const auto no   = desc->maxOrd();
+  const auto nv   = desc->getNv();
 
-  long int jj[ss_dim];
+  std::vector<ord_t> ind(nv);
 
   auto h_Ke = gtpsa::tpsa(desc, no);
   auto Id   = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
 
-  for (auto k = 0; k < ss_dim; k++)
-    jj[k] = 0;
+  for (auto k = 0; k < nv; k++)
+    ind[k] = 0;
 
   Id.set_identity();
   h_Ke = 0e0;
   for (auto i = 0; i <= no; i++) {
-    jj[x_] = jj[px_] = i;
+    ind[x_] = ind[px_] = i;
     for (auto j = 0; j <= no; j++) {
-      jj[y_] = jj[py_] = j;
+      ind[y_] = ind[py_] = j;
       for (auto k = 0; k <= no; k++) {
-	jj[delta_] = k;
+	ind[delta_] = k;
 	for (auto l = 0; l <= no; l++) {
-	  jj[ss_dim-1] = l;
+	  ind[nv-1] = l;
 	  if ((2*i+2*j+k+l <= no) && ((i != 0) || (j != 0) || (k != 0))) {
 	    h_Ke +=
-	      h[jj]
+	      h.get(ind)
 	      *pow(Id[x_], i)*pow(Id[px_], i)
 	      *pow(Id[y_], j)*pow(Id[py_], j)
 	      *pow(Id[delta_], k)
-	      *pow(Id[ss_dim-1], l);
+	      *pow(Id[nv-1], l);
 	  }
 	}
       }
@@ -821,8 +964,9 @@ tps get_Ker(const tps &h)
   return h_Ke;
 }
 
+#if 0
 
-MNFType map_norm(const gtpsa::ss_vect<tpsa> &map)
+MNFType map_norm(const gtpsa::ss_vect<gtpsa::tpsa> &map)
 {
   const auto desc = map[0].getDescription();
   const auto no   = desc->maxOrd();
