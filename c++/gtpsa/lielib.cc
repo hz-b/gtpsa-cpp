@@ -469,7 +469,7 @@ gtpsa::tpsa q_k_conj(const gtpsa::tpsa &a)
 }
 
 
-void CtoR(const gtpsa::tpsa &a, gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
+void gtpsa::CtoR(const gtpsa::tpsa &a, gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
 {
 
   const int n_dof = 3;
@@ -482,6 +482,7 @@ void CtoR(const gtpsa::tpsa &a, gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
 
   auto Id  = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
   auto map = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+  auto tmp = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
 
   Id.set_identity();
 
@@ -508,7 +509,9 @@ void CtoR(const gtpsa::tpsa &a, gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
     map[2*k]   = Id[2*k+1];
     map[2*k+1] = Id[2*k];
   }
-  // c = b*map;
+  tmp.set_identity();
+  tmp[0] = b;
+  c = gtpsa::compose(tmp, map)[0];
 
   a_re = (b+c)/2e0;
   a_im = (b-c)/2e0;
@@ -525,6 +528,7 @@ gtpsa::tpsa RtoC(gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
   auto b   = gtpsa::tpsa(desc, no);
   auto Id  = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
   auto map = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+  auto tmp = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
 
   Id.set_identity();
 
@@ -540,7 +544,9 @@ gtpsa::tpsa RtoC(gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
     map[2*k]   = Id[2*k] + Id[2*k+1];
     map[2*k+1] = Id[2*k] - Id[2*k+1];
   }
-  // b = b*map;
+  tmp.set_identity();
+  tmp[0] = b;
+  b = gtpsa::compose(tmp, map)[0];
   b = q_k_conj(b);
   return b;
 }
