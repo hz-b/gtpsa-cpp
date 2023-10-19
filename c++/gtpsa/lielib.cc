@@ -472,7 +472,7 @@ gtpsa::tpsa q_k_conj(const gtpsa::tpsa &a)
 void gtpsa::CtoR(const gtpsa::tpsa &a, gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
 {
 
-  const int n_dof = 3;
+  const int n_dof = 2;
 
   const auto desc = a.getDescription();
   const auto no   = desc->maxOrd();
@@ -509,7 +509,7 @@ void gtpsa::CtoR(const gtpsa::tpsa &a, gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
     map[2*k]   = Id[2*k+1];
     map[2*k+1] = Id[2*k];
   }
-  tmp.set_identity();
+  tmp.set_zero();
   tmp[0] = b;
   c = gtpsa::compose(tmp, map)[0];
 
@@ -520,7 +520,7 @@ void gtpsa::CtoR(const gtpsa::tpsa &a, gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
 
 gtpsa::tpsa RtoC(gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
 {
-  const int n_dof = 3;
+  const int n_dof = 2;
 
   const auto desc = a_re.getDescription();
   const auto no   = desc->maxOrd();
