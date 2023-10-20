@@ -692,7 +692,28 @@ BOOST_AUTO_TEST_CASE(test80_compare){
     t2.print("t3", 1e-12);
     fflush(stdout);
     std::cout << std::endl;
-    t2.getCoefficients();
+    const auto& coeffs = t2.getCoefficients();
+
+    gtpsa::tpsa t4(a_desc, gtpsa::mad::default_);
+    t4.setCoefficients(coeffs);
+
+    std::cout << t2 << t2 << std::endl;
+    std::cout << t4 << t4 << std::endl;
+    t4.setName("t4");
+    t4.print();
+
+    auto tmp = t4 - t2;
+    tmp.setName("t4 - t2");
+    // std::cout << tmp << std::endl;
+    // tmp.print();
+
+    {
+        const auto& coeffs = tmp.getCoefficients();
+        for(const auto& c: coeffs){
+            BOOST_CHECK_SMALL(std::get<1>(c), 1e-12);
+        }
+    }
+
 }
 
 BOOST_AUTO_TEST_CASE(test90_atan2){

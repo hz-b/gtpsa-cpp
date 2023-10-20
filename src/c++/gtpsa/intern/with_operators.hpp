@@ -13,9 +13,9 @@ namespace gtpsa {
     class TpsaWithOp : public TpsaBridge<T>
     {
     public:
-	using bridge = TpsaBridge<T>;
-	using base_type = typename T::base_type;
-
+        using bridge = TpsaBridge<T>;
+        using base_type = typename T::base_type;
+        typedef std::tuple<std::vector<ord_t>, base_type, idx_t> coeff_t ;
     public:
         inline TpsaWithOp(std::shared_ptr<mad::desc> desc, const ord_t mo)
             : bridge(desc, mo)
@@ -70,90 +70,98 @@ namespace gtpsa {
          * operators: use already defined functions
          */
         inline TpsaWithOp& operator += (const TpsaWithOp& o ) { this->add(*this, o); return *this; }
-	// (a_i-b_i)/max(|a_i|,1)
-	inline TpsaWithOp& operator -= (const TpsaWithOp& o ) { this->sub(*this, o); return *this; }
-	inline TpsaWithOp& operator *= (const TpsaWithOp& o ) { this->mul(*this, o); return *this; }
-	inline TpsaWithOp& operator /= (const TpsaWithOp& o ) { this->div(*this, o); return *this; }
+        // (a_i-b_i)/max(|a_i|,1)
+        inline TpsaWithOp& operator -= (const TpsaWithOp& o ) { this->sub(*this, o); return *this; }
+        inline TpsaWithOp& operator *= (const TpsaWithOp& o ) { this->mul(*this, o); return *this; }
+        inline TpsaWithOp& operator /= (const TpsaWithOp& o ) { this->div(*this, o); return *this; }
 
-	/*
-	 * operators with base type as one argument
-	 */
-	inline TpsaWithOp& operator += (const typename T::base_type& o ){ this->set(   1e0,    o); return *this; }
-	inline TpsaWithOp& operator -= (const typename T::base_type& o ){ this->set(   1e0,   -o); return *this; }
-	inline TpsaWithOp& operator *= (const typename T::base_type& o ){ this->set(     o,  0e0); return *this; }
-	inline TpsaWithOp& operator /= (const typename T::base_type& o ){ this->set( 1e0/o,  0e0); return *this; }
+        /*
+         * operators with base type as one argument
+         */
+        inline TpsaWithOp& operator += (const typename T::base_type& o ){ this->set(   1e0,    o); return *this; }
+        inline TpsaWithOp& operator -= (const typename T::base_type& o ){ this->set(   1e0,   -o); return *this; }
+        inline TpsaWithOp& operator *= (const typename T::base_type& o ){ this->set(     o,  0e0); return *this; }
+        inline TpsaWithOp& operator /= (const typename T::base_type& o ){ this->set( 1e0/o,  0e0); return *this; }
 
 #ifndef GTSPA_ONLY_OPTIMISED_OPS
-	/**
-	 * @brief negation
-	 * @todo do I need to make a copy ....?
-	 */
-	inline TpsaWithOp  operator -  (void) const { auto r = this->newFromThis(); r.m_impl.scl(this->m_impl, -1); return r; }
+        /**
+         * @brief negation
+         * @todo do I need to make a copy ....?
+         */
+        inline TpsaWithOp  operator -  (void) const { auto r = this->newFromThis(); r.m_impl.scl(this->m_impl, -1); return r; }
 
-	inline TpsaWithOp  operator +  (const typename T::base_type o) const { auto r = this->newFromThis(); r.set(0, o); r += *this;     return r; }
-	inline TpsaWithOp  operator -  (const typename T::base_type o) const { auto r = this->newFromThis(); r.set(0, o); return *this - r;         }
-	inline TpsaWithOp  operator *  (const typename T::base_type o) const { auto r = this->newFromThis(); r.set(0, o); r *= *this;     return r; }
-	inline TpsaWithOp  operator /  (const typename T::base_type o) const { auto r = this->newFromThis(); r.set(0, o); return *this / r;         }
+        inline TpsaWithOp  operator +  (const typename T::base_type o) const { auto r = this->newFromThis(); r.set(0, o); r += *this;     return r; }
+        inline TpsaWithOp  operator -  (const typename T::base_type o) const { auto r = this->newFromThis(); r.set(0, o); return *this - r;         }
+        inline TpsaWithOp  operator *  (const typename T::base_type o) const { auto r = this->newFromThis(); r.set(0, o); r *= *this;     return r; }
+        inline TpsaWithOp  operator /  (const typename T::base_type o) const { auto r = this->newFromThis(); r.set(0, o); return *this / r;         }
 #endif // GTSPA_ONLY_OPTIMISED_OPS
 
-	/*
-	 * Some minimal support for input output
-	 */
-	// forward declaration ... needs to be implemented in the derived class
-	void show(std::ostream& strm, int level) const
-	{
+        /*
+         * Some minimal support for input output
+         */
+        // forward declaration ... needs to be implemented in the derived class
+        void show(std::ostream& strm, int level) const
+        {
 
-	    strm << "gtpsa  cst:\n\t" << this->cst();
-	    if(this->order()){
-		// at least first order ...
-		const auto& info = this->getDescription()->getInfo();
-		const int nn = info.getNumberOfVariables() + info.getNumberOfParameters();
-		std::vector<typename T::base_type> v(nn);
-		this->getv(1, &v);
+            strm << "gtpsa  cst:\n\t" << this->cst();
+            if(this->order()){
+                // at least first order ...
+                const auto& info = this->getDescription()->getInfo();
+                const int nn = info.getNumberOfVariables() + info.getNumberOfParameters();
+                std::vector<typename T::base_type> v(nn);
+                this->getv(1, &v);
 
-		strm  << "\ngtpsa linear :\n"
-		      << std::scientific << std::setw(20);
-		for(auto& e: v) strm <<  std::scientific << std::setw(20) << e << " ";
-	    }
-	    strm << "\n";
-	}
+                strm  << "\ngtpsa linear :\n"
+                      << std::scientific << std::setw(20);
+                for(auto& e: v) strm <<  std::scientific << std::setw(20) << e << " ";
+            }
+            strm << "\n";
+        }
 
-	/**
-	 *
-	 * @todo: how to find the total number of coefficients?
-	 */
-	inline auto getCoefficients(void) const {
-	    const auto n_max = this->getDescription()->getInfo().getTotalNumber();
-	    std::vector< std::tuple<std::vector<ord_t>, base_type, idx_t> > coefficients;
-	    int i = -1;
-	    while(true){
-		std::vector<ord_t> t_orders(n_max);
-		const auto r = this->cycle(i, &t_orders);
-		i = r.first;
-		if(i == -1){
-		    break;
-		}
-		coefficients.push_back(std::tie(t_orders, r.second, i));
-	    };
-	    return coefficients;
-	}
+        /**
+         *
+         * @todo: how to find the total number of coefficients?
+         */
+        std::vector<coeff_t> getCoefficients(void) const {
+            const auto n_max = this->getDescription()->getInfo().getTotalNumber();
+            std::vector<coeff_t> coefficients;
+            int i = -1;
+            while(true){
+                std::vector<ord_t> t_orders(n_max);
+                const auto r = this->cycle(i, &t_orders);
+                i = r.first;
+                if(i == -1){
+                    break;
+                }
+                coefficients.push_back(std::tie(t_orders, r.second, i));
+            };
+            return coefficients;
+        }
 
-	/**
-	 * @brief support python representation of this object
-	 */
-	inline std::string repr(void) const {
-	    std::stringstream strm;
-	    this->show(strm, 10);
-	    return strm.str();
-	}
-	/**
-	 * @brief support python __str__ of this object
-	 */
-	std::string pstr(void) const {
-	    std::stringstream strm;
-	    this->show(strm, 0);
-	    return strm.str();
-	}
+        void setCoefficients(const std::vector<coeff_t> coeffs) {
+            for(const auto& c : coeffs) {
+                const auto& orders = std::get<0>(c);
+                const auto val = std::get<1>(c);
+                this->set(orders, 0e0, val);
+            }
+        }
+
+        /**
+         * @brief support python representation of this object
+         */
+        inline std::string repr(void) const {
+            std::stringstream strm;
+            this->show(strm, 10);
+            return strm.str();
+        }
+        /**
+         * @brief support python __str__ of this object
+         */
+        std::string pstr(void) const {
+            std::stringstream strm;
+            this->show(strm, 0);
+            return strm.str();
+        }
     /*
     void convolve() {
         mad::compose(ma, mb, mc);
@@ -167,8 +175,8 @@ namespace gtpsa {
     template<class T, typename, typename, typename>
     inline std::ostream& operator<<(std::ostream& strm, const TpsaWithOp<T>& a)
     {
-	a.show(strm, 0);
-	return strm;
+        a.show(strm, 0);
+        return strm;
     }
 
 
