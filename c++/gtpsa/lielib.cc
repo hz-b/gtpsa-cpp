@@ -410,7 +410,7 @@ double f_q_k_conj(const std::vector<ord_t> &jj)
   // i p_k = -(h_q_k^+ - h_q_k^-) / 2
   // Adjust the sign for the momenta for the oscillating planes.
 
-  const int n_dof = 3;
+  const int n_dof = 2;
 
   int ord, k, sgn = 0;
 
@@ -441,7 +441,6 @@ double f_q_k_conj(const std::vector<ord_t> &jj)
 gtpsa::tpsa tps_compute_function
 (const gtpsa::tpsa &a, std::function<double (const std::vector<ord_t> &)> fun)
 {
-  const int  ps_dim = 6;
   const auto desc   = a.getDescription();
   const auto nv     = desc->getNv();
   const auto no     = desc->maxOrd();
@@ -463,12 +462,6 @@ gtpsa::tpsa tps_compute_function
 }
 
 
-gtpsa::tpsa q_k_conj(const gtpsa::tpsa &a)
-{
-  return tps_compute_function(a, f_q_k_conj);
-}
-
-
 void gtpsa::CtoR(const gtpsa::tpsa &a, gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
 {
 
@@ -486,7 +479,7 @@ void gtpsa::CtoR(const gtpsa::tpsa &a, gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
 
   Id.set_identity();
 
-  b = q_k_conj(a);
+  b = tps_compute_function(a, f_q_k_conj);
 
   // q_k -> (q_k + p_k) / 2
   // p_k -> (q_k - p_k) / 2
@@ -498,7 +491,9 @@ void gtpsa::CtoR(const gtpsa::tpsa &a, gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
     map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
     map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
   }
-  // b = gtpsa::compose(b, map);
+  tmp.set_zero();
+  tmp[0] = b;
+  b = gtpsa::compose(tmp, map)[0];
 
   // q_k -> p_k
   // p_k -> q_k
@@ -547,7 +542,7 @@ gtpsa::tpsa RtoC(gtpsa::tpsa &a_re, gtpsa::tpsa &a_im)
   tmp.set_identity();
   tmp[0] = b;
   b = gtpsa::compose(tmp, map)[0];
-  b = q_k_conj(b);
+  b = tps_compute_function(b, f_q_k_conj);
   return b;
 }
 
