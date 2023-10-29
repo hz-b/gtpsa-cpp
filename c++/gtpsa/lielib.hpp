@@ -41,6 +41,7 @@ namespace gtpsa {
 
   tpsa M_to_h_DF(const ss_vect<tpsa> &t_map);
   void CtoR(const tpsa &a, tpsa &a_re, tpsa &a_im);
+  tpsa RtoC(const tpsa &a_re, const tpsa &a_im);
 
 } // namespace gtpsa
 
