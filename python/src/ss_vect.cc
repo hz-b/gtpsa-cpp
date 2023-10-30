@@ -45,8 +45,8 @@ static arma::mat from_np_array
   }
   /*
     std::cerr << "Strides [" << info.strides[0] << ", " << info.strides[1]
-	      << "]" << ": need_transpose " << std::boolalpha
-	      << need_transpose << std::endl;
+    << "]" << ": need_transpose " << std::boolalpha
+    << need_transpose << std::endl;
   */
   auto mat = arma::mat(static_cast<const double *>(info.ptr),
 		       info.shape[0], info.shape[1]);
@@ -140,9 +140,9 @@ namespace gtpsa::python{
       })
       .def("__setitem__",
 	   [](const WrappedClass &self, const std::string name, const T& v){
-	auto idx = self.getVectorPtr()->getMapping()->index(name);
-	self.getVectorPtr()->at(idx) = v;
-      })
+	     auto idx = self.getVectorPtr()->getMapping()->index(name);
+	     self.getVectorPtr()->at(idx) = v;
+	   })
       ;
   }
 
@@ -153,8 +153,8 @@ namespace gtpsa::python{
     inst
       .def("__setitem__",
 	   [](WrappedClass &self, const long int idx, const T& v){
-	self.getVectorPtr()->at(idx) = v;
-      })
+	     self.getVectorPtr()->at(idx) = v;
+	   })
       ;
   }
   /*
@@ -167,14 +167,14 @@ namespace gtpsa::python{
     inst
       .def("__len__",
 	   [](const WrappedClass &self){
-	// std::cerr <<  "template list self = " << &self
-	// 	  << "  getting length ....";
-	const auto p_vec = self.getVectorPtr();
-	// std::cerr <<  "p_vec = " << p_vec << ", len(p_vec) = ";
-	const auto tmp = p_vec->size();
-	// std::cerr << " =  "  << tmp << std::endl;
-	return tmp;
-      });
+	     // std::cerr <<  "template list self = " << &self
+	     // 	  << "  getting length ....";
+	     const auto p_vec = self.getVectorPtr();
+	     // std::cerr <<  "p_vec = " << p_vec << ", len(p_vec) = ";
+	     const auto tmp = p_vec->size();
+	     // std::cerr << " =  "  << tmp << std::endl;
+	     return tmp;
+	   });
     add_methods_list_access_setitem<WrappedClass, P_MGR, T>(inst);
   }
 
@@ -232,11 +232,11 @@ struct AddMethods
        return self.getMapping().pdir();
        })
        .def("__getattr__",
-	    [](const WrappedClass& self, const std::string& key){
+       [](const WrappedClass& self, const std::string& key){
        return self.at(gpy::mapping_index(gpy::DefaultIndexMapping, key));
        })
        .def("__setattr__",
-	    [](      WrappedClass& self, const std::string& key, T& v){
+       [](      WrappedClass& self, const std::string& key, T& v){
        self.at(gpy::mapping_index(gpy::DefaultIndexMapping, key)) = v;
        })
       */
@@ -303,9 +303,9 @@ struct AddMethods
       .def("set_jacobian",
 	   [](WrappedClass& self, py::array_t<double,
 	      py::array::c_style|py::array::forcecast>& buffer){
-	arma::mat mat = from_np_array(buffer);
-	self.setJacobian(mat);
-      })
+	     arma::mat mat = from_np_array(buffer);
+	     self.setJacobian(mat);
+	   })
       .def("hessian",  [](const WrappedClass& self) {
 	return py::array(py::cast(self.hessian()));
       })
@@ -348,7 +348,7 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 
 
   /*- wrapping accessing a single double within a state space vector of
-      doubles  */
+    doubles  */
   py::class_
     <ss_vect_dbl_list_access_iloc_t,
      std::shared_ptr<ss_vect_dbl_list_access_iloc_t>>
@@ -376,10 +376,10 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
      std::shared_ptr<ss_vect_dbl_list_access_loc_t>,
      double>(ss_vect_double_list_access_loc);
   /*- end wrapping accessing a single double within a state space vector of
-      doubles  */
+    doubles  */
 
   /*- wrapping accessing a single double within a state space vector of tpsa
-      objects  */
+    objects  */
   py::class_<ss_vect_tpsa_list_access_iloc_t,
 	     std::shared_ptr<ss_vect_tpsa_list_access_iloc_t>>
     ss_vect_tpsa_list_access_iloc(m, "_ss_vect_tpsa_list_access_iloc");
@@ -395,17 +395,15 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
   ss_vect_tpsa_list_access_iloc
     .def("__getitem__",
 	 [](ss_vect_tpsa_list_access_iloc_t &self, const size_t idx){
-	   std::cerr
-	     << "returning ss_vect tpsa access with index " << idx << std::endl;
-      return ss_vect_tpsa_elem_access_t(self.getVectorPtr(), idx);
-    })
+	   return ss_vect_tpsa_elem_access_t(self.getVectorPtr(), idx);
+	 })
     .def("__setitem__",
 	 [](ss_vect_tpsa_list_access_iloc_t &self, const size_t idx,
 	    const ss_vect_tpsa_elem_access_t& o){
-      std::cerr
-	<< "adding ss_vect tpsa access with index " << idx << std::endl;
-      self.getVectorPtr()->at(idx) = o.getTpsaObjectAsReference();
-    })
+	   std::cerr
+	     << "adding ss_vect tpsa access with index " << idx << std::endl;
+	   self.getVectorPtr()->at(idx) = o.getTpsaObjectAsReference();
+	 })
     ;
   /* pandas .loc like access */
   py::class_
@@ -420,13 +418,13 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
     .def("__getitem__",
 	 [](const ss_vect_tpsa_list_access_loc_t &self,
 	    const std::string name){
-      // std::cerr << "__getitem__ returning TpsaWithNamedIndex " << std::endl;
-      auto idx = self.getVectorPtr()->getMapping()->index(name);
-      return ss_vect_tpsa_elem_access_t(self.getVectorPtr(), idx);
-    })
+	   // std::cerr << "__getitem__ returning TpsaWithNamedIndex " << std::endl;
+	   auto idx = self.getVectorPtr()->getMapping()->index(name);
+	   return ss_vect_tpsa_elem_access_t(self.getVectorPtr(), idx);
+	 })
     ;
   /*- end wrapping accessing a single double within a state space vector of
-      doubles  */
+    doubles  */
 
   /** wrapping ss_vect doubles: internal class (without named indices) ...
       just in case it leaks to user space */
@@ -485,15 +483,15 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
     */
     .def("__getattr__",
 	 [](const ss_vect_dbl_py_t&  self, const std::string& key){
-      auto t = self.at(self.getMapping()->index(key));
-      // misses index mapping ... but can not use it anyway
-      return t;
-    } // don't keep object alive ... directly returns the object
-      )
+	   auto t = self.at(self.getMapping()->index(key));
+	   // misses index mapping ... but can not use it anyway
+	   return t;
+	 } // don't keep object alive ... directly returns the object
+	 )
     .def("__setattr__",
 	 [](ss_vect_dbl_py_t&  self, const std::string& key, const double val){
-      self.at(self.getMapping()->index(key)) = val;
-    })
+	   self.at(self.getMapping()->index(key)) = val;
+	 })
     .def(py::self + py::self)
     .def(py::self - py::self)
     .def(py::self += py::self)
@@ -525,13 +523,13 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
 	 py::arg("index_mapping") =  gpy::default_index_mapping_ptr
 	 )
     /*
-    .def("__getitem__",
-	 [](const ss_vect_tpsa_py_t& self, const long int idx){
-	   auto t =  self.at(idx);
-	   // misses index mapping
-	   std::cerr << "Getting tpsa itme of index " << idx << std::endl;
-	   return gpy::TpsaWithNamedIndex(t, self.getMapping());
-	 }, py::keep_alive<0, 1>())
+      .def("__getitem__",
+      [](const ss_vect_tpsa_py_t& self, const long int idx){
+      auto t =  self.at(idx);
+      // misses index mapping
+      std::cerr << "Getting tpsa itme of index " << idx << std::endl;
+      return gpy::TpsaWithNamedIndex(t, self.getMapping());
+      }, py::keep_alive<0, 1>())
     */
     .def("__dir__",      [](const ss_vect_tpsa_py_t& self){
       return self.getMapping()->pdir();
@@ -543,27 +541,28 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
       return ss_vect_tpsa_elem_access_t(self.getPtr(), idx);
     }, py::keep_alive<0, 1>())
     /*
-    .def("__setattr__",  [](ss_vect_tpsa_py_t&  self, const std::string& key,
-			    const gtpsa::tpsa& val){
+      .def("__setattr__",  [](ss_vect_tpsa_py_t&  self, const std::string& key,
+      const gtpsa::tpsa& val){
       self.at(self.getMapping()->index(key)) = val;
-    })
+      })
     */
     .def("__setattr__",
 	 [](ss_vect_tpsa_py_t&  self, const std::string& key, const double val){
-      self.at(self.getMapping()->index(key)) = val;
-    })
+	   self.at(self.getMapping()->index(key)) = val;
+	 })
     .def("__setattr__",
 	 [](ss_vect_tpsa_py_t&  self, const std::string& key,
 	    const gpy::TpsaWithNamedIndex& val){
-      self.at(self.getMapping()->index(key)) = val;
-    })
+	   self.at(self.getMapping()->index(key)) = val;
+	 })
     .def("__setattr__",
 	 [](ss_vect_tpsa_py_t &self, const std::string& key,
 	    const ss_vect_tpsa_elem_access_t& o){
-      // std::cerr << "adding ss_vect tpsa access with index "
-      // 		<< idx << std::endl;
-      self.at(self.getMapping()->index(key)) = o.getTpsaObjectAsReference();
-    })
+	   // std::cerr << "adding ss_vect tpsa access with index "
+	   // 		<< idx << std::endl;
+	   self.at(self.getMapping()->index(key)) =
+	     o.getTpsaObjectAsReference();
+	 })
     // not taking reference properly yet
     .def_property_readonly("iloc",          [](ss_vect_tpsa_py_t &self) {
       // std::cerr << "providing iloc access for " << &self;
