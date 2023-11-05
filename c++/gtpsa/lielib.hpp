@@ -5,11 +5,14 @@
 // #include <pybind11/stl.h>
 
 
-typedef struct MNFType
+typedef class MNFType
 {
+private:
+public:
   gtpsa::tpsa
-    K,              // Normalised generator.
-    g;              // Generator for canonical transformation to Floquet space.
+    K,              // Lie generator in Floquet space.
+    g;              /* Lie generator for canonical transformation to Floquet
+		       space. */
   gtpsa::ss_vect<gtpsa::tpsa>
     M,              // Poincaré map.
     M_res,          // Residual map.
@@ -42,6 +45,7 @@ namespace gtpsa {
   tpsa M_to_h_DF(const ss_vect<tpsa> &t_map);
   void CtoR(const tpsa &a, tpsa &a_re, tpsa &a_im);
   tpsa RtoC(const tpsa &a_re, const tpsa &a_im);
+  void GoFix(const ss_vect<tpsa> &map, ss_vect<tpsa> &A0);
 
 } // namespace gtpsa
 

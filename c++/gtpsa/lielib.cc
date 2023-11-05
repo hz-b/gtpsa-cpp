@@ -181,9 +181,7 @@ double acos2(const double sin, const double cos)
     return NAN;
   }
   auto phi = acos(cos);
-  if (sin < 0e0)
-    phi = 2e0*M_PI - phi;
-  return phi;
+  return (sin > 0e0)? phi : 2e0*M_PI-phi;
 }
 
 
@@ -441,9 +439,9 @@ double f_q_k_conj(const std::vector<ord_t> &jj)
 gtpsa::tpsa tps_compute_function
 (const gtpsa::tpsa &a, std::function<double (const std::vector<ord_t> &)> fun)
 {
-  const auto desc   = a.getDescription();
-  const auto nv     = desc->getNv();
-  const auto no     = desc->maxOrd();
+  const auto desc = a.getDescription();
+  const auto nv   = desc->getNv();
+  const auto no   = desc->maxOrd();
 
   auto b = gtpsa::tpsa(desc, no);
 
@@ -965,6 +963,53 @@ gtpsa::tpsa get_Ker(const gtpsa::tpsa &h)
   return h_Ke;
 }
 
+
+void gtpsa::GoFix
+(const gtpsa::ss_vect<gtpsa::tpsa> &map, gtpsa::ss_vect<gtpsa::tpsa> &A0)
+{
+  const int n_dof = 2;
+
+  const auto desc = map[0].getDescription();
+  const auto no   = desc->maxOrd();
+
+  auto Id = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+  auto x  = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+  auto v  = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+  auto w  = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+
+  Id.set_identity();
+  v.set_identity();
+  for (int k = 0; k < 2*n_dof; k++)
+    v[k] = map[k] - Id[k];
+  x.set_zero();
+  x[delta_] = Id[delta_];
+  v = gtpsa::compose(gtpsa::minv(v), x);
+  v[delta_] = v[ct_] = 0e0;
+  A0 = Id + v;
+
+  // Corrections.
+  v.set_zero();
+  x.set_zero();
+  w.set_zero();
+  for (int k = 0; k < 2*n_dof; k++)
+    A0[k] -= Id[k];
+  for (int k = 0; k < 2*n_dof; k++)
+    w[k] = gtpsa::deriv(A0[k], delta_+1);
+  for (int k = 0; k < n_dof; k++) {
+    v[2*k+1] = w[2*k];
+    v[2*k] = -w[2*k+1];
+  }
+  for (int k = 0; k < 2*n_dof; k++) {
+    w[ct_] = v[k]*Id[k] + w[ct_];
+    w[k] = A0[k];
+  }
+  w[ct_] = std::pow(-1, ct_)*w[ct_];
+
+  // A0 = exp_v_to_map(w, Id, 1e-7, 10000);
+  A0 = exp_v_to_map(w, Id);
+}
+
+
 #if 0
 
 MNFType map_norm(const gtpsa::ss_vect<gtpsa::tpsa> &map)
@@ -986,11 +1031,11 @@ MNFType map_norm(const gtpsa::ss_vect<gtpsa::tpsa> &map)
   auto gn    = gtpsa::tpsa(desc, no);
   auto Kn    = gtpsa::tpsa(desc, no);
 
-  auto Id   = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
-  auto A    = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
-  auto nus  = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
-  auto M_Fl = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
-  auto map2 = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+  auto Id    = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+  auto A     = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+  auto nus   = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+  auto M_Fl  = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
+  auto map2  = gtpsa::ss_vect<gtpsa::tpsa>(desc, no);
 
   Id.set_identity();
 
