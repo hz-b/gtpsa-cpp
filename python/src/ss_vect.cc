@@ -283,6 +283,7 @@ struct AddMethods
 
       .def("rcompose", &WrappedClass::rcompose)
       .def("getOrder", &WrappedClass::rgetOrder)
+      .def("GoFix", &WrappedClass::GoFix);
 
       //.def(double()  + py::self)
       //.def(double()  - py::self)
@@ -593,7 +594,6 @@ void gpy::py_gtpsa_init_ss_vect(py::module &m)
   //   <ss_vect_tpsa_py_t, std::shared_ptr<ss_vect_tpsa_py_t>,
   //    gtpsa::tpsa>(ss_vect_tpsa);
   // adding functions
-  m.def("compose", &gtpsa::compose);
 
   /*
     py::class_<gtpsa::ss_vect<gtpsa::ctpsa>> ss_vect_ctpsa (m, "ss_vect_ctpsa");
