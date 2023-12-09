@@ -283,7 +283,6 @@ struct AddMethods
 
       .def("rcompose", &WrappedClass::rcompose)
       .def("getOrder", &WrappedClass::rgetOrder)
-      .def("GoFix", &WrappedClass::GoFix);
 
       //.def(double()  + py::self)
       //.def(double()  - py::self)
