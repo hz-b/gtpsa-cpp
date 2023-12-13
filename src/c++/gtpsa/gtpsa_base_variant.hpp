@@ -117,10 +117,10 @@ namespace gtpsa {
         inline GTpsaOrBase  operator*  (const base_type    b) const { GTpsaOrBase n = *this; mul_helper(this->m_arg, b, &n.m_arg); return n; }
         inline GTpsaOrBase  operator/  (const base_type    b) const { GTpsaOrBase n = *this; div_helper(this->m_arg, b, &n.m_arg); return n; }
 
-        inline GTpsaOrBase  operator+  (const tpsa_type    b) const { GTpsaOrBase n = *this; add_helper(this->m_arg, b, &n.m_arg); return n; }
-        inline GTpsaOrBase  operator-  (const tpsa_type    b) const { GTpsaOrBase n = *this; sub_helper(this->m_arg, b, &n.m_arg); return n; }
-        inline GTpsaOrBase  operator*  (const tpsa_type    b) const { GTpsaOrBase n = *this; mul_helper(this->m_arg, b, &n.m_arg); return n; }
-        inline GTpsaOrBase  operator/  (const tpsa_type    b) const { GTpsaOrBase n = *this; div_helper(this->m_arg, b, &n.m_arg); return n; }
+        inline GTpsaOrBase  operator+  (const tpsa_type&   b) const { GTpsaOrBase n = *this; add_helper(this->m_arg, b, &n.m_arg); return n; }
+        inline GTpsaOrBase  operator-  (const tpsa_type&   b) const { GTpsaOrBase n = *this; sub_helper(this->m_arg, b, &n.m_arg); return n; }
+        inline GTpsaOrBase  operator*  (const tpsa_type&   b) const { GTpsaOrBase n = *this; mul_helper(this->m_arg, b, &n.m_arg); return n; }
+        inline GTpsaOrBase  operator/  (const tpsa_type&   b) const { GTpsaOrBase n = *this; div_helper(this->m_arg, b, &n.m_arg); return n; }
 
         inline GTpsaOrBase  operator+  (const GTpsaOrBase& b) const { GTpsaOrBase n = *this; add_helper(this->m_arg, b.m_arg, &n.m_arg); return n; }
         inline GTpsaOrBase  operator-  (const GTpsaOrBase& b) const { GTpsaOrBase n = *this; sub_helper(this->m_arg, b.m_arg, &n.m_arg); return n; }
@@ -132,10 +132,10 @@ namespace gtpsa {
         inline GTpsaOrBase  dmul       (const base_type    a) const { GTpsaOrBase n = *this; mul_helper(a, this->m_arg, &n.m_arg); return n; }
         inline GTpsaOrBase  ddiv       (const base_type    a) const { GTpsaOrBase n = *this; div_helper(a, this->m_arg, &n.m_arg); return n; }
 
-        inline GTpsaOrBase  dadd       (const tpsa_type    a) const { GTpsaOrBase n = *this; add_helper(a, this->m_arg, &n.m_arg); return n; }
-        inline GTpsaOrBase  dsub       (const tpsa_type    a) const { GTpsaOrBase n = *this; sub_helper(a, this->m_arg, &n.m_arg); return n; }
-        inline GTpsaOrBase  dmul       (const tpsa_type    a) const { GTpsaOrBase n = *this; mul_helper(a, this->m_arg, &n.m_arg); return n; }
-        inline GTpsaOrBase  ddiv       (const tpsa_type    a) const { GTpsaOrBase n = *this; div_helper(a, this->m_arg, &n.m_arg); return n; }
+        inline GTpsaOrBase  dadd       (const tpsa_type&   a) const { GTpsaOrBase n = *this; add_helper(a, this->m_arg, &n.m_arg); return n; }
+        inline GTpsaOrBase  dsub       (const tpsa_type&   a) const { GTpsaOrBase n = *this; sub_helper(a, this->m_arg, &n.m_arg); return n; }
+        inline GTpsaOrBase  dmul       (const tpsa_type&   a) const { GTpsaOrBase n = *this; mul_helper(a, this->m_arg, &n.m_arg); return n; }
+        inline GTpsaOrBase  ddiv       (const tpsa_type&   a) const { GTpsaOrBase n = *this; div_helper(a, this->m_arg, &n.m_arg); return n; }
 
         /**
          *
@@ -181,22 +181,22 @@ namespace gtpsa {
 
 
     template<class C>
-    inline GTpsaOrBase<C> operator+ (const typename C::base_type a, const GTpsaOrBase<C>& b){ return b.dadd(a); }
+    inline GTpsaOrBase<C> operator+ (const typename C::base_type  a, const GTpsaOrBase<C>& b){ return b.dadd(a); }
     template<class C>
-    inline GTpsaOrBase<C> operator- (const typename C::base_type a, const GTpsaOrBase<C>& b){ return b.dsub(a); }
+    inline GTpsaOrBase<C> operator- (const typename C::base_type  a, const GTpsaOrBase<C>& b){ return b.dsub(a); }
     template<class C>
-    inline GTpsaOrBase<C> operator* (const typename C::base_type a, const GTpsaOrBase<C>& b){ return b.dmul(a); }
+    inline GTpsaOrBase<C> operator* (const typename C::base_type  a, const GTpsaOrBase<C>& b){ return b.dmul(a); }
     template<class C>
-    inline GTpsaOrBase<C> operator/ (const typename C::base_type a, const GTpsaOrBase<C>& b){ return b.ddiv(a); }
+    inline GTpsaOrBase<C> operator/ (const typename C::base_type  a, const GTpsaOrBase<C>& b){ return b.ddiv(a); }
 
     template<class C>
-    inline GTpsaOrBase<C> operator+ (const typename C::tpsa_type a, const GTpsaOrBase<C>& b){ return b.dadd(a); }
+    inline GTpsaOrBase<C> operator+ (const typename C::tpsa_type& a, const GTpsaOrBase<C>& b){ return b.dadd(a); }
     template<class C>
-    inline GTpsaOrBase<C> operator- (const typename C::tpsa_type a, const GTpsaOrBase<C>& b){ return b.dsub(a); }
+    inline GTpsaOrBase<C> operator- (const typename C::tpsa_type& a, const GTpsaOrBase<C>& b){ return b.dsub(a); }
     template<class C>
-    inline GTpsaOrBase<C> operator* (const typename C::tpsa_type a, const GTpsaOrBase<C>& b){ return b.dmul(a); }
+    inline GTpsaOrBase<C> operator* (const typename C::tpsa_type& a, const GTpsaOrBase<C>& b){ return b.dmul(a); }
     template<class C>
-    inline GTpsaOrBase<C> operator/ (const typename C::tpsa_type a, const GTpsaOrBase<C>& b){ return b.ddiv(a); }
+    inline GTpsaOrBase<C> operator/ (const typename C::tpsa_type& a, const GTpsaOrBase<C>& b){ return b.ddiv(a); }
 
     /*
     template<class C>
