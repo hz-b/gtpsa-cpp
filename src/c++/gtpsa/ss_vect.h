@@ -591,7 +591,7 @@ namespace gtpsa {
     *
     * @todo is that necessarily the jacobian
     *
-    * It depends how the
+    * Should it return the derivatives for the knobs too?
     */
     template<>
     arma::mat ss_vect<tpsa>::jacobian(void) const;

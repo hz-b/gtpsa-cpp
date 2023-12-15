@@ -175,9 +175,11 @@ std::vector<size_t> gpy::IndexMapping::order_vector_from_power(const index_mappi
 		}
 		catch(const std::out_of_range& ie) {
 		    std::stringstream strm;
-		    strm<< "gtpsa:: name to index, index = " << index
-			<< " max size " << p.size();
-		    strm<< ": " << ie.what();
+		    strm << "gtpsa:: name to index:"
+			 << " key = " << key
+			 << " index = " << index
+			 << " max size =  " << p.size();
+		    strm << ": " << ie.what();
 		    throw std::out_of_range(strm.str());
 		}
 	}
