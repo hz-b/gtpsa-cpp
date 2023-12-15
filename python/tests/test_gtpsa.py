@@ -52,7 +52,6 @@ def test_knob():
     derivs[knob_index] = 0
     assert np.sum(np.absolute(derivs)) == pytest.approx(0, abs=1e-12)
 
-
 def test_index_mapping():
     named_index_d = dict(x=0, px=1, y=2, py=3, delta=4, ct=5, K=6, dx=7, dy=8)
     named_index = gtpsa.IndexMapping(named_index_d)
@@ -86,12 +85,49 @@ def test_powers_dict_argument_overlapping():
     assert d2["x"] == 2
     assert d2["y"] == 3
 
-
 def test_get_with_kwarg():
+
     desc = gtpsa.desc(6, 1)
     t = gtpsa.tpsa(desc, 1)
     t.set_variable(42, "x")
     t.get(x=1)
+    assert t.get() == pytest.approx(42)
+    assert t.length() == 7
+
+    v = t.getv()
+
+    mapping = gtpsa.default_mapping()
+    v = v.copy()
+    assert v[0] == 42
+    v[0] = 0
+    assert v[mapping.x + 1] == pytest.approx(1)
+    v[mapping.x + 1] = 0
+    assert(np.absolute(v)) == pytest.approx(0, abs=1e-12)
+
+
+def test_get_with_kwarg_knobs():
+    """Check that test knob works as expected
+    """
+    named_index_d = dict(x=0, px=1, y=2, py=3, delta=4, ct=5, K=6, dx=7, dy=8)
+    mapping = gtpsa.IndexMapping(named_index_d)
+    t = gtpsa.tpsa(desc, 1, mapping=mapping)
+    t.set_knob(42, "K")
+
+    # just first order derivatives
+    # check that the one required is set
+    v = t.getv(1)
+    assert v[mapping.K] == pytest.approx(1)
+    v[mapping.K] = 0
+
+    # check that the access by key gives the same
+    for key, idx in named_index_d.items():
+        assert getattr(mapping, key) == idx
+        if key == "K":
+            assert t.get({key: 1}) == pytest.approx(1)
+            assert t.get(K=1) == pytest.approx(1)
+        else:
+            assert t.get({key:1}) == pytest.approx(0, abs=1e-12)
+    assert np.sum(np.absolute([v])) == pytest.approx(0, abs=1e-12)
 
 
 def test_set_with_kwarg():
@@ -192,16 +228,8 @@ def test_basis_operation():
     sample.get(py=1)
 
 
-def test_default_mapping():
-    index_map = gtpsa.default_mapping()
-    assert index_map.x == 0
-    assert index_map.px == 1
-    assert index_map.y == 2
-    assert index_map.py == 3
-    assert index_map.delta == 4
-    assert index_map.ct == 5
 
 
 if __name__ == "__main__":
-    # test_set_knob_as_var()
-    test_attribute_access()
+    test_set_knob_as_var()
+    test_get_with_kwarg()
