@@ -572,10 +572,6 @@ def test_ss_vect_with_knobs():
     nps.y = ps.y * C
     assert nps.y.get(K=1) == pytest.approx(y_val)
     assert nps.y.get(K=1,y=1) == pytest.approx(1)
-    print("=-------------------------------------------------=")
-    print(nps)
-    print("=-------------------------------------------------=")
-    assert False
 
 
 ## if __name__ == "__main__":
