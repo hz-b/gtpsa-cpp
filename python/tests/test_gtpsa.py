@@ -5,9 +5,13 @@ import numpy as np
 nv = 6
 mo = 2
 n_pars = 3
-po = 1
+po = 2
+# a mapping for 3 variables
+named_index_d = dict(x=0, px=1, y=2, py=3, delta=4, ct=5, K=6, dx=7, dy=8)
+named_index = gtpsa.IndexMapping(named_index_d)
 
 desc = gtpsa.desc(nv, mo, n_pars, po)
+
 
 
 def test_set_var():
@@ -53,8 +57,6 @@ def test_knob():
     assert np.sum(np.absolute(derivs)) == pytest.approx(0, abs=1e-12)
 
 def test_index_mapping():
-    named_index_d = dict(x=0, px=1, y=2, py=3, delta=4, ct=5, K=6, dx=7, dy=8)
-    named_index = gtpsa.IndexMapping(named_index_d)
     names = dir(named_index)
     assert len(names) == len(list(named_index_d.keys()))
 
@@ -108,8 +110,7 @@ def test_get_with_kwarg():
 def test_get_with_kwarg_knobs():
     """Check that test knob works as expected
     """
-    named_index_d = dict(x=0, px=1, y=2, py=3, delta=4, ct=5, K=6, dx=7, dy=8)
-    mapping = gtpsa.IndexMapping(named_index_d)
+    mapping = named_index
     t = gtpsa.tpsa(desc, 1, mapping=mapping)
     t.set_knob(42, "K")
 
@@ -228,7 +229,37 @@ def test_basis_operation():
     sample.get(py=1)
 
 
+def test_knob_multiplication():
+    """just a simple cross check
+    """
+    mapping = named_index
+    k_val = 1.2
+    x_val = 2e-3
+    y_val = 3e-4
+    x = gtpsa.tpsa(desc, 2, mapping=mapping)
+    x.set_variable(x_val, "x")
 
+    c2 = gtpsa.tpsa(desc, 2, mapping=mapping)
+    c2.set_knob(k_val, "K")
+
+    t = c2 * x
+    assert t.get() == pytest.approx(k_val * x_val)
+    assert t.get(x=1) == pytest.approx(k_val)
+    assert t.get(K=1) == pytest.approx(x_val)
+    assert t.get(x=1, K=1) == pytest.approx(1)
+    assert t.get(x=2) == pytest.approx(0, abs=1e-12)
+    assert t.get(K=2) == pytest.approx(0, abs=1e-12)
+
+    y = gtpsa.tpsa(desc, 2, mapping=mapping)
+    y.set_variable(y_val, "y")
+
+    t = c2 * y
+    assert t.get() == pytest.approx(k_val * y_val)
+    assert t.get(y=1) == pytest.approx(k_val)
+    assert t.get(K=1) == pytest.approx(y_val)
+    assert t.get(y=1, K=1) == pytest.approx(1)
+    assert t.get(y=2) == pytest.approx(0, abs=1e-12)
+    assert t.get(K=2) == pytest.approx(0, abs=1e-12)
 
 if __name__ == "__main__":
     test_set_knob_as_var()
