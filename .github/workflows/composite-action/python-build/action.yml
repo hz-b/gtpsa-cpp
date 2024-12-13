@@ -20,11 +20,12 @@ runs:
       shell: bash
       run: |
           python3 -m venv venv-numpy-v1.0
-          . venv-numpy-v2.0/bin/activate
+          . venv-numpy-v1.0/bin/activate
           python3 -m pip install --upgrade pip wheel build pytest 'numpy<2.0' pandas
           gtpsa_PREFIX=/usr/local python3 -m pip install -v ./python/
           python3 -c "import gtpsa"
           python3 -m pytest -v -v -v --log-cli-level=DEBUG ./python/tests
+          deactivate
 
     - name: setup python, numpy v2.0
       shell: bash
@@ -35,3 +36,4 @@ runs:
           gtpsa_PREFIX=/usr/local python3 -m pip install -v ./python/
           python3 -c "import gtpsa"
           python3 -m pytest -v --log-cli-level=DEBUG ./python/tests/
+          deactivate
