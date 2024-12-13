@@ -11,9 +11,8 @@ def test_export_to_df_6vars():
     t.set_variable(2, "x")
     df = tpsa2df(t)
     assert df.value.iloc[0] == pytest.approx(2, 1e-12)
-    assert float(
-        df.value.loc[(df.x == 1) & (df.y == 0) & (df.px == 0) & (df.py == 0)]
-    ) == pytest.approx(1, 1e-12)
+    chk, = df.value.loc[(df.x == 1) & (df.y == 0) & (df.px == 0) & (df.py == 0)]
+    assert chk == pytest.approx(1, 1e-12)
 
 
 def test_export_to_df_1var():
@@ -25,7 +24,8 @@ def test_export_to_df_1var():
     t.set_variable(2, "x")
     df = tpsa2df(t)
     assert df.value.iloc[0] == pytest.approx(2, 1e-12)
-    assert float(df.value.loc[(df.x == 1)]) == pytest.approx(1, 1e-12)
+    chk, = df.value.loc[(df.x == 1)]
+    assert float(chk) == pytest.approx(1, 1e-12)
 
 
 def test_export_to_df_6vars_3knobs():
@@ -37,4 +37,5 @@ def test_export_to_df_6vars_3knobs():
     t.set_variable(2, "x")
     df = tpsa2df(t)
     assert df.value.iloc[0] == pytest.approx(2, 1e-12)
-    assert float(df.value.loc[(df.x == 1)]) == pytest.approx(1, 1e-12)
+    chk, = df.value.loc[(df.x == 1)]
+    assert chk == pytest.approx(1, 1e-12)
