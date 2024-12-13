@@ -1,6 +1,6 @@
 # This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
-name: Execute c++ and python tests on ubuntu latest
+name: ubuntu-deb-package
 
 on:
   push:
@@ -15,7 +15,7 @@ env:
   LD_LIBRARY_PATH: /usr/local/lib
 
 jobs:
-  build:
+  ubuntu-deb-package:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
@@ -55,31 +55,31 @@ jobs:
       # need to be root to install ?
       run: |
           (cd ${{github.workspace}}/build && make package)
-          
-    - name: Upload artifact for python build 
+
+    - name: Upload artifact for python build
       uses: actions/upload-artifact@v4
       with:
          name: gtpsa-release-deb
          path: ${{github.workspace}}/build/*.deb
-         
+
   build-python-package:
     name : gtpsa build and install python package
     needs : build
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: checkout gtpsa-cpp code
       uses: actions/checkout@v4
-    
+
     - name: Downloads artefact
       uses: actions/download-artifact@v4
       with:
         name: gtpsa-release-deb
     - name: setup environment
-      run: | 
-        sudo apt update 
+      run: |
+        sudo apt update
         sudo apt install python3-dev python3-venv libarmadillo-dev ./gtpsa*.deb
-      
+
     - name: setup python
       run: |
           python3 -m venv venv
@@ -88,6 +88,5 @@ jobs:
           find /usr -name 'libgtpsa*'
           find . -type d
           gtpsa_PREFIX=/usr/local python3 -m pip install -v ./python/
-      
+
           python3 -m pytest ./python/tests
-  
