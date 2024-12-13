@@ -3,9 +3,8 @@ name: python-package
 runs:
   using: "composite"
 
-
     steps:
-    - name: checkout gtpsa-cpp code
+    - name: "checkout gtpsa code"
       uses: actions/checkout@v4
 
 #    - name: Downloads artefact
