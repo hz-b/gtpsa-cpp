@@ -35,7 +35,7 @@ Args:\n\
 	.def_property_readonly("maximum_length",      &gtpsa::mad::desc::maxLen )
 	// rename this mehtod
 	// .def("ordLen"         , &gtpsa::mad::desc::ordLen    )
-	.def("truncate"       , &gtpsa::mad::desc::trunc     )
+	//.def("truncate"       , &gtpsa::mad::desc::trunc     )
 	//.def("index"        ,    &gtpsa::mad::desc::nxtbyvar )
 	.def("nextByVariable" , &gtpsa::mad::desc::nxtbyvar  )
 	.def("nextByOrder"    , &gtpsa::mad::desc::nxtbyord  )

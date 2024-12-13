@@ -98,7 +98,7 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	/**
 	 * @brief a*x[0]+b
 	 */
-	inline void set(                            num_t a_re, num_t a_im, num_t b_re, num_t b_im) { this->m_impl.set0_r(   a_re, a_im,  b_re, b_im  ); }
+	inline void set(                            num_t a_re, num_t a_im, num_t b_re, num_t b_im) { this->m_impl.seti_r(0,   a_re, a_im,  b_re, b_im  ); }
 
 	/**
 	 * @brief a*x[i]+b
