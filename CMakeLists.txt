@@ -95,7 +95,8 @@ CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/contrib/postinst.in" "postinst" @ONLY IMMEDI
     # SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/docs/CPack.Description.txt")
     # SET(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/docs/README.md")
     # SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/docs/LICENCE")
-    SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libarmadillo-dev")
+    # SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libarmadillo-dev")
+    set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
     SET(CPACK_PACKAGE_VENDOR "HZB")
     # make postinst run after install                                                #
     SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_BINARY_DIR}/postinst;")
