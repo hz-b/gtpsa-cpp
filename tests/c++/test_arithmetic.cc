@@ -12,7 +12,7 @@ BOOST_AUTO_TEST_CASE(test00_set)
     const double a=0e0, b=42e0;
 
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
 
     t1.set(a, b);
     BOOST_CHECK_CLOSE(t1.get(), b, 1e-12);
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(test01_clone)
     const double a=355e0, b=113e0;
 
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     t1.set(a, b);
 
     const auto t2 = t1.clone();
@@ -42,10 +42,10 @@ BOOST_AUTO_TEST_CASE(test02_clone_2_objects)
     const double a=355e0, b=113e0;
 
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     t1.set(a, b);
 
-    auto t2 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t2 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     t2.set(-b, a);
 
     const auto t3 = t1.clone();
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(test02_get_set)
     const double a=355e0, b=113e0;
 
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     t1.set(0, b);
 
     BOOST_CHECK_CLOSE(t1.get(), b, 1e-12);
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(test02_get_set)
 BOOST_AUTO_TEST_CASE(test4_getorder)
 {
     auto a_desc = std::make_shared<gtpsa::desc>(6, 4);
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
 
     t1.setv(1, {11, 13, 17, 19, 23, 29});
     t1.setv(1 + 6, {31, 37, 39, 41, 43, 47, 51});
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(test4_getorder)
 BOOST_AUTO_TEST_CASE(test5_set_variable)
 {
     auto a_desc = std::make_shared<gtpsa::desc>(6, 1);
-    const auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    const auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
 
     {
 	const double a = 42e0;
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(test10_neg)
 {
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
 
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
 
     const double b1=2.0, r1 = -b1;
 
@@ -170,8 +170,8 @@ BOOST_AUTO_TEST_CASE(test11_add)
 {
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
 
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
-    auto t2 = gtpsa::tpsa(t1, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
+    auto t2 = gtpsa::tpsa(t1, mad_tpsa_dflt);
 
     const double b1=2.0, b2=b1 * 3, r1 = b1 + b2;
 
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(test11_add)
 
     {
 	const auto t3 = t1.clone();
-	auto tr =  gtpsa::tpsa(t3, mad_tpsa_default);
+	auto tr =  gtpsa::tpsa(t3, mad_tpsa_dflt);
 	// gtpsa::add(t3, b2, &tr);
 	// BOOST_CHECK_CLOSE(tr.get(), r1, 1e-12);
 
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(test12_sub)
 {
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
 
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     auto t2 = gtpsa::tpsa(t1, mad_tpsa_same);
 
     const double b1=2.0, b2=b1 * 3, r1=b1-b2;
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE(test13_mul)
 {
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
 
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     auto t2 = gtpsa::tpsa(t1, mad_tpsa_same);
 
     const double b1=2.0, b2=b1 * 3, r1=b1*b2;
@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE(test14_div)
 {
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
 
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     auto t2 = gtpsa::tpsa(t1, mad_tpsa_same);
 
     const double b2=2.0, b1=b2 * 3, r1=b1/b2;
@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE(test20_assign_double)
     const double b=42e0;
 
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
-    auto t = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     t = b;
     BOOST_CHECK_CLOSE(t.get(), b, 1e-12);
 

@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_CASE(test20_tpsa_cst)
     const double a=0e0, b=42e0;
 
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     t1.set(a, b);
 
     BOOST_CHECK_CLOSE(t1.cst(), b, 1e-12);
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(test30_tpsa_get)
     const int nv = 6, no = 1;
 
     auto a_desc = std::make_shared<gtpsa::desc>(nv, no);
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     t1.set(a, b);
 
     BOOST_CHECK_CLOSE(t1.cst(), b, 1e-12);
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(test40_ss_vect_tpsa)
     const double a = 0e0, b = 42e0;
 
     auto a_desc = std::make_shared<gtpsa::desc>(nv, no);
-    auto t = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
 
     {
         std::vector<gtpsa::tpsa> vec(nv, t);

@@ -10,6 +10,6 @@ BOOST_AUTO_TEST_CASE(test10_enum)
 
 
     /* copied manually ... better check these are identical */
-    BOOST_CHECK_EQUAL(default_, mad_tpsa_default);
+    BOOST_CHECK_EQUAL(default_, mad_tpsa_dflt);
     BOOST_CHECK_EQUAL(same,     mad_tpsa_same);
 }
