@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(test12_sv_tpsa_identity)
 
     const int nv = 6;
     auto a_desc = std::make_shared<gtpsa::desc>(nv, 1);
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     gtpsa::ss_vect<gtpsa::tpsa> v1(t1);
 
     BOOST_CHECK_EQUAL(v1.size(), nv);
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(test13_sv_tpsa_identity_jac_desc_with_knobs)
     const int nv = 9, nk = 3;
     ord_t mo=3, o=2;
     auto a_desc = std::make_shared<gtpsa::desc>(nv, mo, nk, 2);
-    // auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    // auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     gtpsa::ss_vect<gtpsa::tpsa> v1(a_desc, o, 6);
 
     v1.set_identity();
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(test23_sv_tpsa_show)
 {
     const double b1=113e0;
     auto a_desc = std::make_shared<gtpsa::desc>(6, 1);
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
 
     gtpsa::ss_vect<gtpsa::tpsa> v1(t1);
     v1[0] = b1;
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(test30_sv_tpsa_identity_mul)
 {
     const int nv = 6;
     auto a_desc = std::make_shared<gtpsa::desc>(nv, 1);
-    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
     gtpsa::ss_vect<gtpsa::tpsa> v1(t1);
     gtpsa::ss_vect<gtpsa::tpsa> v2(t1);
 
