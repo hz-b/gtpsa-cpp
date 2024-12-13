@@ -23,7 +23,7 @@ jobs:
 
     steps:
     - name: checkout gtpsa-cpp code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: True
 
@@ -68,6 +68,9 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: checkout gtpsa-cpp code
+      uses: actions/checkout@v4
+    
     - name: Downloads artefact
       uses: actions/download-artifact@v4
       with:
