@@ -39,5 +39,5 @@ jobs:
         with:
            submodules: False
 
-      - name: ubuntu-deb-package
+      - name: python-build
         uses: ./.github/workflows/composite-action/python-build

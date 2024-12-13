@@ -2,8 +2,7 @@ name: python-package
 
 runs:
   using: "composite"
-
-    steps:
+  steps:
     - name: checkout gtpsa code
       uses: actions/checkout@v4
 
