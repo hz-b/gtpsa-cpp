@@ -535,7 +535,44 @@ def test_user_indices():
         ps.dx
 
     for a_tpsa in [ps.x, ps.px]:
+        # just test that one can access it
         pass
+
+
+def test_ss_vect_with_knobs():
+    t_dic = dict(x=0, px=1, y=2, py=3, delta=4, ct=5, boundary=6, K=7, dx=8, dy=9, sentinel=10)
+    mapping = gtpsa.IndexMapping(t_dic)
+
+    c_val = 2
+    x_val = 3e-3
+    y_val = 5e-4
+    desc = gtpsa.desc(6, 2, 5, 2)
+    C = gtpsa.tpsa(desc, 2, mapping=mapping)
+    C.set_knob(c_val, "K")
+    ps = gtpsa.ss_vect_tpsa(desc, 2, index_mapping=mapping)
+
+    ps.set_identity()
+    ps.x.set(0, x_val)
+
+    assert np.sum(np.absolute(ps.jacobian() - np.eye(6,6)).ravel()) == pytest.approx(0, abs=1e-12)
+
+    nps = ps.copy()
+    tmp = ps.x * C
+    nps.x = tmp
+
+    jac = nps.jacobian()
+    assert jac[mapping.x, mapping.x] == pytest.approx(c_val)
+    assert nps.x.get(K=1) == pytest.approx(x_val)
+    assert nps.x.get(K=1,x=1) == pytest.approx(1)
+
+    ps = gtpsa.ss_vect_tpsa(desc, 2, index_mapping=mapping)
+    ps.set_identity()
+    ps.y.set(0, y_val)
+    nps = ps.copy()
+    nps.y = ps.y * C
+    assert nps.y.get(K=1) == pytest.approx(y_val)
+    assert nps.y.get(K=1,y=1) == pytest.approx(1)
+
 
 ## if __name__ == "__main__":
 ##     test70_sst_hessian()

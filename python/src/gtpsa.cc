@@ -108,7 +108,7 @@ static auto check_index(const Cls& inst, const std::vector<ord_t>& m)
 {
     auto index = inst.index(m);
     if(index < 0){
-	throw std::runtime_error("index out of range");
+	throw std::runtime_error("gptsa::check_index index < 0");
     }
     return index;
 }
@@ -236,10 +236,15 @@ struct AddMethods
 	    })
 	    .def("index",          [](const Cls& inst, const std::vector<ord_t>& m){ return inst.index(m);})
 	    // make it more pythonic!
-	    .def("getv",           [](const Cls& inst, idx_t i){
-		std::vector<T> tmp(inst.length()); inst.getv(i, &tmp);
+	    .def("getv",           [](const Cls& inst, size_t start, long n_coeffs){
+		if(n_coeffs < 0){
+		    n_coeffs = inst.length();
+		}
+		std::vector<T> tmp(n_coeffs); inst.getv(start, &tmp);
 		return py::array(py::cast(tmp));
-	    })
+	    }, "starting from index \"start\" return n_coeffs coefficients",
+		py::arg("start") = 0, py::arg("n_coeffs") = -1
+		)
 	    .def("setv",           &Cls::setv)
 	    .def("getsm",          &Cls::getsm)
 	    //.def("get_coefficients", [](const Cls& inst) {})

@@ -194,9 +194,10 @@ namespace gtpsa::mad {
          * @brief indexing / monomials (return idx_t = -1 if invalid)
          */
         inline auto mono( const idx_t i, std::vector<ord_t> *m) const {
-            return GTPSA_METH(mono)(this->getPtr(), i, m->size(), m->data());
+            // mad-ng 0.9.7-1?: what's the last pointer for?
+            // setting it to nullptr as this is a valid value
+            return GTPSA_METH(mono)(this->getPtr(), i, m->size(), m->data(), nullptr);
         }
-
         /**
          *  @brief string mono "[0-9]*"
          */

@@ -201,7 +201,9 @@ namespace gtpsa::mad {
 	inline idx_t nxtbyord  (std::vector<ord_t> m )          const { return mad_desc_nxtbyord  (this->getPtr(), m.size(), m.data() );  }
 	// inline idx_t nxtbyord  (ssz_t n,       ord_t *m )    const { return mad_desc_nxtbyord  (this->getPtr(), n, m );  }
 
-	inline ord_t mono      (const idx_t i, std::vector<ord_t>* m) const { return mad_desc_mono      (this->getPtr(), i, m->size(), m->data()); }
+	// mad-ng 0.9.7-1?: need to understand the (new) interface first
+	// what's this new last pointer for?
+	inline ord_t mono      (const idx_t i, std::vector<ord_t>* m) const { return mad_desc_mono      (this->getPtr(), i, m->size(), m->data(), nullptr); }
 
 
 	std::string repr(void)      const;
