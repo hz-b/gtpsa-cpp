@@ -27,7 +27,7 @@ jobs:
           submodules: True
 
       - name: ubuntu-deb-package
-        uses: ./.github/workflows/composite-action/ubuntu-deb-package.yml
+        uses: ./.github/workflows/composite-action/ubuntu-deb-package
 
   python-package:
     name : gtpsa build and install python package
@@ -41,4 +41,4 @@ jobs:
            submodules: False
 
       - name: ubuntu-deb-package
-        uses: ./.github/workflows/composite-action/python-build.yml
+        uses: ./.github/workflows/composite-action/python-build
