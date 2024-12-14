@@ -129,22 +129,21 @@ def test_31_polar():
     assert imag_part.get() == pytest.approx(np.sqrt(3) / 2)
 
 
-@pytest.mark.skip
 def test_40_pow():
     desc = gtpsa.desc(6, 1)
-    t = gtpsa.tpsa(desc, 0)
+    # needs to be at least 1
+    t = gtpsa.tpsa(desc, 1)
     t.set_variable(355 / 113, 2, 0)
     t.print("pi")
 
     tp = t ** 2
-
     tp.print("pi**2", eps=1e-12)
 
 
 def test_50_cos():
-
     desc = gtpsa.desc(6, 1)
-    t = gtpsa.tpsa(desc, 0)
+    # needs to be at least 1
+    t = gtpsa.tpsa(desc, 1)
     t.set_variable(355 / 113, 2, 0)
     t2 = gtpsa.cos(t)
 
@@ -156,7 +155,8 @@ def test_50_cos():
 
 
 if __name__ == "__main__":
-    test_20_radd()
-    test_30_cplx()
-    test_31_polar()
+    # test_20_radd()
+    # test_30_cplx()
+    # test_31_polar()
+    test_40_pow()
     test_50_cos()
