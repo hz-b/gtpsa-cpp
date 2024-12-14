@@ -69,6 +69,11 @@ add_library(gtpsa SHARED
 )
 add_library(gtpsa::c ALIAS gtpsa)
 target_link_libraries(gtpsa lapack blas ${OpenMP_C_LIBRARIES})
+set_target_properties(gtpsa
+  PROPERTIES
+  SOVERSION 1.0
+  LIBRARY_OUTPUT_NAME gtpsa
+)
 
 
 #-- .cmake ? --

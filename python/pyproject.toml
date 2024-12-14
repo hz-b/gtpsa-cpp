@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm", "pybind11>=2.9"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gtpsa"
+version = "0.1.0"
+authors = [
+    {name = "Pierre Schnizer", email = "pierre.schnizer@helmholtz-berlin.de"},
+]
+description = "wraps gtpsa as provided by madng"
+# readme = "../README.rst"
+requires-python = ">=3.8"
+license = {text = "GPL"}
+classifiers = [
+    "Framework :: Django",
+    "Programming Language :: Python :: 3",
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Physics"
+]
+
+dependencies = [
+    "numpy",
+]

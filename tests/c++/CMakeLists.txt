@@ -31,6 +31,28 @@ target_link_libraries(test_desc
         )
 add_test(desc test_desc)
 
+add_executable(test_tpsa test_tpsa.cc)
+target_link_libraries(test_tpsa
+        gtpsa-c++
+        gtpsa
+        lapack
+        blas
+        ${Boost_PRG_EXEC_MONITOR_LIBRARY}
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+        )
+add_test(tpsa test_tpsa)
+
+add_executable(test_ctpsa test_ctpsa.cc)
+target_link_libraries(test_ctpsa
+        gtpsa-c++
+        gtpsa
+        lapack
+        blas
+        ${Boost_PRG_EXEC_MONITOR_LIBRARY}
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+        )
+add_test(ctpsa test_ctpsa)
+
 add_executable(test_arithmetic test_arithmetic.cc)
 target_link_libraries(test_arithmetic
         gtpsa-c++

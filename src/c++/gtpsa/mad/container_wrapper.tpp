@@ -33,9 +33,14 @@ namespace gtpsa::mad {
             return this->m_vec.size();
         }
 
+	/**
+	 * @todo: why here again? duplication of code
+	 */
         inline int getMaximumOrder (void) const {
+
             auto tmp = this->getConstBufferPtrs();
-            return GTPSA_METH(ordn)(tmp.size(), tmp.data());
+	    log_t hi = 0;
+            return GTPSA_METH(mord)(tmp.size(), tmp.data(), hi);
         }
 
         inline auto computeNorm (void) const {
@@ -120,7 +125,7 @@ namespace gtpsa::mad {
             auto tmpa = ma.getConstBufferPtrs();
             auto tmpc = this->getBufferPtrs();
 
-            GTPSA_METH(minv)(tmpa.size(), tmpa.data(),  tmpc.data());
+            GTPSA_METH(minv)(tmpa.size(), tmpa.data(),  tmpc.size(), tmpc.data());
         }
 
         inline void rpminv(const GTPSA_CLASS(ContainerWrapper) &ma, std::vector<idx_t>& select) {
@@ -142,7 +147,7 @@ namespace gtpsa::mad {
             auto tmpa = ma.getConstBufferPtrs();
             auto tmpc = this->getBufferPtrs();
 
-            GTPSA_METH(pminv)(tmpa.size(), tmpa.data(),  tmpc.data(), select.data());
+            GTPSA_METH(pminv)(tmpa.size(), tmpa.data(),  tmpc.size(), tmpc.data(), select.data());
         }
     protected:
 	inline void rapply2(const GTPSA_CLASS(ContainerWrapper) &ma, const GTPSA_CLASS(ContainerWrapper) &mb,

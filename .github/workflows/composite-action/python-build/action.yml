@@ -1,0 +1,39 @@
+name: python-package
+
+runs:
+  using: "composite"
+  steps:
+    - name: checkout gtpsa code
+      uses: actions/checkout@v4
+
+    - name: Downloads artefact
+      uses: actions/download-artifact@v4
+      with:
+        name: gtpsa-release-deb
+    - name: setup environment
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install python3-dev python3-venv libarmadillo-dev ./gtpsa*.deb
+
+    - name: setup python, numpy v1.0
+      shell: bash
+      run: |
+          python3 -m venv venv-numpy-v1.0
+          . venv-numpy-v1.0/bin/activate
+          python3 -m pip install --upgrade pip wheel build pytest 'numpy<2.0' pandas
+          gtpsa_PREFIX=/usr/local python3 -m pip install -v ./python/
+          python3 -c "import gtpsa"
+          python3 -m pytest -v -v -v --log-cli-level=DEBUG ./python/tests
+          deactivate
+
+    - name: setup python, numpy v2.0
+      shell: bash
+      run: |
+          python3 -m venv venv-numpy-v2.0
+          . venv-numpy-v2.0/bin/activate
+          python3 -m pip install --upgrade pip wheel build pytest 'numpy>=2.0' pandas
+          gtpsa_PREFIX=/usr/local python3 -m pip install -v ./python/
+          python3 -c "import gtpsa"
+          python3 -m pytest -v --log-cli-level=DEBUG ./python/tests/
+          deactivate

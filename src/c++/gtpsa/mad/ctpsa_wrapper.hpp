@@ -87,7 +87,7 @@ namespace gtpsa::mad {
 	/**
 	 * @brief a*x[0]+b
 	 */
-	inline void set0_r(                            num_t a_re, num_t a_im, num_t b_re, num_t b_im) { mad_ctpsa_set0_r (this->getPtr()                    , a_re, a_im,  b_re, b_im  ); }
+	// inline void set0_r(                            num_t a_re, num_t a_im, num_t b_re, num_t b_im) { mad_ctpsa_set0_r (this->getPtr()                    , a_re, a_im,  b_re, b_im  ); }
 
 	/**
 	 * @brief a*x[i]+b

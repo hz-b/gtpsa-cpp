@@ -105,7 +105,8 @@ namespace gtpsa::mad {
          */
         inline GTPSA_CLASS(Wrapper)(std::shared_ptr<desc> desc, const ord_t mo)
                 : t_desc(desc),
-                  ltm(std::make_unique<GTPSA_CLASS(LifeTimeManager)>(GTPSA_METH(newd)(desc->getPtr(), mo))) {}
+                  ltm(std::make_unique<GTPSA_CLASS(LifeTimeManager)>(GTPSA_METH(newd)(desc->getPtr(), mo)))
+	        {}
 
         /**
          *
@@ -114,7 +115,7 @@ namespace gtpsa::mad {
         inline GTPSA_CLASS(Wrapper)(const GTPSA_CLASS(Wrapper) &t, const ord_t mo)
 	    : t_desc(t.getDescription()),
 	    ltm(std::make_unique<GTPSA_CLASS(LifeTimeManager)>(GTPSA_METH(new)(t.getPtr(), mo)))
-	    {}
+ 	    {}
 
 
         /**
@@ -164,29 +165,56 @@ namespace gtpsa::mad {
         inline auto uid(int32_t uid_) { return GTPSA_METH(uid)(this->getPtr(), uid_); }
 
         // inline auto uid(void)                const { return GTPSA_METH(uid)((P*)(this->getPtr()), 0); }
-        inline auto len(void) const { return GTPSA_METH(len)(this->getPtr()); }
+        inline auto len(void) const {
+	    ///> Todo find out how to handle log_t...
+	    log_t hi = 0;
+	    return GTPSA_METH(len)(this->getPtr(), hi);
+	}
+
+        inline auto nam(void) const {
+	    // documentation says that in this case no change to object
+	    auto *p = (GTPSA_PTR_T *)(this->getPtr());
+	    return std::string(GTPSA_METH(nam)(p, nullptr));
+	}
 
         /*
-         * @todo return std::string?
          */
-        inline auto nam(void) const { return GTPSA_METH(nam)(this->getPtr()); }
+        inline auto nam(const std::string name)  { GTPSA_METH(nam)(this->getPtr(), name.c_str()); }
+        inline void setnam(const std::string name)  {  this->nam(name); }
 
         /**
          * @todo: rename to order ?
+	 * @todo: handle optional
          */
-        inline ord_t ord(void) const { return GTPSA_METH(ord)(this->getPtr()); }
+        inline ord_t ord(void) const {
+	    log_t hi = 0;
+	    return GTPSA_METH(ord)(this->getPtr(), hi);
+	}
 
         // initialization
         inline void clear(void) { GTPSA_METH(clear)(this->getPtr()); }
 
         inline auto isNull(void) const { return GTPSA_METH(isnul)(this->getPtr()); }
 
-        inline void setnam(const std::string name) { GTPSA_METH(setnam)(this->getPtr(), name.c_str()); }
 
         /**
          * @brief:
+	 * @todo mo >= 1 enforced by mad-ng, ensure marco needs to be addressed to
+	 *               throw an exception
+	 *               currently not enabled, python side checks for it
+	 *               c++ side, assume user gets report of ensure
          */
-        void setvar(const GTPSA_BASE_T v, const idx_t iv_ = 0, const GTPSA_BASE_T scl_ = 0) {
+        void setvar(const GTPSA_BASE_T v, const idx_t iv_ = 1, const GTPSA_BASE_T scl_ = 0) {
+	    //  these checks should be reported via ensure
+	    ///> @warning code dublication
+	    /*
+	    if (!(this->ord() >= 1)){
+		throw std::runtime_error("this->ord() needs to be >= 1");
+	    }
+	    if (!(0 < iv_ && iv_ <= this->getDescription()->getInfo().getNumberOfVariables())){
+		throw std::runtime_error("mo needs to be >= 1");
+	    }
+	    */
             GTPSA_METH(setvar)(this->getPtr(), v, iv_, scl_);
         }
 
@@ -194,9 +222,9 @@ namespace gtpsa::mad {
          * @brief indexing / monomials (return idx_t = -1 if invalid)
          */
         inline auto mono( const idx_t i, std::vector<ord_t> *m) const {
-            // mad-ng 0.9.7-1?: what's the last pointer for?
-            // setting it to nullptr as this is a valid value
-            return GTPSA_METH(mono)(this->getPtr(), i, m->size(), m->data(), nullptr);
+	    ///> todo: find out what p does, compare it to mono
+	    ord_t *p = nullptr;
+            return GTPSA_METH(mono)(this->getPtr(), i, m->size(), m->data(), p);
         }
         /**
          *  @brief string mono "[0-9]*"
@@ -223,7 +251,7 @@ namespace gtpsa::mad {
         /**
          * @todo: use standard accessor operators ?
          */
-        inline auto get0(void) const { return GTPSA_METH(get0)(this->getPtr()); }
+        // inline auto get0(void) const { return GTPSA_METH(get0)(this->getPtr()); }
 
         inline auto geti(const idx_t i) const { return GTPSA_METH(geti)(this->getPtr(), i); }
 
@@ -244,7 +272,7 @@ namespace gtpsa::mad {
         /**
          * @brief a*x[0]+b
          */
-        inline void set0(const GTPSA_BASE_T a, const GTPSA_BASE_T b) { GTPSA_METH(set0)(this->getPtr(), a, b); }
+        // inline void set0(const GTPSA_BASE_T a, const GTPSA_BASE_T b) { GTPSA_METH(set0)(this->getPtr(), a, b); }
 
         /**
          * @brief a*x[i]+b
@@ -486,7 +514,9 @@ namespace gtpsa::mad {
     inline ord_t maxord(const std::vector<const GTPSA_CLASS(Wrapper)*>& vec){
         std::vector<const GTPSA_PTR_T*> tmp(vec.size());
         std::transform(vec.begin(), vec.end(), tmp.begin(), [](const GTPSA_CLASS(Wrapper)* p) {return p->getPtr();});
-        auto r =  GTPSA_METH(ordn)(tmp.size(), tmp.data());
+	///> @todo find out on hi ...
+	log_t hi = 0;
+        auto r =  GTPSA_METH(mord)(tmp.size(), tmp.data(), hi=0);
         return r;
     }
     /*

@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(test00_cast_cnum_t_to_complex)
 BOOST_AUTO_TEST_CASE(test10_print)
 {
     auto a_desc = std::make_shared<gtpsa::desc>(6, 4);
-    auto t1 = gtpsa::ctpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::ctpsa(a_desc, mad_tpsa_dflt);
 
     t1.setv(1, {11, 13, 17, 19, 23, 29});
     t1.setv(1 + 6, {31, 37, 39, 41, 43, 47, 51});
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(test100_set)
     const std::complex<double> a=0e0, b=42e0;
 
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
-    auto t1 = gtpsa::ctpsa(a_desc, mad_tpsa_default);
+    auto t1 = gtpsa::ctpsa(a_desc, mad_tpsa_dflt);
     t1.set(a, b);
 
 }
@@ -70,8 +70,8 @@ BOOST_AUTO_TEST_CASE(test110_combine_re_im)
     const double a = 0, re_v = 2, im_v = 3;
 
     auto a_desc = std::make_shared<gtpsa::desc>(1, 1);
-    auto re = gtpsa::tpsa(a_desc, mad_tpsa_default);
-    auto im = gtpsa::tpsa(a_desc, mad_tpsa_default);
+    auto re = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
+    auto im = gtpsa::tpsa(a_desc, mad_tpsa_dflt);
 
     re.set(a, re_v);
     im.set(a, im_v);

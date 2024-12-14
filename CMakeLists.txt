@@ -79,3 +79,27 @@ IF(USE_pybind11)
 endif()
 add_subdirectory(examples)
 add_subdirectory(tests)
+
+# generate postinst file in ${CMAKE_BINARY_DIR} from template                        #
+CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/contrib/postinst.in" "postinst" @ONLY IMMEDIATE)
+
+    # generate a DEB when cpack is run
+    SET(CPACK_GENERATOR "DEB")
+    SET(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
+    SET(CPACK_SET_DESTDIR TRUE)
+    SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "pierre.schnizer@helmholtz-berlin.de")
+    SET(CPACK_PACKAGE_VERSION_MAJOR "0")
+    SET(CPACK_PACKAGE_VERSION_MINOR "1")
+    SET(CPACK_PACKAGE_VERSION_PATCH "0")
+    include(GNUInstallDirs)
+    # SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/docs/CPack.Description.txt")
+    SET(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.rst")
+    SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+    # SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libarmadillo-dev")
+    set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+    SET(CPACK_PACKAGE_VENDOR "HZB")
+    # make postinst run after install                                                #
+    SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_BINARY_DIR}/postinst;")
+
+
+    include(CPack)

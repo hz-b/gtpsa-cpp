@@ -133,7 +133,7 @@ namespace gtpsa {
 	inline auto index(std::string s)               const { return this->m_impl.idxs(s); }
 	inline auto index(const std::vector<ord_t>& m) const { return this->m_impl.idxm(m); }
 
-	inline auto get(void)                          const { return this->m_impl.get0();  }
+	inline auto get(void)                          const { return this->m_impl.geti(0);  }
 	inline auto get(const idx_t i)                 const { return this->m_impl.geti(i); }
 	inline auto get(std::string s)                 const { return this->m_impl.gets(s); }
 	inline auto get(const std::vector<ord_t>& m)   const { return this->m_impl.getm(m); }
@@ -156,7 +156,7 @@ namespace gtpsa {
 	/**
 	 * @brief a*x[0]+b
 	 */
-	inline void set(                              base_type a, base_type b) { this->m_impl.set0(   a, b ); }
+	inline void set(                              base_type a, base_type b) { this->m_impl.seti(0,   a, b ); }
 
 	/**
 	 * @brief a*x[i]+b
@@ -181,7 +181,7 @@ namespace gtpsa {
 	inline void setv(idx_t i, const std::vector<base_type> &v)       { this->m_impl.setv(i, v); }
 
 
-	 inline void setVariable(const base_type v, const idx_t iv= 0, const base_type scale = 0) {
+	 inline void setVariable(const base_type v, const idx_t iv= 1, const base_type scale = 0) {
 	     this->m_impl.setvar(v, iv, scale);
 	 }
 

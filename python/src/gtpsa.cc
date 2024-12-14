@@ -26,17 +26,25 @@ Use clone to create a copy of the content too. \n";
 template<class Cls, typename T>
 static void set_variable(Cls& inst, const T& v, idx_t i, const T& s, const bool check_first)
 {
-    auto nv = inst.getDescription()->getNv();
+    const auto desc = inst.getDescription();
+    const auto nv = desc->getNv();
+
     if(check_first) {
 	if(i <= 0){
 	    std::stringstream strm;
-	    strm << "index of variable must be at least 1, but was " << i;
+	    strm << "py:: index of variable must be at least 1, but was " << i;
 	    throw std::runtime_error(strm.str());
 	}
 	if(i > nv){
 	    std::stringstream strm;
-	    strm << "index of derivative must not exceed number of variables (" << nv << ") but was " << i;
+	    strm << "py:: index of derivative must not exceed number of variables (" << nv << ") but was " << i;
 	    throw std::runtime_error(strm.str());
+	}
+	if (!(inst.order() >= 1)){
+	    throw std::runtime_error("inst.>order() needs to be >= 1");
+	}
+	if (!(0 < i && i <= nv)){
+	    throw std::runtime_error("gtpas needs to be >= 1");
 	}
     }
     inst.setVariable(v, i, s);
@@ -45,12 +53,13 @@ static void set_variable(Cls& inst, const T& v, idx_t i, const T& s, const bool 
 template<class Cls, typename T>
 static void set_knob(Cls& inst, const T& v, idx_t i, const T& s, const bool check_first)
 {
-    auto desc = inst.getDescription();
-    auto nv = desc->getNv();
-    auto info = desc->getInfo();
-    auto np = info.getNumberOfParameters();
-    auto total_number = info.getTotalNumber();
+    const auto desc = inst.getDescription();
+    const auto nv = desc->getNv();
+    const auto info = desc->getInfo();
+    const auto np = info.getNumberOfParameters();
+    const auto total_number = info.getTotalNumber();
 
+    std::cerr << "inst order " <<  inst.order() <<  std::endl;
     if(check_first) {
 	if(i < nv){
 	    std::stringstream strm;
@@ -252,7 +261,7 @@ struct AddMethods
 		set_variable(inst, v, i, s, check_first);
 	    },
 		"set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
-		py::arg("value"), py::arg("index_of_variable") = 0, py::arg("scale") = 0, py::arg("check_first") = true
+		py::arg("value"), py::arg("index_of_variable") = 1, py::arg("scale") = 0, py::arg("check_first") = true
 		)
             .def("deriv",          [](const Cls& inst, int iv){
 		using namespace gtpsa::python;
