@@ -252,7 +252,7 @@ struct AddMethods
 		set_variable(inst, v, i, s, check_first);
 	    },
 		"set the variable to value and gradient at index of variable to 1. v:= scale * this->v + value",
-		py::arg("value"), py::arg("index_of_variable") = 0, py::arg("scale") = 0, py::arg("check_first") = true
+		py::arg("value"), py::arg("index_of_variable") = 1, py::arg("scale") = 0, py::arg("check_first") = true
 		)
             .def("deriv",          [](const Cls& inst, int iv){
 		using namespace gtpsa::python;

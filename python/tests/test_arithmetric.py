@@ -133,7 +133,7 @@ def test_40_pow():
     desc = gtpsa.desc(6, 1)
     # needs to be at least 1
     t = gtpsa.tpsa(desc, 1)
-    t.set_variable(355 / 113, 2, 0)
+    t.set_variable(355 / 113)
     t.print("pi")
 
     tp = t ** 2

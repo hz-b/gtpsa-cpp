@@ -29,6 +29,24 @@ def test_set_var():
     assert np.sum(np.absolute(derivs)) == pytest.approx(0, abs=1e-12)
 
 
+def test_set_var_raises():
+    """test that exceptions are raised
+
+    Other behaviour: program stops on call to C's assert()
+    """
+    val = 355/113
+    t = gtpsa.tpsa(desc, 0)
+
+    with pytest.raises(RuntimeError):
+        t.set_variable(val)
+
+
+def test_set_var_with_defaults():
+    val = 355/113
+    t = gtpsa.tpsa(desc, 1)
+    t.set_variable(val)
+
+
 def test_set_knob_as_var():
     """Test setting a knob using variable interface
 
