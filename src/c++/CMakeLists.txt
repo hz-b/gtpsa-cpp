@@ -107,6 +107,11 @@ target_include_directories(gtpsa-c++ PUBLIC
   ${ARMADILLO_INCLUDE_DIRS}
   )
 
+set_target_properties(gtpsa-c++
+  PROPERTIES
+  SOVERSION 0.1.0
+  LIBRARY_OUTPUT_NAME gtpsa-c++
+)
 
 install(TARGETS gtpsa-c++
         EXPORT gtpsacppTargets
