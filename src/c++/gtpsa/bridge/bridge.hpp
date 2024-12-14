@@ -181,7 +181,7 @@ namespace gtpsa {
 	inline void setv(idx_t i, const std::vector<base_type> &v)       { this->m_impl.setv(i, v); }
 
 
-	 inline void setVariable(const base_type v, const idx_t iv= 0, const base_type scale = 0) {
+	 inline void setVariable(const base_type v, const idx_t iv= 1, const base_type scale = 0) {
 	     this->m_impl.setvar(v, iv, scale);
 	 }
 

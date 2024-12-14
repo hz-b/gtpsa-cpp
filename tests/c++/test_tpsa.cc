@@ -20,7 +20,10 @@ BOOST_AUTO_TEST_CASE(test10_variant_tpsa_set_var)
 {
     auto a_desc = std::make_shared<gtpsa::desc>(6, 2);
 
-    gtpsa::tpsa t0(a_desc, 0), t1(a_desc, 1);
+    gtpsa::tpsa t1(a_desc, 1);
+    // iv default was set 0, but needs to be 1
+    t1.setVariable(355 / 113, 1);
+    // iv default was set 0, but needs to be 1
     t1.setVariable(355 / 113);
 
     // the following will fail, but mad_tpsa library will call ensure ...

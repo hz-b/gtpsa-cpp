@@ -160,7 +160,7 @@ class CTpsaTypeInfo : public GTpsaTypeInfo<ctpsa_t, cpx_t, ctpsa, mad::CTpsaWrap
 	    base::setsm(m, std_complex_double_to_cpx_t(a), std_complex_double_to_cpx_t(b));
 	}
 
-	inline void setVariable(const std::complex<double> v, idx_t iv= 0, const std::complex<double> scale = 0) {
+	inline void setVariable(const std::complex<double> v, idx_t iv= 1, const std::complex<double> scale = 0) {
 	    base::setVariable( std_complex_double_to_cpx_t(v), iv, std_complex_double_to_cpx_t(scale) );
 	}
 

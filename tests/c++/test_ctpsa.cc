@@ -19,4 +19,8 @@ BOOST_AUTO_TEST_CASE(test10_variant_ctpsa_set_var)
 
     // allocation should work for both
     gtpsa::ctpsa t0(a_desc, 0), t1(a_desc, 1);
+    // call used to fail as iv default was wrong: needs to default to 1
+    t1.setVariable(355/113);
+
+    t1.setVariable(std::complex<double>(42, 1));
 }
