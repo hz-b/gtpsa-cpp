@@ -30,12 +30,12 @@ static void set_variable(Cls& inst, const T& v, idx_t i, const T& s, const bool 
     if(check_first) {
 	if(i <= 0){
 	    std::stringstream strm;
-	    strm << "index of variable must be at least 1, but was " << i;
+	    strm << "py:: index of variable must be at least 1, but was " << i;
 	    throw std::runtime_error(strm.str());
 	}
 	if(i > nv){
 	    std::stringstream strm;
-	    strm << "index of derivative must not exceed number of variables (" << nv << ") but was " << i;
+	    strm << "py:: index of derivative must not exceed number of variables (" << nv << ") but was " << i;
 	    throw std::runtime_error(strm.str());
 	}
     }
