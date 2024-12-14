@@ -36,7 +36,6 @@ def test_set_var_raises():
     """
     val = 355/113
     t = gtpsa.tpsa(desc, 0)
-
     with pytest.raises(RuntimeError):
         t.set_variable(val)
 
@@ -280,5 +279,6 @@ def test_knob_multiplication():
     assert t.get(K=2) == pytest.approx(0, abs=1e-12)
 
 if __name__ == "__main__":
+    test_set_var_raises()
     test_set_knob_as_var()
     test_get_with_kwarg()
