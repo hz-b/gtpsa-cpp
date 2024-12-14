@@ -105,7 +105,8 @@ namespace gtpsa::mad {
          */
         inline GTPSA_CLASS(Wrapper)(std::shared_ptr<desc> desc, const ord_t mo)
                 : t_desc(desc),
-                  ltm(std::make_unique<GTPSA_CLASS(LifeTimeManager)>(GTPSA_METH(newd)(desc->getPtr(), mo))) {}
+                  ltm(std::make_unique<GTPSA_CLASS(LifeTimeManager)>(GTPSA_METH(newd)(desc->getPtr(), mo)))
+	        {}
 
         /**
          *
@@ -114,7 +115,7 @@ namespace gtpsa::mad {
         inline GTPSA_CLASS(Wrapper)(const GTPSA_CLASS(Wrapper) &t, const ord_t mo)
 	    : t_desc(t.getDescription()),
 	    ltm(std::make_unique<GTPSA_CLASS(LifeTimeManager)>(GTPSA_METH(new)(t.getPtr(), mo)))
-	    {}
+ 	    {}
 
 
         /**
@@ -198,8 +199,22 @@ namespace gtpsa::mad {
 
         /**
          * @brief:
+	 * @todo mo >= 1 enforced by mad-ng, ensure marco needs to be addressed to
+	 *               throw an exception
+	 *               currently not enabled, python side checks for it
+	 *               c++ side, assume user gets report of ensure
          */
-        void setvar(const GTPSA_BASE_T v, const idx_t iv_ = 0, const GTPSA_BASE_T scl_ = 0) {
+        void setvar(const GTPSA_BASE_T v, const idx_t iv_ = 1, const GTPSA_BASE_T scl_ = 0) {
+	    //  these checks should be reported via ensure
+	    ///> @warning code dublication
+	    /*
+	    if (!(this->ord() >= 1)){
+		throw std::runtime_error("this->ord() needs to be >= 1");
+	    }
+	    if (!(0 < iv_ && iv_ <= this->getDescription()->getInfo().getNumberOfVariables())){
+		throw std::runtime_error("mo needs to be >= 1");
+	    }
+	    */
             GTPSA_METH(setvar)(this->getPtr(), v, iv_, scl_);
         }
 

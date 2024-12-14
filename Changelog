@@ -1,0 +1,8 @@
+14. December 2024 <pierre.schnizer@helmholtz-berlin.de>
+	* updated upstream to mad-ng 1.0.0
+	* some methods removed: no direct upstream correspondance
+	* method setVariable changed: index needs to be at least 1,
+	         order of tpsa object needs to be at least 1
+	         **NB** default now to one
+	python checks before calling if user does not set flag to not check,
+	c++ side deliberatyl not checking it: avoid code duplication
