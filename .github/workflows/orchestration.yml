@@ -41,3 +41,5 @@ jobs:
 
       - name: python-build
         uses: ./.github/workflows/composite-action/python-build
+
+  pypi-publish:
