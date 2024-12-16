@@ -14,14 +14,16 @@ jobs:
       with:
         python-version: "3.x"
     - name: Install pypa/build
-      run:  python3 -m pip install build --user
+      run: python3 -m pip install build --user
     - name: Build a source tarball (wheel would have to be manylinux )
-      run: python3 -m build --sdist ./python/
+      run: |
+        python3 -m build --sdist ./python/ --outdir ./dist/
+        find . -name '*.tar.gz'
     - name: Store the distribution packages
       uses: actions/upload-artifact@v4
       with:
         name: python-package-distributions
-        path: python/dist/
+        path: dist/
 
   publish-to-pypi:
     name: Publish gtpsa distribution to PyPI
@@ -40,7 +42,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: python-package-distributions
-        path: python/dist/
+        path: dist/
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
 
@@ -59,11 +61,11 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: python-package-distributions
-        path: python/dist/
+        path: dist/
     - name: Sign the dists with Sigstore
       uses: sigstore/gh-action-sigstore-python@v3.0.0
       with:
-        inputs: ./python/dist/*.tar.gz
+        inputs: ./dist/*.tar.gz
     - name: Create GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
