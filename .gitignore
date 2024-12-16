@@ -1,8 +1,12 @@
 # emacs generated files
 *~
 
+.idea/
+venv/
 # build directory
 build/
+build_*/
+build-*/
 
 # Prerequisites
 *.d
